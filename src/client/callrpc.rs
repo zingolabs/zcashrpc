@@ -3,7 +3,10 @@ macro_rules! rpc_call {
         {
             let args = vec![
                 $(
-                    serde_json::to_value($arg)?
+                    match serde_json::to_value($arg) {
+                        Ok(val) => val,
+                        Err(_) => panic!("Invalid arg passed to {}", stringify!($rpcname)),
+                    }
                 ),*
             ];
 

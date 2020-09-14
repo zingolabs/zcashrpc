@@ -5,13 +5,23 @@ pub mod subcomponents;
 pub mod utils;
 
 use self::subcomponents::{
-    GetBlockChainInfoResponse, GetInfoResponse, ZGetNewAddressResponse,
+    GenerateResponse, GetBlockChainInfoResponse, GetInfoResponse,
+    ZGetNewAddressResponse,
 };
 use crate::ResponseResult;
 use reqwest;
 use serde::de::DeserializeOwned;
 use std::future::Future;
 use std::ops::RangeFrom;
+
+macro_rules! define_rpcs {($($call:ident $camel_call_resp:ident$(($($arg:ident: $type:ty),+))?),+ ) =>
+    {$(pub fn $call(
+            &mut self,
+            $($($arg: $type),+)?
+    ) -> impl Future<Output = ResponseResult<$camel_call_resp>> {
+        rpc_call!(self.$call($($($arg),+)?))
+    })+}
+}
 
 /// A `Client` is used to make multiple requests to a specific zcashd RPC server. Requests are invoked by async methods that correspond to `zcashd` RPC API method names with request-specific parameters. Each such method has an associated response type.
 pub struct Client {
@@ -34,24 +44,11 @@ impl Client {
         }
     }
 
-    // RPC methods:
-    pub fn getinfo(
-        &mut self,
-    ) -> impl Future<Output = ResponseResult<GetInfoResponse>> {
-        rpc_call!(self.getinfo())
-    }
-
-    pub fn z_getnewaddress(
-        &mut self,
-    ) -> impl Future<Output = ResponseResult<ZGetNewAddressResponse>> {
-        rpc_call!(self.z_getnewaddress())
-    }
-
-    pub fn getblockchaininfo(
-        &mut self,
-    ) -> impl Future<Output = ResponseResult<GetBlockChainInfoResponse>> {
-        rpc_call!(self.getblockchaininfo())
-    }
+    define_rpcs!(getinfo GetInfoResponse,
+        getblockchaininfo GetBlockChainInfoResponse,
+        z_getnewaddress ZGetNewAddressResponse,
+        generate GenerateResponse (how_many: u32)
+    );
 }
 
 impl Client {
