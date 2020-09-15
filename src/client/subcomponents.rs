@@ -24,6 +24,8 @@ pub struct GetInfoResponse {
     walletversion: u64,
 }
 
+pub type GenerateResponse = Vec<String>;
+
 pub mod getblockchaininfo {
     use crate::ZecAmount;
     use serde::{Deserialize, Serialize};
