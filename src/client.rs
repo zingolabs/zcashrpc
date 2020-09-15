@@ -14,15 +14,6 @@ use serde::de::DeserializeOwned;
 use std::future::Future;
 use std::ops::RangeFrom;
 
-macro_rules! define_rpcs {($($call:ident $camel_call_resp:ident$(($($arg:ident: $type:ty),+))?),+ ) =>
-    {$(pub fn $call(
-            &mut self,
-            $($($arg: $type),+)?
-    ) -> impl Future<Output = ResponseResult<$camel_call_resp>> {
-        rpc_call!(self.$call($($($arg),+)?))
-    })+}
-}
-
 /// A `Client` is used to make multiple requests to a specific zcashd RPC server. Requests are invoked by async methods that correspond to `zcashd` RPC API method names with request-specific parameters. Each such method has an associated response type.
 pub struct Client {
     url: String,
@@ -44,11 +35,12 @@ impl Client {
         }
     }
 
-    define_rpcs!(getinfo GetInfoResponse,
-        getblockchaininfo GetBlockChainInfoResponse,
-        z_getnewaddress ZGetNewAddressResponse,
-        generate GenerateResponse (how_many: u32)
-    );
+    zcashrpc_macros::declare_rpc_client_methods! {
+        GetInfo,
+        GetBlockChainInfo,
+        ZGetNewAddress,
+        Generate (how_many: u32),
+    }
 }
 
 impl Client {

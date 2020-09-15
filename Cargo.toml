@@ -10,6 +10,7 @@ members = ["zcash-rcli", "zcashrpc-macros"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+zcashrpc-macros = { path = "zcashrpc-macros" }
 tokio = { version = "*", features = ["macros"] }
 reqwest = { version = "*", features = ["json"] }
 serde = { version = "*", features = ["derive"] }
@@ -18,10 +19,14 @@ derive_more = "*"
 base64 = "*"
 eyre = "*"
 dirs = { version = "*", optional = true }
-
-[dev-dependencies]
+proc-macro2 = "1.0"
+quote = "1.0"
 cfg-if = "0.1.10"
 
 [features]
 default = ["cookie-finder"]
 cookie-finder = ["dirs"]
+
+[[test]]
+name = "zcashrpc-smoke-tests"
+doc = true
