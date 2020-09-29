@@ -98,3 +98,56 @@ pub mod getblockchaininfo {
 pub use self::getblockchaininfo::GetBlockChainInfoResponse;
 pub type ZGetNewAddressResponse = String;
 pub type GenerateResponse = Vec<String>;
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn serialize_and_deserialize_empty() {
+        let foo = "";
+        let jfoo = serde_json::json!(foo);
+        assert_eq!(foo, jfoo);
+        assert_ne!(format!("{}", jfoo), format!("{}", foo));
+    }
+
+    #[test]
+    fn serialize_and_deserialize_getinfo_response() {
+        use rust_decimal::Decimal;
+        use std::str::FromStr as _;
+        let example_get_info_result = super::GetInfoResponse {
+            balance: Decimal::from_str("3201.875").unwrap(),
+            blocks: Decimal::from_str("1107").unwrap(),
+            connections: Decimal::from_str("0").unwrap(),
+            difficulty: Decimal::from_str("1.00000202656215").unwrap(),
+            errors: "WARNING: ...".to_string(),
+            keypoololdest: Decimal::from_str("1598484639").unwrap(),
+            keypoolsize: Decimal::from_str("101").unwrap(),
+            paytxfee: Decimal::from_str("0").unwrap(),
+            protocolversion: Decimal::from_str("170012").unwrap(),
+            proxy: "".to_string(),
+            relayfee: Decimal::from_str("0.000001").unwrap(),
+            testnet: false,
+            timeoffset: Decimal::from_str("0").unwrap(),
+            version: Decimal::from_str("4000025").unwrap(),
+            walletversion: Decimal::from_str("60000").unwrap(),
+        };
+    }
+
+    #[test]
+    fn read_json_from_file() {
+        use std::path::Path;
+        let filename = &std::fs::canonicalize(Path::new(file!())).unwrap();
+        let thisfile = Path::new(filename);
+        let package_root = thisfile
+            .parent()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .parent()
+            .unwrap();
+        let getinfo_resp_json =
+            package_root.join("json_data/GetInfoResponse.json");
+        dbg!(&getinfo_resp_json);
+        let file = std::fs::File::open(getinfo_resp_json).unwrap();
+        dbg!(file);
+    }
+}
