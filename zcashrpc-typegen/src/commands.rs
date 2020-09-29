@@ -4,19 +4,20 @@
 //!
 //! The default application comes with two subcommands:
 //!
-//! - `start`: launches the application
+//! - `generate`: launches the application
 //! - `version`: print application version
 //!
 //! See the `impl Configurable` below for how to specify the path to the
 //! application's configuration file.
 
-mod start;
+mod generate;
 mod version;
 
-use self::{start::StartCmd, version::VersionCmd};
+use self::{generate::GenerateCmd, version::VersionCmd};
 use crate::config::ZcashrpcTypegenConfig;
 use abscissa_core::{
-    config::Override, Command, Configurable, FrameworkError, Help, Options, Runnable,
+    config::Override, Command, Configurable, FrameworkError, Help, Options,
+    Runnable,
 };
 use std::path::PathBuf;
 
@@ -30,9 +31,9 @@ pub enum ZcashrpcTypegenCmd {
     #[options(help = "get usage information")]
     Help(Help<Self>),
 
-    /// The `start` subcommand
-    #[options(help = "start the application")]
-    Start(StartCmd),
+    /// The `generate` subcommand
+    #[options(help = "generate the application")]
+    Generate(GenerateCmd),
 
     /// The `version` subcommand
     #[options(help = "display version information")]
@@ -65,7 +66,7 @@ impl Configurable<ZcashrpcTypegenConfig> for ZcashrpcTypegenCmd {
         config: ZcashrpcTypegenConfig,
     ) -> Result<ZcashrpcTypegenConfig, FrameworkError> {
         match self {
-            ZcashrpcTypegenCmd::Start(cmd) => cmd.override_config(config),
+            ZcashrpcTypegenCmd::Generate(cmd) => cmd.override_config(config),
             _ => Ok(config),
         }
     }
