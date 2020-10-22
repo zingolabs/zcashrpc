@@ -33,7 +33,12 @@ fn error_handle_run(
     let config = app_config();
     for file in std::fs::read_dir(&config.input).unwrap() {
         let (file_name, file_body) = get_data(file?)?;
-        println!("{:#?}, {:#?}", file_name, file_body);
+        println!("Parsed input: {:#?}, {:#?}", file_name, file_body);
+        let name = file_name.strip_suffix(".json").unwrap().to_string();
+        match file_body {
+            serde_json::Value::Object(obj) => typegen(obj, name),
+            val @ _ => alias(val, name),
+        };
     }
     Ok(())
 }
@@ -48,4 +53,46 @@ fn get_data(
     file.read_to_string(&mut file_body);
     let file_body = serde_json::de::from_str(&file_body)?;
     Ok((file_name, file_body))
+}
+
+fn typegen(
+    data: serde_json::Map<String, serde_json::Value>,
+    name: String,
+) -> Result<(), Box<dyn std::error::Error>> {
+    for field in sort_and_iter(data) {
+        println!("Got field: {}, {}", field.0, field.1);
+    }
+    todo!("Can't generate anything yet")
+}
+
+fn alias(
+    data: serde_json::Value,
+    name: String,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let type_body = match data {
+        serde_json::Value::Number(_) => quote::quote!(rust_decimal::Decimal),
+        serde_json::Value::Bool(_) => quote::quote!(bool),
+        serde_json::Value::Array(vec) => todo!("Can't alias vecs yet"),
+        serde_json::Value::Null => {
+            return Err(String::from("Unexpected null value").into())
+        }
+        serde_json::Value::Object(_) => {
+            unreachable!("We should never alias an object type")
+        }
+        serde_json::Value::String(_) => quote::quote!(String),
+    };
+    let aliased = quote::quote!(
+        pub type #name: $type_body;
+    );
+    println!("{}", aliased.to_string());
+
+    todo!("Can't alias types yet!")
+}
+
+fn sort_and_iter(
+    obj: serde_json::Map<String, serde_json::Value>,
+) -> impl Iterator<Item = (String, serde_json::Value)> {
+    let mut obj: Vec<(String, serde_json::Value)> = obj.into_iter().collect();
+    obj.sort_unstable_by_key(|(k, v)| k.clone());
+    obj.into_iter()
 }
