@@ -4,8 +4,7 @@
 /// accessors along with logging macros. Customize as you see fit.
 use crate::prelude::*;
 
-use crate::config::ZcashrpcTypegenConfig;
-use abscissa_core::{config, Command, FrameworkError, Options, Runnable};
+use abscissa_core::{Options, Runnable};
 
 /// `generate` subcommand
 ///
@@ -24,29 +23,29 @@ pub struct GenerateCmd {
 impl Runnable for GenerateCmd {
     /// Start the application.
     fn run(&self) {
-        let config = app_config();
-        /*        let output = "src/client/subcomponents";
-                let inputs = get_input("json_data");
-                for item in inputs {
-                    item.parse_type().write_to(output);
-                }
-        */
-        println!("Hello, {}!", &config.hello.recipient);
+        error_handle_run(self);
     }
 }
 
-impl config::Override<ZcashrpcTypegenConfig> for GenerateCmd {
-    // Process the given command line options, overriding settings from
-    // a configuration file using explicit flags taken from command-line
-    // arguments.
-    fn override_config(
-        &self,
-        mut config: ZcashrpcTypegenConfig,
-    ) -> Result<ZcashrpcTypegenConfig, FrameworkError> {
-        if !self.recipient.is_empty() {
-            config.hello.recipient = self.recipient.join(" ");
-        }
-
-        Ok(config)
+fn error_handle_run(
+    cmd: &GenerateCmd,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let config = app_config();
+    for file in std::fs::read_dir(&config.input).unwrap() {
+        let (file_name, file_body) = get_data(file?)?;
+        println!("{:#?}, {:#?}", file_name, file_body);
     }
+    Ok(())
+}
+
+fn get_data(
+    file: std::fs::DirEntry,
+) -> Result<(String, serde_json::Value), Box<dyn std::error::Error>> {
+    let file_name = file.file_name().to_string_lossy().to_string();
+    let mut file = std::fs::File::open(file.path())?;
+    let mut file_body = String::new();
+    use std::io::Read as _;
+    file.read_to_string(&mut file_body);
+    let file_body = serde_json::de::from_str(&file_body)?;
+    Ok((file_name, file_body))
 }

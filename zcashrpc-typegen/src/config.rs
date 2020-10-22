@@ -11,7 +11,8 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 pub struct ZcashrpcTypegenConfig {
     /// An example configuration section
-    pub hello: ExampleSection,
+    pub input: Box<std::path::Path>,
+    pub output: Box<std::path::Path>,
 }
 
 /// Default configuration settings.
@@ -21,25 +22,10 @@ pub struct ZcashrpcTypegenConfig {
 impl Default for ZcashrpcTypegenConfig {
     fn default() -> Self {
         Self {
-            hello: ExampleSection::default(),
-        }
-    }
-}
-
-/// Example configuration section.
-///
-/// Delete this and replace it with your actual configuration structs.
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub struct ExampleSection {
-    /// Example configuration value
-    pub recipient: String,
-}
-
-impl Default for ExampleSection {
-    fn default() -> Self {
-        Self {
-            recipient: "world".to_owned(),
+            input: Box::from(std::path::Path::new("../json_data")),
+            output: Box::from(std::path::Path::new(
+                "../src/client/subcommands",
+            )),
         }
     }
 }

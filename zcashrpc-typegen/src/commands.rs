@@ -15,10 +15,7 @@ mod version;
 
 use self::{generate::GenerateCmd, version::VersionCmd};
 use crate::config::ZcashrpcTypegenConfig;
-use abscissa_core::{
-    config::Override, Command, Configurable, FrameworkError, Help, Options,
-    Runnable,
-};
+use abscissa_core::{Command, Configurable, Help, Options, Runnable};
 use std::path::PathBuf;
 
 /// ZcashrpcTypegen Configuration Filename
@@ -53,21 +50,6 @@ impl Configurable<ZcashrpcTypegenConfig> for ZcashrpcTypegenCmd {
             Some(filename)
         } else {
             None
-        }
-    }
-
-    /// Apply changes to the config after it's been loaded, e.g. overriding
-    /// values in a config file using command-line options.
-    ///
-    /// This can be safely deleted if you don't want to override config
-    /// settings from command-line options.
-    fn process_config(
-        &self,
-        config: ZcashrpcTypegenConfig,
-    ) -> Result<ZcashrpcTypegenConfig, FrameworkError> {
-        match self {
-            ZcashrpcTypegenCmd::Generate(cmd) => cmd.override_config(config),
-            _ => Ok(config),
         }
     }
 }
