@@ -10,6 +10,7 @@ serde = { version = "1", features = ["serde_derive"] }
 serde_json = "*"
 thiserror = "1"
 quote = "1.0.7"
+proc-macro2 = "*"
 
 [dependencies.abscissa_core]
 version = "0.5.2"

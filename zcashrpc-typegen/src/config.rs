@@ -24,7 +24,7 @@ impl Default for ZcashrpcTypegenConfig {
         Self {
             input: Box::from(std::path::Path::new("../json_data")),
             output: Box::from(std::path::Path::new(
-                "../src/client/subcommands",
+                "../src/client/subcomponents.rs",
             )),
         }
     }
