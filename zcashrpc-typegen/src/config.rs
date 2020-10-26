@@ -10,8 +10,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ZcashrpcTypegenConfig {
-    /// An example configuration section
+    /// Path to the default directory or file to read json from
     pub input: Box<std::path::Path>,
+    /// Path to the default location to print our rust code to
     pub output: Box<std::path::Path>,
 }
 

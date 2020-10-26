@@ -31,10 +31,10 @@ impl Runnable for GenerateCmd {
 }
 
 fn error_handle_run(
-    cmd: &GenerateCmd,
+    _cmd: &GenerateCmd,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let config = app_config();
-    std::fs::File::create(&config.output);
+    std::fs::File::create(&config.output)?;
     for file in std::fs::read_dir(&config.input).unwrap() {
         let (file_name, file_body) = get_data(file?)?;
         println!("Parsed input: {:#?}, {:#?}", file_name, file_body);
@@ -150,7 +150,7 @@ fn sort_and_iter(
     obj: serde_json::Map<String, serde_json::Value>,
 ) -> impl Iterator<Item = (String, serde_json::Value)> {
     let mut obj: Vec<(String, serde_json::Value)> = obj.into_iter().collect();
-    obj.sort_unstable_by_key(|(k, v)| k.clone());
+    obj.sort_unstable_by_key(|(k, _v)| k.clone());
     obj.into_iter()
 }
 
