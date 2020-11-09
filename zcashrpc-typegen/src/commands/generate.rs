@@ -26,11 +26,11 @@ pub struct GenerateCmd {
 impl Runnable for GenerateCmd {
     /// Start the application.
     fn run(&self) {
-        println!("{:#?}", error_handle_run(self));
+        println!("{:#?}", wrapper_fn_to_enable_question_mark(self));
     }
 }
 
-fn error_handle_run(
+fn wrapper_fn_to_enable_question_mark(
     _cmd: &GenerateCmd,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let config = app_config();
@@ -41,7 +41,7 @@ fn error_handle_run(
         let name = file_name.strip_suffix(".json").unwrap().to_string();
         match file_body {
             serde_json::Value::Object(obj) => typegen(obj, &name),
-            val @ _ => alias(val, name),
+            val => alias(val, name),
         }?;
     }
     Ok(())
@@ -64,7 +64,14 @@ fn typegen(
     name: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut code = Vec::new();
-    for field in sort_and_iter(data) {
+    let data_items = data.into_iter().fold(
+        std::collections::BTreeMap::new(),
+        |mut ret, (key, value)| {
+            ret.insert(key, value);
+            ret
+        },
+    );
+    for field in data_items {
         println!("Got field: {}, {}", field.0, field.1);
         let (field_name, val) = field;
         let key = proc_macro2::Ident::new(
@@ -98,6 +105,9 @@ fn alias(
     data: serde_json::Value,
     name: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    if let serde_json::Value::Object(_) = data {
+        unimplemented!("We don't want to create struct aliases.")
+    }
     let name = proc_macro2::Ident::new(&name, proc_macro2::Span::call_site());
     let type_body = quote_value(None, data)?;
     let aliased = quote::quote!(
@@ -144,14 +154,6 @@ fn quote_value(
         }
         serde_json::Value::String(_) => quote::quote!(String),
     })
-}
-
-fn sort_and_iter(
-    obj: serde_json::Map<String, serde_json::Value>,
-) -> impl Iterator<Item = (String, serde_json::Value)> {
-    let mut obj: Vec<(String, serde_json::Value)> = obj.into_iter().collect();
-    obj.sort_unstable_by_key(|(k, _v)| k.clone());
-    obj.into_iter()
 }
 
 fn to_camel_case(input: &str) -> String {
