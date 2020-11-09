@@ -29,7 +29,7 @@ pub enum ZcashrpcTypegenCmd {
     Help(Help<Self>),
 
     /// The `generate` subcommand
-    #[options(help = "generate the application")]
+    #[options(help = "generate types")]
     Generate(GenerateCmd),
 
     /// The `version` subcommand

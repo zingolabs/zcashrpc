@@ -14,6 +14,10 @@ pub struct ZcashrpcTypegenConfig {
     pub input: Box<std::path::Path>,
     /// Path to the default location to print our rust code to
     pub output: Box<std::path::Path>,
+    ///Fields to be marked as optional, if present
+    pub optional_if_present: Vec<String>,
+    ///fields to be added if not already present
+    pub add_if_missing: Vec<(String, Vec<String>)>,
 }
 
 /// Default configuration settings.
@@ -27,6 +31,8 @@ impl Default for ZcashrpcTypegenConfig {
             output: Box::from(std::path::Path::new(
                 "../src/client/subcomponents.rs",
             )),
+            optional_if_present: Vec::new(),
+            add_if_missing: Vec::new(),
         }
     }
 }
