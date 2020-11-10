@@ -17,7 +17,15 @@ pub struct ZcashrpcTypegenConfig {
     ///Fields to be marked as optional, if present
     pub optional_if_present: Vec<String>,
     ///fields to be added if not already present
-    pub add_if_missing: Vec<(String, Vec<String>)>,
+    pub add_if_missing: MissingTypes,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, Default)]
+pub struct MissingTypes {
+    pub data: std::collections::BTreeMap<
+        String,
+        std::collections::BTreeMap<String, String>,
+    >,
 }
 
 /// Default configuration settings.
@@ -32,7 +40,7 @@ impl Default for ZcashrpcTypegenConfig {
                 "../src/client/subcomponents.rs",
             )),
             optional_if_present: Vec::new(),
-            add_if_missing: Vec::new(),
+            add_if_missing: MissingTypes::default(),
         }
     }
 }

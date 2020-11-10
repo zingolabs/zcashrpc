@@ -20,17 +20,17 @@ pub struct GenerateCmd {
     help: bool,
 
     #[options(
-        long = "optional",
-        meta = "[FIELDNAME]",
+        long = "optionals",
+        meta = "[FIELD]",
         help = "field names here are optional"
     )]
     optional_if_present: Vec<String>,
 
     #[options(
-        long = "missing",
+        no_long,
         short = "m",
-        meta = "[STRUCTNAME:[]]",
-        help = "the named structs have the named fields added, if not present"
+        meta = "[STRUCT@[FIELD TYPE+];]",
+        help = "the named structs have the named fields added, overriding if needed. Note that whitespace in types will fail, use for example Result<String,String>"
     )]
     add_if_missing: String,
 }
@@ -40,10 +40,11 @@ impl Runnable for GenerateCmd {
     fn run(&self) {
         if self.help {
             println!("Env args: {:?}", std::env::args());
+            println!("usage method: {}", <Self as Options>::usage());
             let usage = abscissa_core::command::Usage::for_command::<Self>();
-            println!("Info:");
+            println!("print_info:");
             usage.print_info();
-            println!("Usage:");
+            println!("print_usage:");
             usage.print_usage();
             println!("usage struct: {:#?}", usage);
         } else {
@@ -54,7 +55,7 @@ impl Runnable for GenerateCmd {
 
 fn parse_struct_and_field(
     input: &str,
-) -> Result<Vec<(String, Vec<String>)>, abscissa_core::FrameworkError> {
+) -> Result<crate::config::MissingTypes, abscissa_core::FrameworkError> {
     let none_to_err = || {
         abscissa_core::error::context::Context::new(
             abscissa_core::FrameworkErrorKind::ParseError,
@@ -64,15 +65,29 @@ fn parse_struct_and_field(
         )
     };
 
-    let mut ret = Vec::new();
+    let mut ret = crate::config::MissingTypes::default();
     for item in input.split_terminator(';') {
-        let mut struct_and_field = item.split(':');
+        let mut struct_and_field = item.split('@');
         let (object, fields) = (
             struct_and_field.next().ok_or_else(none_to_err)?,
             struct_and_field.next().ok_or_else(none_to_err)?,
         );
-        let fields = fields.split(',').map(|x| x.to_string()).collect();
-        ret.push((object.to_string(), fields));
+        let fields = fields
+            .split('+')
+            .map(|x| {
+                let mut x = x.split_whitespace();
+                match (x.next(), x.next()) {
+                    (Some(s), Some(t)) => Ok(vec![s, t]),
+                    _ => {
+                        Err(abscissa_core::FrameworkError::from(none_to_err()))
+                    }
+                }
+            })
+            .collect::<Result<Vec<Vec<_>>, _>>()?
+            .iter()
+            .map(|x| (x[0].to_string(), x[1].to_string()))
+            .collect::<std::collections::BTreeMap<String, String>>();
+        ret.data.insert(object.to_string(), fields);
     }
     Ok(ret)
 }
@@ -95,7 +110,8 @@ impl abscissa_core::config::Override<crate::config::ZcashrpcTypegenConfig>
             .append(&mut self.optional_if_present.clone());
         config
             .add_if_missing
-            .append(&mut parse_struct_and_field(&self.add_if_missing)?);
+            .data
+            .append(&mut parse_struct_and_field(&self.add_if_missing)?.data);
 
         Ok(config)
     }
@@ -105,6 +121,7 @@ fn wrapper_fn_to_enable_question_mark(
     _cmd: &GenerateCmd,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let config = crate::prelude::app_config();
+    println!("Optional fields: {:?}", config.optional_if_present);
     std::fs::File::create(&config.output)?;
     for file in std::fs::read_dir(&config.input).unwrap() {
         let (file_name, file_body) = get_data(file?)?;
@@ -142,22 +159,38 @@ fn typegen(
             ret
         },
     );
-    for field in data_items {
-        println!("Got field: {}, {}", field.0, field.1);
-        let (field_name, val) = field;
+    for (field_name, val) in data_items {
+        if let Some(current_struct) =
+            crate::prelude::app_config().add_if_missing.data.get(name)
+        {
+            if let Some(field_specified) = current_struct.get(&field_name) {
+                continue;
+            }
+        }
+        println!("Got field: {}, {}", field_name, val);
         let key = proc_macro2::Ident::new(
             &field_name,
             proc_macro2::Span::call_site(),
         );
-        let val = quote_value(Some(&to_camel_case(&field_name)), val)?;
-        let mut added_code = quote::quote!(pub #key: #val,);
+        let mut val = quote_value(Some(&to_camel_case(&field_name)), val)?;
         if crate::prelude::app_config()
             .optional_if_present
             .contains(&field_name)
         {
-            added_code = quote::quote!(Option<#added_code>)
+            println!("Optional field: {}", field_name);
+            val = quote::quote!(Option<#val>)
         }
+        let added_code = quote::quote!(pub #key: #val,);
         code.push(added_code);
+    }
+    if let Some(to_add) =
+        crate::prelude::app_config().add_if_missing.data.get(name)
+    {
+        for (field_name, val) in to_add {
+            let field_name = field_name.parse::<proc_macro2::TokenStream>()?;
+            let val = val.parse::<proc_macro2::TokenStream>()?;
+            code.push(quote::quote!(pub #field_name: #val,));
+        }
     }
 
     let ident = proc_macro2::Ident::new(name, proc_macro2::Span::call_site());
