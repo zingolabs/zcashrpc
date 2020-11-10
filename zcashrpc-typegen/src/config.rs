@@ -17,7 +17,7 @@ pub struct ZcashrpcTypegenConfig {
     ///Fields to be marked as optional, if present
     pub optional_if_present: Vec<String>,
     ///fields to be added if not already present
-    pub add_if_missing: MissingTypes,
+    pub add_or_override: MissingTypes,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, Default)]
@@ -40,7 +40,7 @@ impl Default for ZcashrpcTypegenConfig {
                 "../src/client/subcomponents.rs",
             )),
             optional_if_present: Vec::new(),
-            add_if_missing: MissingTypes::default(),
+            add_or_override: MissingTypes::default(),
         }
     }
 }

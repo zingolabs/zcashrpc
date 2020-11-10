@@ -32,7 +32,7 @@ pub struct GenerateCmd {
         meta = "[STRUCT@[FIELD TYPE+];]",
         help = "the named structs have the named fields added, overriding if needed. Note that whitespace in types will fail, use for example Result<String,String>"
     )]
-    add_if_missing: String,
+    add_or_override: String,
 }
 
 impl Runnable for GenerateCmd {
@@ -60,7 +60,7 @@ fn parse_struct_and_field(
         abscissa_core::error::context::Context::new(
             abscissa_core::FrameworkErrorKind::ParseError,
             Some(Box::<dyn std::error::Error + Send + Sync>::from(
-                String::from("invalid add_if_missing syntax"),
+                String::from("invalid add_or_override syntax"),
             )),
         )
     };
@@ -109,9 +109,9 @@ impl abscissa_core::config::Override<crate::config::ZcashrpcTypegenConfig>
             .optional_if_present
             .append(&mut self.optional_if_present.clone());
         config
-            .add_if_missing
+            .add_or_override
             .data
-            .append(&mut parse_struct_and_field(&self.add_if_missing)?.data);
+            .append(&mut parse_struct_and_field(&self.add_or_override)?.data);
 
         Ok(config)
     }
@@ -161,7 +161,7 @@ fn typegen(
     );
     for (field_name, val) in data_items {
         if let Some(current_struct) =
-            crate::prelude::app_config().add_if_missing.data.get(name)
+            crate::prelude::app_config().add_or_override.data.get(name)
         {
             if let Some(field_specified) = current_struct.get(&field_name) {
                 continue;
@@ -184,7 +184,7 @@ fn typegen(
         code.push(added_code);
     }
     if let Some(to_add) =
-        crate::prelude::app_config().add_if_missing.data.get(name)
+        crate::prelude::app_config().add_or_override.data.get(name)
     {
         for (field_name, val) in to_add {
             let field_name = field_name.parse::<proc_macro2::TokenStream>()?;
