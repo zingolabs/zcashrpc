@@ -1,4 +1,7 @@
-//! `generate` subcommand - example of how to write a subcommand
+//! `generate` subcommand - take a directory of JSON files, map their contents
+//! to serde_json::Values, and transform those into structs.
+//! These structs represent Responses from JSON-RPC calls on the zcashd rpc
+//! server.
 
 /// App-local prelude includes `app_reader()`/`app_writer()`/`app_config()`
 /// accessors along with logging macros. Customize as you see fit.

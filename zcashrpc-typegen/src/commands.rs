@@ -4,7 +4,7 @@
 //!
 //! The default application comes with two subcommands:
 //!
-//! - `generate`: launches the application
+//! - `generate`: creates a set of zcashrpc subcomponent "Response" structs
 //! - `version`: print application version
 //!
 //! See the `impl Configurable` below for how to specify the path to the
