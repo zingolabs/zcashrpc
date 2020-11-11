@@ -164,6 +164,7 @@ fn typegen(
             crate::prelude::app_config().add_or_override.data.get(name)
         {
             if let Some(field_specified) = current_struct.get(&field_name) {
+                dbg!(field_specified);
                 continue;
             }
         }
