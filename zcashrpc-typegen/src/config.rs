@@ -20,8 +20,10 @@ pub struct ZcashrpcTypegenConfig {
     pub add_or_override: MissingTypes,
 }
 
+/// Todo:  DOC this type!
 #[derive(Clone, Debug, Deserialize, Serialize, Default)]
 pub struct MissingTypes {
+    /// TODO:   Doc this field!
     pub data: std::collections::BTreeMap<
         String,
         std::collections::BTreeMap<String, String>,

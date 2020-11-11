@@ -43,9 +43,9 @@ impl Runnable for GenerateCmd {
             println!("usage method: {}", <Self as Options>::usage());
             let usage = abscissa_core::command::Usage::for_command::<Self>();
             println!("print_info:");
-            usage.print_info();
+            usage.print_info().expect("Called for side effect!");
             println!("print_usage:");
-            usage.print_usage();
+            usage.print_usage().expect("Called for side effect!");
             println!("usage struct: {:#?}", usage);
         } else {
             println!("{:#?}", wrapper_fn_to_enable_question_mark(self));

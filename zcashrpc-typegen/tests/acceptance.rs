@@ -20,7 +20,7 @@
 
 use abscissa_core::testing::prelude::*;
 use once_cell::sync::Lazy;
-use zcashrpc_typegen::config::ZcashrpcTypegenConfig;
+///use zcashrpc_typegen::config::ZcashrpcTypegenConfig;
 
 /// Executes your application binary via `cargo run`.
 ///
