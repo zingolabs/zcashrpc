@@ -45,7 +45,6 @@ fn wrapper_fn_to_enable_question_mark(
     _cmd: &GenerateCmd,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let config = crate::prelude::app_config();
-    println!("Optional fields: {:?}", config.optional_if_present);
     std::fs::File::create(&config.output)?;
     for file in std::fs::read_dir(&config.input).unwrap() {
         let (file_name, file_body) = get_data(file?)?;
@@ -84,38 +83,14 @@ fn typegen(
         },
     );
     for (field_name, val) in data_items {
-        if let Some(current_struct) =
-            crate::prelude::app_config().add_or_override.data.get(name)
-        {
-            if let Some(field_specified) = current_struct.get(&field_name) {
-                dbg!(field_specified);
-                continue;
-            }
-        }
         println!("Got field: {}, {}", field_name, val);
         let key = proc_macro2::Ident::new(
             &field_name,
             proc_macro2::Span::call_site(),
         );
-        let mut val = quote_value(Some(&to_camel_case(&field_name)), val)?;
-        if crate::prelude::app_config()
-            .optional_if_present
-            .contains(&field_name)
-        {
-            println!("Optional field: {}", field_name);
-            val = quote::quote!(Option<#val>)
-        }
+        let val = quote_value(Some(&to_camel_case(&field_name)), val)?;
         let added_code = quote::quote!(pub #key: #val,);
         code.push(added_code);
-    }
-    if let Some(to_add) =
-        crate::prelude::app_config().add_or_override.data.get(name)
-    {
-        for (field_name, val) in to_add {
-            let field_name = field_name.parse::<proc_macro2::TokenStream>()?;
-            let val = val.parse::<proc_macro2::TokenStream>()?;
-            code.push(quote::quote!(pub #field_name: #val,));
-        }
     }
 
     let ident = proc_macro2::Ident::new(name, proc_macro2::Span::call_site());
