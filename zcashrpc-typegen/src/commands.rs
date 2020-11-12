@@ -52,14 +52,4 @@ impl Configurable<ZcashrpcTypegenConfig> for ZcashrpcTypegenCmd {
             None
         }
     }
-    fn process_config(
-        &self,
-        config: ZcashrpcTypegenConfig,
-    ) -> Result<ZcashrpcTypegenConfig, abscissa_core::FrameworkError> {
-        use abscissa_core::config::Override as _;
-        match self {
-            ZcashrpcTypegenCmd::Generate(cmd) => cmd.override_config(config),
-            _ => Ok(config),
-        }
-    }
 }

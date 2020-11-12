@@ -21,21 +21,6 @@ type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 pub struct GenerateCmd {
     #[options(help = "print this message")]
     help: bool,
-
-    #[options(
-        long = "optionals",
-        meta = "[FIELD]",
-        help = "field names here are optional"
-    )]
-    optional_if_present: Vec<String>,
-
-    #[options(
-        no_long,
-        short = "m",
-        meta = "[STRUCT@[FIELD TYPE+];]",
-        help = "the named structs have the named fields added, overriding if needed. Note that whitespace in types will fail, use for example Result<String,String>"
-    )]
-    add_or_override: String,
 }
 
 impl Runnable for GenerateCmd {
@@ -53,70 +38,6 @@ impl Runnable for GenerateCmd {
         } else {
             println!("{:#?}", wrapper_fn_to_enable_question_mark(self));
         }
-    }
-}
-
-fn parse_struct_and_field(
-    input: &str,
-) -> Result<crate::config::MissingTypes, abscissa_core::FrameworkError> {
-    let none_to_err = || {
-        abscissa_core::error::context::Context::new(
-            abscissa_core::FrameworkErrorKind::ParseError,
-            Some(Box::<dyn std::error::Error + Send + Sync>::from(
-                String::from("invalid add_or_override syntax"),
-            )),
-        )
-    };
-
-    let mut ret = crate::config::MissingTypes::default();
-    for item in input.split_terminator(';') {
-        let mut struct_and_field = item.split('@');
-        let (object, fields) = (
-            struct_and_field.next().ok_or_else(none_to_err)?,
-            struct_and_field.next().ok_or_else(none_to_err)?,
-        );
-        let fields = fields
-            .split('+')
-            .map(|x| {
-                let mut x = x.split_whitespace();
-                match (x.next(), x.next()) {
-                    (Some(s), Some(t)) => Ok(vec![s, t]),
-                    _ => {
-                        Err(abscissa_core::FrameworkError::from(none_to_err()))
-                    }
-                }
-            })
-            .collect::<Result<Vec<Vec<_>>, _>>()?
-            .iter()
-            .map(|x| (x[0].to_string(), x[1].to_string()))
-            .collect::<std::collections::BTreeMap<String, String>>();
-        ret.data.insert(object.to_string(), fields);
-    }
-    Ok(ret)
-}
-
-impl abscissa_core::config::Override<crate::config::ZcashrpcTypegenConfig>
-    for GenerateCmd
-{
-    // Process the given command line options, overriding settings from
-    // a configuration file using explicit flags taken from command-line
-    // arguments.
-    fn override_config(
-        &self,
-        mut config: crate::config::ZcashrpcTypegenConfig,
-    ) -> Result<
-        crate::config::ZcashrpcTypegenConfig,
-        abscissa_core::FrameworkError,
-    > {
-        config
-            .optional_if_present
-            .append(&mut self.optional_if_present.clone());
-        config
-            .add_or_override
-            .data
-            .append(&mut parse_struct_and_field(&self.add_or_override)?.data);
-
-        Ok(config)
     }
 }
 
