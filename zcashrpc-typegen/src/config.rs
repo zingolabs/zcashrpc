@@ -16,16 +16,6 @@ pub struct ZcashrpcTypegenConfig {
     pub output: Box<std::path::Path>,
 }
 
-/// Todo:  DOC this type!
-#[derive(Clone, Debug, Deserialize, Serialize, Default)]
-pub struct MissingTypes {
-    /// TODO:   Doc this field!
-    pub data: std::collections::BTreeMap<
-        String,
-        std::collections::BTreeMap<String, String>,
-    >,
-}
-
 /// Default configuration settings.
 ///
 /// Note: if your needs are as simple as below, you can
