@@ -1,4 +1,7 @@
-//! `generate` subcommand - example of how to write a subcommand
+//! `generate` subcommand - take a directory of JSON files, map their contents
+//! to serde_json::Values, and transform those into structs.
+//! These structs represent Responses from JSON-RPC calls on the zcashd rpc
+//! server.
 
 /// App-local prelude includes `app_reader()`/`app_writer()`/`app_config()`
 /// accessors along with logging macros. Customize as you see fit.
@@ -18,102 +21,21 @@ type GenResult<T> = Result<T, Box<dyn std::error::Error>>;
 pub struct GenerateCmd {
     #[options(help = "print this message")]
     help: bool,
-
-    #[options(
-        long = "optionals",
-        meta = "[FIELD]",
-        help = "field names here are optional"
-    )]
-    optional_if_present: Vec<String>,
-
-    #[options(
-        no_long,
-        short = "m",
-        meta = "[STRUCT@[FIELD TYPE+];]",
-        help = "the named structs have the named fields added, overriding if needed. Note that whitespace in types will fail, use for example Result<String,String>"
-    )]
-    add_or_override: String,
 }
 
 impl Runnable for GenerateCmd {
     /// Start the application.
     fn run(&self) {
         if self.help {
-            println!("Env args: {:?}", std::env::args());
-            println!("usage method: {}", <Self as Options>::usage());
             let usage = abscissa_core::command::Usage::for_command::<Self>();
-            println!("print_info:");
             usage.print_info().expect("Called for side effect!");
-            println!("print_usage:");
             usage.print_usage().expect("Called for side effect!");
-            println!("usage struct: {:#?}", usage);
         } else {
-            println!("{:#?}", wrapper_fn_to_enable_question_mark(self));
+            match wrapper_fn_to_enable_question_mark(self) {
+                Ok(()) => (),
+                Err(e) => panic!(e.to_string()),
+            }
         }
-    }
-}
-
-fn parse_struct_and_field(
-    input: &str,
-) -> Result<crate::config::MissingTypes, abscissa_core::FrameworkError> {
-    let none_to_err = || {
-        abscissa_core::error::context::Context::new(
-            abscissa_core::FrameworkErrorKind::ParseError,
-            Some(Box::<dyn std::error::Error + Send + Sync>::from(
-                String::from("invalid add_or_override syntax"),
-            )),
-        )
-    };
-
-    let mut ret = crate::config::MissingTypes::default();
-    for item in input.split_terminator(';') {
-        let mut struct_and_field = item.split('@');
-        let (object, fields) = (
-            struct_and_field.next().ok_or_else(none_to_err)?,
-            struct_and_field.next().ok_or_else(none_to_err)?,
-        );
-        let fields = fields
-            .split('+')
-            .map(|x| {
-                let mut x = x.split_whitespace();
-                match (x.next(), x.next()) {
-                    (Some(s), Some(t)) => Ok(vec![s, t]),
-                    _ => {
-                        Err(abscissa_core::FrameworkError::from(none_to_err()))
-                    }
-                }
-            })
-            .collect::<Result<Vec<Vec<_>>, _>>()?
-            .iter()
-            .map(|x| (x[0].to_string(), x[1].to_string()))
-            .collect::<std::collections::BTreeMap<String, String>>();
-        ret.data.insert(object.to_string(), fields);
-    }
-    Ok(ret)
-}
-
-impl abscissa_core::config::Override<crate::config::ZcashrpcTypegenConfig>
-    for GenerateCmd
-{
-    // Process the given command line options, overriding settings from
-    // a configuration file using explicit flags taken from command-line
-    // arguments.
-    fn override_config(
-        &self,
-        mut config: crate::config::ZcashrpcTypegenConfig,
-    ) -> Result<
-        crate::config::ZcashrpcTypegenConfig,
-        abscissa_core::FrameworkError,
-    > {
-        config
-            .optional_if_present
-            .append(&mut self.optional_if_present.clone());
-        config
-            .add_or_override
-            .data
-            .append(&mut parse_struct_and_field(&self.add_or_override)?.data);
-
-        Ok(config)
     }
 }
 
@@ -121,7 +43,6 @@ fn wrapper_fn_to_enable_question_mark(
     _cmd: &GenerateCmd,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let config = crate::prelude::app_config();
-    println!("Optional fields: {:?}", config.optional_if_present);
     std::fs::File::create(&config.output)?;
     for file in std::fs::read_dir(&config.input).unwrap() {
         let (file_name, file_body) = get_data(file?)?;
@@ -160,38 +81,14 @@ fn typegen(
         },
     );
     for (field_name, val) in data_items {
-        if let Some(current_struct) =
-            crate::prelude::app_config().add_or_override.data.get(name)
-        {
-            if let Some(field_specified) = current_struct.get(&field_name) {
-                dbg!(field_specified);
-                continue;
-            }
-        }
         println!("Got field: {}, {}", field_name, val);
         let key = proc_macro2::Ident::new(
             &field_name,
             proc_macro2::Span::call_site(),
         );
-        let mut val = quote_value(Some(&to_camel_case(&field_name)), val)?;
-        if crate::prelude::app_config()
-            .optional_if_present
-            .contains(&field_name)
-        {
-            println!("Optional field: {}", field_name);
-            val = quote::quote!(Option<#val>)
-        }
+        let val = quote_value(Some(&to_camel_case(&field_name)), val)?;
         let added_code = quote::quote!(pub #key: #val,);
         code.push(added_code);
-    }
-    if let Some(to_add) =
-        crate::prelude::app_config().add_or_override.data.get(name)
-    {
-        for (field_name, val) in to_add {
-            let field_name = field_name.parse::<proc_macro2::TokenStream>()?;
-            let val = val.parse::<proc_macro2::TokenStream>()?;
-            code.push(quote::quote!(pub #field_name: #val,));
-        }
     }
 
     let ident = proc_macro2::Ident::new(name, proc_macro2::Span::call_site());

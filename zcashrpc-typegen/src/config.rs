@@ -14,20 +14,6 @@ pub struct ZcashrpcTypegenConfig {
     pub input: Box<std::path::Path>,
     /// Path to the default location to print our rust code to
     pub output: Box<std::path::Path>,
-    ///Fields to be marked as optional, if present
-    pub optional_if_present: Vec<String>,
-    ///fields to be added if not already present
-    pub add_or_override: MissingTypes,
-}
-
-/// Todo:  DOC this type!
-#[derive(Clone, Debug, Deserialize, Serialize, Default)]
-pub struct MissingTypes {
-    /// TODO:   Doc this field!
-    pub data: std::collections::BTreeMap<
-        String,
-        std::collections::BTreeMap<String, String>,
-    >,
 }
 
 /// Default configuration settings.
@@ -41,8 +27,6 @@ impl Default for ZcashrpcTypegenConfig {
             output: Box::from(std::path::Path::new(
                 "../src/client/subcomponents.rs",
             )),
-            optional_if_present: Vec::new(),
-            add_or_override: MissingTypes::default(),
         }
     }
 }

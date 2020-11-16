@@ -4,7 +4,7 @@
 //!
 //! The default application comes with two subcommands:
 //!
-//! - `generate`: launches the application
+//! - `generate`: creates a set of zcashrpc subcomponent "Response" structs
 //! - `version`: print application version
 //!
 //! See the `impl Configurable` below for how to specify the path to the
@@ -50,16 +50,6 @@ impl Configurable<ZcashrpcTypegenConfig> for ZcashrpcTypegenCmd {
             Some(filename)
         } else {
             None
-        }
-    }
-    fn process_config(
-        &self,
-        config: ZcashrpcTypegenConfig,
-    ) -> Result<ZcashrpcTypegenConfig, abscissa_core::FrameworkError> {
-        use abscissa_core::config::Override as _;
-        match self {
-            ZcashrpcTypegenCmd::Generate(cmd) => cmd.override_config(config),
-            _ => Ok(config),
         }
     }
 }
