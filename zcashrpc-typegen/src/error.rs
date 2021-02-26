@@ -77,14 +77,14 @@ impl From<serde_json::Value> for InvalidAnnotationKind {
 mod unit {
     use super::*;
     macro_rules! compare {
-            ($a:ident, $b:ident: $($f:ident),*) => {
+            ($a:ident, $b:ident: $($f:ident)|*) => {
                 $a.input == $b.input $(&& $a.err.$f() == $b.err.$f())*
             }
         }
 
     impl PartialEq<Self> for InvalidJsonError {
         fn eq(&self, other: &Self) -> bool {
-            compare!(self, other: line, column, classify)
+            compare!(self, other: line | column | classify)
         }
     }
     #[test]
