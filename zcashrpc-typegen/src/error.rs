@@ -100,4 +100,12 @@ mod unit {
         .unwrap_err();
         assert_eq!(TypegenError::InvalidAnnotation(expected_err), err);
     }
+    #[test]
+    fn test_invalid_terminal() {
+        let invalid_label = "NOT A VALID LABEL";
+        let expected_invalid =
+            serde_json::Value::String(invalid_label.to_string());
+        let iak = InvalidAnnotationKind::from(expected_invalid);
+        //let err = crate::quote_terminal()
+    }
 }
