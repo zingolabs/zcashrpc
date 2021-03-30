@@ -3,21 +3,21 @@
 pub mod z_gettreestate {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Commitments {
-        pub finalRoot: String,
-        pub finalState: String,
+        pub final_root: String,
+        pub final_state: String,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Sapling {
         pub commitments: Commitments,
-        pub skipHash: String,
+        pub skip_hash: String,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Sprout {
         pub commitments: Commitments,
-        pub skipHash: String,
+        pub skip_hash: String,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct Z_gettreestateResponse {
+    pub struct ZGettreestateResponse {
         pub hash: String,
         pub height: rust_decimal::Decimal,
         pub sapling: Sapling,
