@@ -28,6 +28,8 @@ jobs:
        && mv ./zcash/src/zcashd /usr/local/bin/zcashd
        && zcashd -daemon
        && cd zcashrpc
+       && rm -rf ./target
+       && cargo build --target=wasm32-unknown-unknown
        && cargo test --all
        && cd ../quizface
        && cat lists/passing.txt | xargs cargo run
