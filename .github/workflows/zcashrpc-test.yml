@@ -29,6 +29,7 @@ jobs:
        && zcashd -daemon
        && cd zcashrpc
        && rm -rf ./target
+       && rustup target add wasm32-unknown-unknown
        && cargo build --target=wasm32-unknown-unknown
        && cargo test --all
        && cd ../quizface
