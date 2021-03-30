@@ -28,15 +28,6 @@ rust_decimal = "*"
 [dev-dependencies]
 tokio = { version = "*", features = ["macros"] }
 
-[build-dependencies]
-tokio = { version = "*", features = ["macros"] }
-reqwest = { version = "0.10.8", features = ["json"] }
-serde = { version = "*", features = ["derive"] }
-dirs = { version = "*", optional = true }
-serde_json = "*"
-base64 = "*"
-
-
 [features]
 default = ["cookie-finder"]
 cookie-finder = ["dirs"]
