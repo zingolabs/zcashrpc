@@ -1,7 +1,7 @@
 [package]
 name = "zcashrpc"
 version = "0.1.0"
-authors = ["noone <noone@nowhere.net>", "Za <zancas@zingolabs.com>", "Gy <gygaxis@zingolabs.com>"]
+authors = ["Za <zancas@zingolabs.com>", "Gy <gygaxis@zingolabs.com>"]
 edition = "2018"
 
 [workspace]
