@@ -11,7 +11,6 @@ members = ["zcashrpc-macros", "zcashrpc-typegen"]
 
 [dependencies]
 zcashrpc-macros = { path = "zcashrpc-macros" }
-tokio = { version = "0.2.23", features = ["macros"] }
 reqwest = { version = "0.10.8", features = ["json"] }
 serde = { version = "*", features = ["derive"] }
 serde_derive = "*"
@@ -26,8 +25,11 @@ quote = "1.0"
 cfg-if = "0.1.10"
 rust_decimal = "*"
 
-[build-dependencies]
+[dev-dependencies]
 tokio = { version = "*", features = ["macros"] }
+
+[build-dependencies]
+tokio = { version = "0.2.23", features = ["macros"] }
 reqwest = { version = "0.10.8", features = ["json"] }
 serde = { version = "*", features = ["derive"] }
 dirs = { version = "*", optional = true }
