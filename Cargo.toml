@@ -5,7 +5,7 @@ authors = ["noone <noone@nowhere.net>", "Za <zancas@zingolabs.com>", "Gy <gygaxi
 edition = "2018"
 
 [workspace]
-members = ["zcash-rcli", "zcashrpc-macros", "zcashrpc-typegen"]
+members = ["zcashrpc-macros", "zcashrpc-typegen"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
