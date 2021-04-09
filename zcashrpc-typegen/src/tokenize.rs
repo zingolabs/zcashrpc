@@ -97,7 +97,7 @@ fn array(
     mut array_of: Vec<serde_json::Value>,
     acc: Vec<TokenStream>,
 ) -> TypegenResult<(TokenStream, Vec<TokenStream>)> {
-    let (val, acc, _terminal_enum) = value(
+    let (val, new_acc, _terminal_enum) = value(
         name,
         array_of.pop().ok_or(error::QuizfaceAnnotationError {
             kind: error::InvalidAnnotationKind::EmptyArray,
@@ -105,7 +105,7 @@ fn array(
         })?,
         acc,
     )?;
-    Ok((quote!(Vec<#val>), acc))
+    Ok((quote!(Vec<#val>), new_acc))
 }
 
 fn object(
@@ -114,14 +114,11 @@ fn object(
     acc: Vec<TokenStream>,
 ) -> TypegenResult<(TokenStream, Vec<TokenStream>)> {
     let ident = crate::callsite_ident(name);
-    let (case, acc) = crate::structgen(val, name, acc)?;
+    let (case, new_acc) = crate::structgen(val, name, acc)?;
     match case {
-        special_cases::Case::Regular => Ok((quote!(#ident), acc)),
+        special_cases::Case::Regular => Ok((quote!(#ident), new_acc)),
         special_cases::Case::FourXs => {
-            Ok((quote!(std::collections::HashMap<String, #ident>), acc))
-        }
-        otherwise => {
-            panic!("structgen should not return variant {:?}", otherwise)
+            Ok((quote!(std::collections::HashMap<String, #ident>), new_acc))
         }
     }
 }

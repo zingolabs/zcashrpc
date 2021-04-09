@@ -84,17 +84,18 @@ fn process_response(file: &std::path::Path) -> TypegenResult<TokenStream> {
     } else {
         file_name.clone()
     });
-    let name = [under_to_camel(&file_name), "Response".to_string()].concat();
+    let type_name =
+        [under_to_camel(&file_name), "Response".to_string()].concat();
     let mut output = match file_body {
         serde_json::Value::Array(mut vec) => match vec.len() {
-            0 => emptygen(&name, acc),
+            0 => emptygen(&type_name, acc),
             1 => match vec.pop().unwrap() {
                 serde_json::Value::Object(obj) => {
-                    structgen(obj, &name, acc).map(|x| x.1)?
+                    structgen(obj, &type_name, acc).map(|x| x.1)?
                 }
-                val => alias(val, &name, acc)?,
+                val => alias(val, &type_name, acc)?,
             },
-            _ => enumgen(vec, &name, acc)?,
+            _ => enumgen(vec, &type_name, acc)?,
         },
         non_array => {
             panic!("Received {}, expected array", non_array.to_string())
@@ -173,10 +174,9 @@ fn callsite_ident(name: &str) -> proc_macro2::Ident {
     proc_macro2::Ident::new(name, proc_macro2::Span::call_site())
 }
 
-fn handle_options_standalones_and_keywords(
+fn handle_options_and_keywords(
     serde_rename: &mut Option<TokenStream>,
     field_name: &mut String,
-    atomic_response: &mut bool,
     option: &mut bool,
 ) -> () {
     if special_cases::RESERVED_KEYWORDS.contains(&field_name.as_str()) {
@@ -188,13 +188,7 @@ fn handle_options_standalones_and_keywords(
         field_name.push_str("_field");
     }
 
-    if field_name.starts_with("alsoStandalone<") {
-        *field_name = field_name
-            .trim_end_matches(">")
-            .trim_start_matches("alsoStandalone<")
-            .to_string();
-        *atomic_response = false;
-    } else if field_name.starts_with("Option<") {
+    if field_name.starts_with("Option<") {
         *field_name = field_name
             .trim_end_matches(">")
             .trim_start_matches("Option<")
@@ -277,17 +271,6 @@ fn structgen(
                 }
             )
         }
-        special_cases::Case::AlsoStandaloneEnum(chaininfofalse_tokens) => {
-            // getaddressdeltas and getaddressutxos "(or, if chainInfo is true)"
-            quote!(
-                pub enum #ident {
-                    ChainInfoFalse(#chaininfofalse_tokens),
-                    ChainInfoTrue {
-                        #(#ident_val_tokens)*
-                    },
-                }
-            )
-        }
         special_cases::Case::FourXs => {
             return Ok((special_cases::Case::FourXs, acc));
         }
@@ -330,7 +313,6 @@ fn handle_fields(
 ) -> TypegenResult<FieldsInfo> {
     let mut ident_val_tokens: Vec<TokenStream> = Vec::new();
     let mut new_code = Vec::new();
-    let mut atomic_response = true;
     let mut case = special_cases::Case::Regular;
     for (mut field_name, val) in inner_nodes {
         //special case handling
@@ -342,10 +324,9 @@ fn handle_fields(
 
         let mut serde_rename = None;
         let mut option = false;
-        handle_options_standalones_and_keywords(
+        handle_options_and_keywords(
             &mut serde_rename,
             &mut field_name,
-            &mut atomic_response,
             &mut option,
         );
         field_name = camel_to_under(&field_name);
@@ -360,16 +341,6 @@ fn handle_fields(
             tokenized_val =
                 TokenStream::from_str(&format!("Option<{}>", tokenized_val))
                     .unwrap();
-        }
-
-        if atomic_response == false {
-            if let special_cases::Case::AlsoStandaloneEnum(_) = case {
-                //noop!
-            } else {
-                case = special_cases::Case::AlsoStandaloneEnum(
-                    tokenized_val.clone(),
-                );
-            }
         }
 
         let token_ident = callsite_ident(&field_name);

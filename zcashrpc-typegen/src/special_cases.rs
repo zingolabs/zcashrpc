@@ -3,7 +3,6 @@
 pub(crate) enum Case {
     Regular,
     FourXs,
-    AlsoStandaloneEnum(proc_macro2::TokenStream),
 }
 
 pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
