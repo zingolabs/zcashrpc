@@ -36,15 +36,14 @@ fn handle_terminal_enum(label: &str, name: &str) -> TokenStream {
 pub(crate) fn value(
     name: &str,
     val: serde_json::Value,
-    acc: Vec<TokenStream>,
 ) -> TypegenResult<(TokenStream, Vec<TokenStream>, bool)> {
     match val {
-        serde_json::Value::String(label) => terminal(name, label.as_str(), acc),
+        serde_json::Value::String(label) => terminal(name, label.as_str()),
         serde_json::Value::Array(vec) => {
-            array(name, vec, acc).map(|x| (x.0, x.1, false))
+            array(name, vec).map(|x| (x.0, x.1, false))
         }
         serde_json::Value::Object(obj) => {
-            object(name, obj, acc).map(|x| (x.0, x.1, false))
+            object(name, obj).map(|x| (x.0, x.1, false))
         }
         otherwise => Err(error::QuizfaceAnnotationError {
             kind: error::InvalidAnnotationKind::from(otherwise),
@@ -56,7 +55,6 @@ pub(crate) fn value(
 fn terminal(
     name: &str,
     label: &str,
-    mut acc: Vec<TokenStream>,
 ) -> TypegenResult<(TokenStream, Vec<TokenStream>, bool)> {
     Ok((
         match label {
@@ -74,8 +72,8 @@ fn terminal(
             }
             enumeration if enumeration.starts_with("ENUM:") => {
                 let ident = crate::callsite_ident(name);
-                acc.push(handle_terminal_enum(enumeration, name));
-                return Ok((quote!(#ident), acc, true));
+                let new_code = handle_terminal_enum(enumeration, name);
+                return Ok((quote!(#ident), vec![new_code], true));
             }
             otherwise => {
                 return Err(error::QuizfaceAnnotationError {
@@ -87,7 +85,7 @@ fn terminal(
                 .into())
             }
         },
-        acc,
+        Vec::new(),
         false,
     ))
 }
@@ -95,30 +93,28 @@ fn terminal(
 fn array(
     name: &str,
     mut array_of: Vec<serde_json::Value>,
-    acc: Vec<TokenStream>,
 ) -> TypegenResult<(TokenStream, Vec<TokenStream>)> {
-    let (val, new_acc, _terminal_enum) = value(
+    let (val, new_code, _terminal_enum) = value(
         name,
         array_of.pop().ok_or(error::QuizfaceAnnotationError {
             kind: error::InvalidAnnotationKind::EmptyArray,
             location: name.to_string(),
         })?,
-        acc,
     )?;
-    Ok((quote!(Vec<#val>), new_acc))
+    Ok((quote!(Vec<#val>), new_code))
 }
 
 fn object(
     name: &str,
     val: serde_json::Map<String, serde_json::Value>,
-    acc: Vec<TokenStream>,
 ) -> TypegenResult<(TokenStream, Vec<TokenStream>)> {
     let ident = crate::callsite_ident(name);
-    let (case, new_acc) = crate::structgen(val, name, acc)?;
+    let (case, inner_struct) = crate::structgen(val, name)?;
     match case {
-        special_cases::Case::Regular => Ok((quote!(#ident), new_acc)),
-        special_cases::Case::FourXs => {
-            Ok((quote!(std::collections::HashMap<String, #ident>), new_acc))
-        }
+        special_cases::Case::Regular => Ok((quote!(#ident), inner_struct)),
+        special_cases::Case::FourXs => Ok((
+            quote!(std::collections::HashMap<String, #ident>),
+            inner_struct,
+        )),
     }
 }

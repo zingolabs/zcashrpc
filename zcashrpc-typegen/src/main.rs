@@ -75,7 +75,6 @@ fn camel_to_under(name: &str) -> String {
 }
 
 fn process_response(file: &std::path::Path) -> TypegenResult<TokenStream> {
-    let acc = Vec::new();
     let (file_name, file_body) = get_data(file);
     let mod_name = callsite_ident(&if special_cases::RESERVED_KEYWORDS
         .contains(&file_name.as_ref())
@@ -88,14 +87,14 @@ fn process_response(file: &std::path::Path) -> TypegenResult<TokenStream> {
         [under_to_camel(&file_name), "Response".to_string()].concat();
     let mut output = match file_body {
         serde_json::Value::Array(mut vec) => match vec.len() {
-            0 => emptygen(&type_name, acc),
+            0 => emptygen(&type_name),
             1 => match vec.pop().unwrap() {
                 serde_json::Value::Object(obj) => {
-                    structgen(obj, &type_name, acc).map(|x| x.1)?
+                    structgen(obj, &type_name).map(|x| x.1)?
                 }
-                val => alias(val, &type_name, acc)?,
+                val => alias(val, &type_name)?,
             },
-            _ => enumgen(vec, &type_name, acc)?,
+            _ => enumgen(vec, &type_name)?,
         },
         non_array => {
             panic!("Received {}, expected array", non_array.to_string())
@@ -202,9 +201,9 @@ fn enumgen(
     //This one layer out from the map that's passed to structgen!
     //Don't let the identical type signatures fool you.
     enum_name: &str,
-    mut acc: Vec<TokenStream>,
 ) -> TypegenResult<Vec<TokenStream>> {
     assert!(inner_nodes.len() <= VARIANT_NAMES.len());
+    let mut inner_structs = Vec::new();
     let ident = callsite_ident(enum_name);
     let enum_code: Vec<TokenStream> = inner_nodes
         .into_iter()
@@ -215,7 +214,7 @@ fn enumgen(
             match value {
                 serde_json::Value::Object(obj) => {
                     let field_data = handle_fields(enum_name, obj)?;
-                    acc.extend(field_data.inner_structs);
+                    inner_structs.extend(field_data.inner_structs);
                     match field_data.case {
                         special_cases::Case::Regular => {
                             let variant_body_tokens =
@@ -232,35 +231,29 @@ fn enumgen(
                     }
                 }
                 non_object => {
-                    let (variant_body_tokens, new_acc, _terminal_enum) =
-                        tokenize::value(
-                            &variant_name,
-                            non_object,
-                            acc.clone(),
-                        )?;
-                    acc = new_acc;
+                    let (variant_body_tokens, new_structs, _terminal_enum) =
+                        tokenize::value(&variant_name, non_object)?;
+                    inner_structs.extend(new_structs);
                     Ok(quote!(#variant_name_tokens(#variant_body_tokens),))
                 }
             }
         })
         .collect::<TypegenResult<Vec<TokenStream>>>()?;
-    acc.push(quote!(
+    inner_structs.push(quote!(
             #[derive(Debug, serde::Deserialize, serde::Serialize)]
             pub enum #ident {
                 #(#enum_code)*
             }
     ));
-    Ok(acc)
+    Ok(inner_structs)
 }
 
 fn structgen(
     inner_nodes: serde_json::Map<String, serde_json::Value>,
     struct_name: &str,
-    mut acc: Vec<TokenStream>,
 ) -> TypegenResult<(special_cases::Case, Vec<TokenStream>)> {
     let ident = callsite_ident(struct_name);
     let field_data = handle_fields(struct_name, inner_nodes)?;
-    acc.extend(field_data.inner_structs);
     let mut ident_val_tokens = field_data.ident_val_tokens;
     let body = match field_data.case {
         special_cases::Case::Regular => {
@@ -272,24 +265,24 @@ fn structgen(
             )
         }
         special_cases::Case::FourXs => {
-            return Ok((special_cases::Case::FourXs, acc));
+            return Ok((special_cases::Case::FourXs, field_data.inner_structs));
         }
     };
 
-    acc.push(quote!(
+    let mut generated_code = vec![quote!(
         #[derive(Debug, serde::Deserialize, serde::Serialize)]
         #body
-    ));
-    Ok((special_cases::Case::Regular, acc))
+    )];
+    generated_code.extend(field_data.inner_structs);
+    Ok((special_cases::Case::Regular, generated_code))
 }
 
-fn emptygen(struct_name: &str, mut acc: Vec<TokenStream>) -> Vec<TokenStream> {
+fn emptygen(struct_name: &str) -> Vec<TokenStream> {
     let ident = callsite_ident(struct_name);
-    acc.push(quote!(
+    vec![quote!(
         #[derive(Debug, serde::Deserialize, serde::Serialize)]
         pub struct #ident;
-    ));
-    acc
+    )]
 }
 
 fn add_pub_keywords(tokens: &mut Vec<TokenStream>) {
@@ -317,7 +310,7 @@ fn handle_fields(
     for (mut field_name, val) in inner_nodes {
         //special case handling
         if &field_name == "xxxx" {
-            inner_structs = tokenize::value(struct_name, val, Vec::new())?.1; // .0 unused
+            inner_structs = tokenize::value(struct_name, val)?.1; // .0 unused
             case = special_cases::Case::FourXs;
             break;
         }
@@ -333,9 +326,9 @@ fn handle_fields(
 
         //temp_acc needed because destructuring assignments are unstable
         //see https://github.com/rust-lang/rust/issues/71126 for more info
-        let (mut tokenized_val, temp_acc, _terminal_enum) =
-            tokenize::value(&under_to_camel(&field_name), val, inner_structs)?;
-        inner_structs = temp_acc;
+        let (mut tokenized_val, new_struct, _terminal_enum) =
+            tokenize::value(&under_to_camel(&field_name), val)?;
+        inner_structs.extend(new_struct);
         if option {
             use std::str::FromStr as _;
             tokenized_val =
@@ -357,21 +350,19 @@ fn handle_fields(
 fn alias(
     data: serde_json::Value,
     name: &str,
-    acc: Vec<TokenStream>,
 ) -> TypegenResult<Vec<TokenStream>> {
     let ident = callsite_ident(&name);
-    let (type_body, mut acc, terminal_enum) = tokenize::value(
+    let (type_body, mut inner_structs, terminal_enum) = tokenize::value(
         &capitalize_first_char(name.trim_end_matches("Response")),
         data,
-        acc,
     )?;
     if !terminal_enum {
         let aliased = quote!(
             pub type #ident = #type_body;
         );
-        acc.push(aliased);
+        inner_structs.push(aliased);
     }
-    Ok(acc)
+    Ok(inner_structs)
 }
 
 fn capitalize_first_char(input: &str) -> String {
