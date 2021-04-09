@@ -215,7 +215,7 @@ fn enumgen(
             match value {
                 serde_json::Value::Object(obj) => {
                     let field_data = handle_fields(enum_name, obj)?;
-                    acc.extend(field_data.new_code);
+                    acc.extend(field_data.inner_structs);
                     match field_data.case {
                         special_cases::Case::Regular => {
                             let variant_body_tokens =
@@ -260,7 +260,7 @@ fn structgen(
 ) -> TypegenResult<(special_cases::Case, Vec<TokenStream>)> {
     let ident = callsite_ident(struct_name);
     let field_data = handle_fields(struct_name, inner_nodes)?;
-    acc.extend(field_data.new_code);
+    acc.extend(field_data.inner_structs);
     let mut ident_val_tokens = field_data.ident_val_tokens;
     let body = match field_data.case {
         special_cases::Case::Regular => {
@@ -305,19 +305,19 @@ fn add_pub_keywords(tokens: &mut Vec<TokenStream>) {
 struct FieldsInfo {
     case: special_cases::Case,
     ident_val_tokens: Vec<TokenStream>,
-    new_code: Vec<TokenStream>,
+    inner_structs: Vec<TokenStream>,
 }
 fn handle_fields(
     struct_name: &str,
     inner_nodes: serde_json::Map<String, serde_json::Value>,
 ) -> TypegenResult<FieldsInfo> {
     let mut ident_val_tokens: Vec<TokenStream> = Vec::new();
-    let mut new_code = Vec::new();
+    let mut inner_structs = Vec::new();
     let mut case = special_cases::Case::Regular;
     for (mut field_name, val) in inner_nodes {
         //special case handling
         if &field_name == "xxxx" {
-            new_code = tokenize::value(struct_name, val, Vec::new())?.1; // .0 unused
+            inner_structs = tokenize::value(struct_name, val, Vec::new())?.1; // .0 unused
             case = special_cases::Case::FourXs;
             break;
         }
@@ -334,8 +334,8 @@ fn handle_fields(
         //temp_acc needed because destructuring assignments are unstable
         //see https://github.com/rust-lang/rust/issues/71126 for more info
         let (mut tokenized_val, temp_acc, _terminal_enum) =
-            tokenize::value(&under_to_camel(&field_name), val, new_code)?;
-        new_code = temp_acc;
+            tokenize::value(&under_to_camel(&field_name), val, inner_structs)?;
+        inner_structs = temp_acc;
         if option {
             use std::str::FromStr as _;
             tokenized_val =
@@ -349,7 +349,7 @@ fn handle_fields(
     }
     Ok(FieldsInfo {
         case,
-        new_code,
+        inner_structs,
         ident_val_tokens,
     })
 }
