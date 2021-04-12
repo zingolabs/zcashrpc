@@ -14,7 +14,6 @@ fn main() {
     let initial_comment = r#"//procedurally generated response types, note that zcashrpc-typegen
            //is in early alpha, and output is subject to change at any time.
 "#;
-    use std::io::Write as _;
     std::fs::write(output_path(), initial_comment).unwrap();
     let mut iter = std::fs::read_dir(&std::path::Path::new(
         &std::env::args()
@@ -28,28 +27,53 @@ fn main() {
         file_node1.path().cmp(&file_node2.path())
     });
     for filenode in iter {
-        match process_response(&filenode.path()) {
-            Ok(code) => {
-                let mut outfile = std::fs::OpenOptions::new()
-                    .append(true)
-                    .open(output_path())
-                    .unwrap();
-                outfile.write_all(code.to_string().as_bytes()).unwrap();
-                assert!(std::process::Command::new("rustfmt")
-                    .arg(output_path())
-                    .output()
-                    .unwrap()
-                    .status
-                    .success());
+        let file_name = filenode.file_name();
+        let file_name = file_name.to_string_lossy();
+        if file_name.ends_with("_response.json") {
+            match process_response(&filenode.path()) {
+                Ok(code) => {
+                    write_code_to_output(code);
+                }
+                Err(error::TypegenError::Annotation(err))
+                    if err.kind
+                        == error::InvalidAnnotationKind::Insufficient =>
+                {
+                    ()
+                }
+                _ => todo!("Holy moly something is messed up!"),
             }
-            Err(error::TypegenError::Annotation(err))
-                if err.kind == error::InvalidAnnotationKind::Insufficient =>
-            {
-                ()
+        } else if file_name.ends_with("_arguments.json") {
+            match process_arguments(&filenode.path()) {
+                Ok(code) => {
+                    write_code_to_output(code);
+                }
+                Err(error::TypegenError::Annotation(err))
+                    if err.kind
+                        == error::InvalidAnnotationKind::Insufficient =>
+                {
+                    ()
+                }
+                _ => todo!("Holy moly something is messed up!"),
             }
-            _ => todo!("Holy moly something is messed up!"),
+        } else {
+            panic!("Invalid file name: {}", file_name)
         }
     }
+}
+
+fn write_code_to_output(code: TokenStream) {
+    use std::io::Write as _;
+    let mut outfile = std::fs::OpenOptions::new()
+        .append(true)
+        .open(output_path())
+        .unwrap();
+    outfile.write_all(code.to_string().as_bytes()).unwrap();
+    assert!(std::process::Command::new("rustfmt")
+        .arg(output_path())
+        .output()
+        .unwrap()
+        .status
+        .success());
 }
 
 fn under_to_camel(name: &str) -> String {
@@ -75,16 +99,8 @@ fn camel_to_under(name: &str) -> String {
 }
 
 fn process_response(file: &std::path::Path) -> TypegenResult<TokenStream> {
-    let (file_name, file_body) = get_data(file);
-    let mod_name = callsite_ident(&if special_cases::RESERVED_KEYWORDS
-        .contains(&file_name.as_ref())
-    {
-        format!("{}_mod", &file_name)
-    } else {
-        file_name.clone()
-    });
-    let type_name =
-        [under_to_camel(&file_name), "Response".to_string()].concat();
+    let (mod_name, type_name, file_body) =
+        get_names_and_body_from_file(file, "_response");
     let mut output = match file_body {
         serde_json::Value::Array(mut vec) => match vec.len() {
             0 => emptygen(&type_name),
@@ -106,7 +122,55 @@ fn process_response(file: &std::path::Path) -> TypegenResult<TokenStream> {
     Ok(quote::quote!(pub mod #mod_name { #(#output)* }))
 }
 
+fn process_arguments(file: &std::path::Path) -> TypegenResult<TokenStream> {
+    let (mod_name, type_name, file_body) =
+        get_names_and_body_from_file(file, "_arguments");
+    let mut output = match file_body {
+        serde_json::Value::Array(vec) => match vec.len() {
+            0 => emptygen(&type_name),
+            _ => vec
+                .into_iter()
+                .map(|val| match val {
+                    serde_json::Value::Object(obj) => {
+                        argumentgen(obj, &type_name).map(|x| x.1)
+                    }
+                    _ => panic!(
+                        "Recieved arguments not in object format for file {}",
+                        under_to_camel(&type_name)
+                    ),
+                })
+                .flatten()
+                .flatten()
+                .collect(),
+        },
+        non_array => {
+            panic!("Received {}, expected array", non_array.to_string())
+        }
+    };
+
+    output.sort_by(|ts1, ts2| ts1.to_string().cmp(&ts2.to_string()));
+    output.dedup_by(|ts1, ts2| ts1.to_string() == ts2.to_string());
+    Ok(quote::quote!(pub mod #mod_name { #(#output)* }))
+}
+
 const VARIANT_NAMES: &[&str] = &["Regular", "Verbose", "VeryVerbose"];
+
+fn get_names_and_body_from_file(
+    file: &std::path::Path,
+    suffix: &str,
+) -> (proc_macro2::Ident, String, serde_json::Value) {
+    let (file_name, file_body) = get_data(file);
+    let name = file_name.strip_suffix(suffix).unwrap();
+    let mod_name = callsite_ident(&if special_cases::RESERVED_KEYWORDS
+        .contains(&name.as_ref())
+    {
+        format!("{}_mod", &name)
+    } else {
+        name.to_string()
+    });
+    let type_name = under_to_camel(&file_name);
+    (mod_name, type_name, file_body)
+}
 
 fn get_data(file: &std::path::Path) -> (String, serde_json::Value) {
     let file_body =
@@ -285,6 +349,58 @@ fn emptygen(struct_name: &str) -> Vec<TokenStream> {
     )]
 }
 
+fn argumentgen(
+    inner_nodes: serde_json::Map<String, serde_json::Value>,
+    struct_name: &str,
+) -> TypegenResult<(special_cases::Case, Vec<TokenStream>)> {
+    let new_nodes = inner_nodes
+        .into_iter()
+        .map(|(field_name, val)| {
+            let new_field_name = if field_name.starts_with("Option<") {
+                format!(
+                    "Option<{}>",
+                    handle_argument_field_name(
+                        field_name
+                            .strip_prefix("Option<")
+                            .unwrap()
+                            .strip_suffix(">")
+                            .unwrap()
+                            .to_string()
+                    )
+                )
+            } else {
+                handle_argument_field_name(field_name)
+            };
+
+            (new_field_name, val)
+        })
+        .collect();
+    structgen(new_nodes, struct_name)
+}
+
+fn handle_argument_field_name(field_name: String) -> String {
+    field_name
+        .chars()
+        .map(|c| {
+            match c.to_string().as_str() {
+                "-" | "_" => "_",
+                "|" => "_or_",
+                "1" => "one",
+                "2" => "two",
+                "3" => "three",
+                "4" => "four",
+                "5" => "five",
+                c if c.chars().next().unwrap().is_alphabetic() => c,
+                c => {
+                    dbg!("bad field name {} with char {}", &field_name, c);
+                    ""
+                }
+            }
+            .to_string()
+        })
+        .collect()
+}
+
 fn add_pub_keywords(tokens: &mut Vec<TokenStream>) {
     *tokens = tokens
         .into_iter()
@@ -366,6 +482,10 @@ fn alias(
 }
 
 fn capitalize_first_char(input: &str) -> String {
+    if input.len() == 0 {
+        dbg!(input);
+        return input.to_string();
+    }
     let mut ret = input.to_string();
     let ch = ret.remove(0);
     ret.insert(0, ch.to_ascii_uppercase());
