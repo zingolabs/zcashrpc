@@ -72,8 +72,8 @@ fn terminal(
             }
             enumeration if enumeration.starts_with("ENUM:") => {
                 let ident = crate::callsite_ident(name);
-                let new_code = handle_terminal_enum(enumeration, name);
-                return Ok((quote!(#ident), vec![new_code], true));
+                let enum_tokens = handle_terminal_enum(enumeration, name);
+                return Ok((quote!(#ident), vec![enum_tokens], true));
             }
             otherwise => {
                 return Err(error::QuizfaceAnnotationError {
@@ -94,14 +94,14 @@ fn array(
     name: &str,
     mut array_of: Vec<serde_json::Value>,
 ) -> TypegenResult<(TokenStream, Vec<TokenStream>)> {
-    let (val, new_code, _terminal_enum) = value(
+    let (val, inner_structs, _terminal_enum) = value(
         name,
         array_of.pop().ok_or(error::QuizfaceAnnotationError {
             kind: error::InvalidAnnotationKind::EmptyArray,
             location: name.to_string(),
         })?,
     )?;
-    Ok((quote!(Vec<#val>), new_code))
+    Ok((quote!(Vec<#val>), inner_structs))
 }
 
 fn object(
@@ -109,12 +109,12 @@ fn object(
     val: serde_json::Map<String, serde_json::Value>,
 ) -> TypegenResult<(TokenStream, Vec<TokenStream>)> {
     let ident = crate::callsite_ident(name);
-    let (case, inner_struct) = crate::structgen(val, name)?;
+    let (case, inner_structs) = crate::structgen(val, name)?;
     match case {
-        special_cases::Case::Regular => Ok((quote!(#ident), inner_struct)),
+        special_cases::Case::Regular => Ok((quote!(#ident), inner_structs)),
         special_cases::Case::FourXs => Ok((
             quote!(std::collections::HashMap<String, #ident>),
-            inner_struct,
+            inner_structs,
         )),
     }
 }
