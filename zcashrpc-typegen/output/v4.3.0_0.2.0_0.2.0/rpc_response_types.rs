@@ -227,12 +227,9 @@ pub mod getaddednodeinfo {
 }
 pub mod getaddressbalance {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetaddressbalanceArguments {
-        pub one: One,
-    }
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetaddressbalanceArguments {
-        pub one_address: String,
+    pub enum GetaddressbalanceArguments {
+        Regular { one: One },
+        Verbose { one_address: String },
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct One {
@@ -246,12 +243,9 @@ pub mod getaddressbalance {
 }
 pub mod getaddressdeltas {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetaddressdeltasArguments {
-        pub one: One,
-    }
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetaddressdeltasArguments {
-        pub one_address: String,
+    pub enum GetaddressdeltasArguments {
+        Regular { one: One },
+        Verbose { one_address: String },
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct One {
@@ -305,12 +299,9 @@ pub mod getaddressesbyaccount {
 }
 pub mod getaddressmempool {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetaddressmempoolArguments {
-        pub one: One,
-    }
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetaddressmempoolArguments {
-        pub one_address: String,
+    pub enum GetaddressmempoolArguments {
+        Regular { one: One },
+        Verbose { one_address: String },
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct One {
@@ -330,12 +321,9 @@ pub mod getaddressmempool {
 }
 pub mod getaddresstxids {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetaddresstxidsArguments {
-        pub one: One,
-    }
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetaddresstxidsArguments {
-        pub one_address: String,
+    pub enum GetaddresstxidsArguments {
+        Regular { one: One },
+        Verbose { one_address: String },
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct One {
@@ -347,12 +335,9 @@ pub mod getaddresstxids {
 }
 pub mod getaddressutxos {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetaddressutxosArguments {
-        pub one: One,
-    }
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetaddressutxosArguments {
-        pub one_address: String,
+    pub enum GetaddressutxosArguments {
+        Regular { one: One },
+        Verbose { one_address: String },
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct One {
@@ -1342,9 +1327,9 @@ pub mod prioritisetransaction {
 pub mod sendfrom {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct SendfromArguments {
-        pub _comment_to: Option<String>,
         pub five_comment: Option<String>,
         pub four_minconf: Option<rust_decimal::Decimal>,
+        pub six_comment_to: Option<String>,
         pub one_fromaccount: String,
         pub three_amount: rust_decimal::Decimal,
         pub two_tozcashaddress: String,
@@ -1389,17 +1374,6 @@ pub mod setaccount {
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct SetaccountResponse;
-}
-pub mod setban {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct SetbanArguments {
-        pub four_absolute: Option<bool>,
-        pub three_bantime: Option<rust_decimal::Decimal>,
-        pub one_ip_optionnetmask: String,
-        pub two_command: String,
-    }
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct SetbanResponse;
 }
 pub mod setgenerate {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -1466,8 +1440,8 @@ pub mod stop {
 pub mod submitblock {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct SubmitblockArguments {
+        pub two_jsonparametersobject: Option<String>,
         pub one_hexdata: String,
-        pub two__optionjsonparametersobject: String,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub enum SubmitblockResponse {
@@ -1736,9 +1710,9 @@ pub mod z_listunspent {
 pub mod z_mergetoaddress {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZMergetoaddressArguments {
-        pub _memo: Option<String>,
         pub five_shielded_limit: Option<rust_decimal::Decimal>,
         pub four_transparent_limit: Option<rust_decimal::Decimal>,
+        pub six_memo: Option<String>,
         pub three_fee: Option<rust_decimal::Decimal>,
         pub one_fromaddresses: String,
         pub two_toaddress: String,

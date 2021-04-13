@@ -140,7 +140,7 @@ fn process_response(
                 }
                 val => alias(val, &type_name)?,
             },
-            _ => enumgen(vec, &type_name)?,
+            _ => enumgen(vec, &type_name, false)?,
         },
         non_array => {
             panic!("Received {}, expected array", non_array.to_string())
@@ -158,22 +158,18 @@ fn process_arguments(
     let (mod_name, type_name, file_body) =
         get_names_and_body_from_file(file, "_arguments");
     let mut output = match file_body {
-        serde_json::Value::Array(vec) => match vec.len() {
+        serde_json::Value::Array(mut vec) => match vec.len() {
             0 => emptygen(&type_name),
-            _ => vec
-                .into_iter()
-                .map(|val| match val {
-                    serde_json::Value::Object(obj) => {
-                        argumentgen(obj, &type_name).map(|x| x.1)
-                    }
-                    _ => panic!(
-                        "Recieved arguments not in object format for file {}",
-                        under_to_camel(&type_name)
-                    ),
-                })
-                .flatten()
-                .flatten()
-                .collect(),
+            1 => match vec.pop().unwrap() {
+                serde_json::Value::Object(obj) => {
+                    argumentgen(obj, &type_name).map(|x| x.1)?
+                }
+                _ => panic!(
+                    "Recieved arguments not in object format for file {}",
+                    under_to_camel(&type_name)
+                ),
+            },
+            _ => enumgen(vec, &type_name, true)?,
         },
         non_array => {
             panic!("Received {}, expected array", non_array.to_string())
@@ -297,6 +293,7 @@ fn enumgen(
     //This one layer out from the map that's passed to structgen!
     //Don't let the identical type signatures fool you.
     enum_name: &str,
+    argument: bool,
 ) -> TypegenResult<Vec<TokenStream>> {
     assert!(inner_nodes.len() <= VARIANT_NAMES.len());
     let mut inner_structs = Vec::new();
@@ -308,7 +305,10 @@ fn enumgen(
             let variant_name = capitalize_first_char(&variant_name);
             let variant_name_tokens = callsite_ident(&variant_name);
             match value {
-                serde_json::Value::Object(obj) => {
+                serde_json::Value::Object(mut obj) => {
+                    if argument {
+                        obj = handle_argument_fields_names(obj);
+                    }
                     let field_data = handle_fields(enum_name, obj)?;
                     inner_structs.extend(field_data.inner_structs);
                     match field_data.case {
@@ -385,7 +385,43 @@ fn argumentgen(
     inner_nodes: serde_json::Map<String, serde_json::Value>,
     struct_name: &str,
 ) -> TypegenResult<(special_cases::Case, Vec<TokenStream>)> {
-    let new_nodes = inner_nodes
+    let new_nodes = handle_argument_fields_names(inner_nodes);
+    structgen(new_nodes, struct_name)
+}
+
+fn handle_argument_field_name(field_name: String) -> String {
+    field_name
+        .chars()
+        .map(|c| {
+            match c.to_string().as_str() {
+                "-" | "_" => "_",
+                "<" => "<",
+                ">" => ">",
+                "|" => "_or_",
+                "1" => "one",
+                "2" => "two",
+                "3" => "three",
+                "4" => "four",
+                "5" => "five",
+                "6" => "six",
+                c if c.chars().next().unwrap().is_alphabetic() => c,
+                c => {
+                    println!(
+                        "WARNING: omitting bad char '{}' in field name '{}'",
+                        c, &field_name
+                    );
+                    ""
+                }
+            }
+            .to_string()
+        })
+        .collect()
+}
+
+fn handle_argument_fields_names(
+    nodes: serde_json::Map<String, serde_json::Value>,
+) -> serde_json::Map<String, serde_json::Value> {
+    nodes
         .into_iter()
         .map(|(field_name, val)| {
             let new_field_name = if field_name.starts_with("Option<") {
@@ -405,30 +441,6 @@ fn argumentgen(
             };
 
             (new_field_name, val)
-        })
-        .collect();
-    structgen(new_nodes, struct_name)
-}
-
-fn handle_argument_field_name(field_name: String) -> String {
-    field_name
-        .chars()
-        .map(|c| {
-            match c.to_string().as_str() {
-                "-" | "_" => "_",
-                "|" => "_or_",
-                "1" => "one",
-                "2" => "two",
-                "3" => "three",
-                "4" => "four",
-                "5" => "five",
-                c if c.chars().next().unwrap().is_alphabetic() => c,
-                c => {
-                    dbg!("bad field name {} with char {}", &field_name, c);
-                    ""
-                }
-            }
-            .to_string()
         })
         .collect()
 }
