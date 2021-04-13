@@ -44,14 +44,19 @@ fn main() {
                             ));
                             current_rpc_arguments = None;
                             current_rpc_name = None;
-                        } else {
-                            println!(
-                                "WARNING: No arguments found for {}",
-                                rpc_name.to_string()
-                            );
-                            if let Some(name) = &current_rpc_name {
-                                println!("Instead found: {}", name.to_string());
-                            }
+                        }
+                    } else {
+                        println!(
+                            "WARNING: No arguments found for {}",
+                            rpc_name.to_string()
+                        );
+                        write_output_to_file(quote!(
+                                pub mod #rpc_name {
+                                    #code
+                                }
+                        ));
+                        if let Some(name) = &current_rpc_name {
+                            println!("Instead found: {}", name.to_string());
                         }
                     }
                 }
@@ -542,11 +547,8 @@ mod unit {
         use crate::*;
         #[test]
         fn tokenize_value_string() {
-            let quoted_string = tokenize::value(
-                "some_field",
-                serde_json::json!("String"),
-                Vec::new(),
-            );
+            let quoted_string =
+                tokenize::value("some_field", serde_json::json!("String"));
             assert_eq!(
                 quote!(String).to_string(),
                 quoted_string.unwrap().0.to_string(),
@@ -554,11 +556,8 @@ mod unit {
         }
         #[test]
         fn tokenize_value_number() {
-            let quoted_number = tokenize::value(
-                "some_field",
-                serde_json::json!("Decimal"),
-                Vec::new(),
-            );
+            let quoted_number =
+                tokenize::value("some_field", serde_json::json!("Decimal"));
             assert_eq!(
                 quote!(rust_decimal::Decimal).to_string(),
                 quoted_number.unwrap().0.to_string(),
@@ -566,11 +565,8 @@ mod unit {
         }
         #[test]
         fn tokenize_value_bool() {
-            let quoted_bool = tokenize::value(
-                "some_field",
-                serde_json::json!("bool"),
-                Vec::new(),
-            );
+            let quoted_bool =
+                tokenize::value("some_field", serde_json::json!("bool"));
             assert_eq!(
                 quote!(bool).to_string(),
                 quoted_bool.unwrap().0.to_string(),
@@ -582,11 +578,11 @@ mod unit {
         #[test]
         fn process_response_getinfo() {
             let getinfo_path = std::path::Path::new(
-                "./test_data/quizface_output/getinfo.json",
+                "./test_data/quizface_output/getinfo_response.json",
             );
             let output = process_response(getinfo_path);
             assert_eq!(
-                output.unwrap().to_string(),
+                output.unwrap().1.to_string(),
                 test_consts::GETINFO_RESPONSE
             );
         }
@@ -601,7 +597,6 @@ mod unit {
                         "inner_c": "Decimal",
                     }
                 ),
-                Vec::new(),
             )
             .unwrap();
             assert_eq!(
@@ -618,7 +613,7 @@ mod unit {
 
 #[cfg(test)]
 mod test_consts {
-    pub(super) const GETINFO_RESPONSE: &str = "pub mod getinfo { # [derive \
+    pub(super) const GETINFO_RESPONSE: &str = "# [derive \
     (Debug , serde :: Deserialize , serde :: Serialize)] pub struct \
     GetinfoResponse { pub proxy : Option < String > , pub balance : \
     rust_decimal :: Decimal , pub blocks : rust_decimal :: Decimal , pub \
@@ -629,7 +624,7 @@ mod test_consts {
     pub relayfee : rust_decimal :: Decimal , pub testnet : bool , pub \
     timeoffset : rust_decimal :: Decimal , pub unlocked_until : rust_decimal \
     :: Decimal , pub version : rust_decimal :: Decimal , pub walletversion : \
-    rust_decimal :: Decimal , } }";
+    rust_decimal :: Decimal , }";
     pub(super) const SIMPLE_UNNESTED_RESPONSE: &str = "# [derive (Debug , \
     serde :: Deserialize , serde :: Serialize)] pub struct somefield { pub \
     inner_a : String , pub inner_b : bool , pub inner_c : rust_decimal :: \

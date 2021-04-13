@@ -95,8 +95,7 @@ mod unit {
             "foo".to_string(),
         ));
         let err =
-            crate::tokenize::value("foo", serde_json::Value::Null, Vec::new())
-                .unwrap_err();
+            crate::tokenize::value("foo", serde_json::Value::Null).unwrap_err();
         assert_eq!(TypegenError::Annotation(expected_err), err);
     }
     #[test]
