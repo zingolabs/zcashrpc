@@ -26,22 +26,22 @@ fn main() {
     input_files.sort_unstable_by(|file_node1, file_node2| {
         file_node1.path().cmp(&file_node2.path())
     });
-    let mut current_rpc_arguments = None;
-    let mut current_rpc_name: Option<proc_macro2::Ident> = None;
+    let mut processed_rpc_arguments = None;
+    let mut processed_rpc_name: Option<proc_macro2::Ident> = None;
     for filenode in input_files {
         let file_name = filenode.file_name();
         let file_name = file_name.to_string_lossy();
         if file_name.ends_with("_arguments.json") {
             match process_arguments(&filenode.path()) {
                 Ok((rpc_name, code)) => {
-                    if let Some(name) = current_rpc_name {
+                    if let Some(name) = processed_rpc_name {
                         println!(
                             "WARNING: No response section found for {}",
                             name.to_string()
                         );
                     }
-                    current_rpc_name = Some(rpc_name);
-                    current_rpc_arguments = Some(code);
+                    processed_rpc_name = Some(rpc_name);
+                    processed_rpc_arguments = Some(code);
                 }
                 Err(error::TypegenError::Annotation(err))
                     if err.kind
@@ -54,16 +54,16 @@ fn main() {
         } else if file_name.ends_with("_response.json") {
             match process_response(&filenode.path()) {
                 Ok((rpc_name, code)) => {
-                    if let Some(arguments_name) = &current_rpc_name {
+                    if let Some(arguments_name) = &processed_rpc_name {
                         if &rpc_name == arguments_name {
                             write_output_to_file(quote!(
                                     pub mod #rpc_name {
-                                        #current_rpc_arguments
+                                        #processed_rpc_arguments
                                         #code
                                     }
                             ));
-                            current_rpc_arguments = None;
-                            current_rpc_name = None;
+                            processed_rpc_arguments = None;
+                            processed_rpc_name = None;
                         }
                     } else {
                         println!(
@@ -75,7 +75,7 @@ fn main() {
                                     #code
                                 }
                         ));
-                        if let Some(name) = &current_rpc_name {
+                        if let Some(name) = &processed_rpc_name {
                             println!("Instead found: {}", name.to_string());
                         }
                     }
