@@ -1375,6 +1375,17 @@ pub mod setaccount {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct SetaccountResponse;
 }
+pub mod setban {
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    pub struct SetbanArguments {
+        pub four_absolute: Option<bool>,
+        pub three_bantime: Option<rust_decimal::Decimal>,
+        pub one_ip: String,
+        pub two_command: String,
+    }
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    pub struct SetbanResponse;
+}
 pub mod setgenerate {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct SetgenerateArguments {
