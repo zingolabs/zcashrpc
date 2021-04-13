@@ -15,7 +15,7 @@ fn main() {
            //is in early alpha, and output is subject to change at any time.
 "#;
     std::fs::write(output_path(), initial_comment).unwrap();
-    let mut iter = std::fs::read_dir(&std::path::Path::new(
+    let mut input_files = std::fs::read_dir(&std::path::Path::new(
         &std::env::args()
             .nth(1)
             .unwrap_or("./example_dir".to_string()),
@@ -23,12 +23,12 @@ fn main() {
     .unwrap()
     .map(Result::unwrap)
     .collect::<Vec<std::fs::DirEntry>>();
-    iter.sort_unstable_by(|file_node1, file_node2| {
+    input_files.sort_unstable_by(|file_node1, file_node2| {
         file_node1.path().cmp(&file_node2.path())
     });
     let mut current_rpc_arguments = None;
     let mut current_rpc_name: Option<proc_macro2::Ident> = None;
-    for filenode in iter {
+    for filenode in input_files {
         let file_name = filenode.file_name();
         let file_name = file_name.to_string_lossy();
         if file_name.ends_with("_response.json") {
