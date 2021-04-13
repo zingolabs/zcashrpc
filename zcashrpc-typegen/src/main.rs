@@ -26,13 +26,34 @@ fn main() {
     iter.sort_unstable_by(|file_node1, file_node2| {
         file_node1.path().cmp(&file_node2.path())
     });
+    let mut current_rpc_arguments = None;
+    let mut current_rpc_name: Option<proc_macro2::Ident> = None;
     for filenode in iter {
         let file_name = filenode.file_name();
         let file_name = file_name.to_string_lossy();
         if file_name.ends_with("_response.json") {
             match process_response(&filenode.path()) {
-                Ok(code) => {
-                    write_code_to_output(code);
+                Ok((rpc_name, code)) => {
+                    if let Some(arguments_name) = &current_rpc_name {
+                        if &rpc_name == arguments_name {
+                            write_output_to_file(quote!(
+                                    pub mod #rpc_name {
+                                        #current_rpc_arguments
+                                        #code
+                                    }
+                            ));
+                            current_rpc_arguments = None;
+                            current_rpc_name = None;
+                        } else {
+                            println!(
+                                "WARNING: No arguments found for {}",
+                                rpc_name.to_string()
+                            );
+                            if let Some(name) = &current_rpc_name {
+                                println!("Instead found: {}", name.to_string());
+                            }
+                        }
+                    }
                 }
                 Err(error::TypegenError::Annotation(err))
                     if err.kind
@@ -44,8 +65,15 @@ fn main() {
             }
         } else if file_name.ends_with("_arguments.json") {
             match process_arguments(&filenode.path()) {
-                Ok(code) => {
-                    write_code_to_output(code);
+                Ok((rpc_name, code)) => {
+                    if let Some(name) = current_rpc_name {
+                        println!(
+                            "WARNING: No response section found for {}",
+                            name.to_string()
+                        );
+                    }
+                    current_rpc_name = Some(rpc_name);
+                    current_rpc_arguments = Some(code);
                 }
                 Err(error::TypegenError::Annotation(err))
                     if err.kind
@@ -61,7 +89,7 @@ fn main() {
     }
 }
 
-fn write_code_to_output(code: TokenStream) {
+fn write_output_to_file(code: TokenStream) {
     use std::io::Write as _;
     let mut outfile = std::fs::OpenOptions::new()
         .append(true)
@@ -98,7 +126,9 @@ fn camel_to_under(name: &str) -> String {
         .join("_")
 }
 
-fn process_response(file: &std::path::Path) -> TypegenResult<TokenStream> {
+fn process_response(
+    file: &std::path::Path,
+) -> TypegenResult<(proc_macro2::Ident, TokenStream)> {
     let (mod_name, type_name, file_body) =
         get_names_and_body_from_file(file, "_response");
     let mut output = match file_body {
@@ -119,10 +149,12 @@ fn process_response(file: &std::path::Path) -> TypegenResult<TokenStream> {
 
     output.sort_by(|ts1, ts2| ts1.to_string().cmp(&ts2.to_string()));
     output.dedup_by(|ts1, ts2| ts1.to_string() == ts2.to_string());
-    Ok(quote::quote!(pub mod #mod_name { #(#output)* }))
+    Ok((mod_name, quote::quote!(#(#output)*)))
 }
 
-fn process_arguments(file: &std::path::Path) -> TypegenResult<TokenStream> {
+fn process_arguments(
+    file: &std::path::Path,
+) -> TypegenResult<(proc_macro2::Ident, TokenStream)> {
     let (mod_name, type_name, file_body) =
         get_names_and_body_from_file(file, "_arguments");
     let mut output = match file_body {
@@ -150,7 +182,7 @@ fn process_arguments(file: &std::path::Path) -> TypegenResult<TokenStream> {
 
     output.sort_by(|ts1, ts2| ts1.to_string().cmp(&ts2.to_string()));
     output.dedup_by(|ts1, ts2| ts1.to_string() == ts2.to_string());
-    Ok(quote::quote!(pub mod #mod_name { #(#output)* }))
+    Ok((mod_name, quote::quote!(#(#output)*)))
 }
 
 const VARIANT_NAMES: &[&str] = &["Regular", "Verbose", "VeryVerbose"];
