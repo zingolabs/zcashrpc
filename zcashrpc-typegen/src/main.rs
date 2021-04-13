@@ -31,7 +31,27 @@ fn main() {
     for filenode in input_files {
         let file_name = filenode.file_name();
         let file_name = file_name.to_string_lossy();
-        if file_name.ends_with("_response.json") {
+        if file_name.ends_with("_arguments.json") {
+            match process_arguments(&filenode.path()) {
+                Ok((rpc_name, code)) => {
+                    if let Some(name) = current_rpc_name {
+                        println!(
+                            "WARNING: No response section found for {}",
+                            name.to_string()
+                        );
+                    }
+                    current_rpc_name = Some(rpc_name);
+                    current_rpc_arguments = Some(code);
+                }
+                Err(error::TypegenError::Annotation(err))
+                    if err.kind
+                        == error::InvalidAnnotationKind::Insufficient =>
+                {
+                    ()
+                }
+                _ => todo!("Holy moly something is messed up!"),
+            }
+        } else if file_name.ends_with("_response.json") {
             match process_response(&filenode.path()) {
                 Ok((rpc_name, code)) => {
                     if let Some(arguments_name) = &current_rpc_name {
@@ -59,26 +79,6 @@ fn main() {
                             println!("Instead found: {}", name.to_string());
                         }
                     }
-                }
-                Err(error::TypegenError::Annotation(err))
-                    if err.kind
-                        == error::InvalidAnnotationKind::Insufficient =>
-                {
-                    ()
-                }
-                _ => todo!("Holy moly something is messed up!"),
-            }
-        } else if file_name.ends_with("_arguments.json") {
-            match process_arguments(&filenode.path()) {
-                Ok((rpc_name, code)) => {
-                    if let Some(name) = current_rpc_name {
-                        println!(
-                            "WARNING: No response section found for {}",
-                            name.to_string()
-                        );
-                    }
-                    current_rpc_name = Some(rpc_name);
-                    current_rpc_arguments = Some(code);
                 }
                 Err(error::TypegenError::Annotation(err))
                     if err.kind
