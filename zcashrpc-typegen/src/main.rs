@@ -137,15 +137,15 @@ fn process_response(
     let (mod_name, type_name, file_body) =
         get_names_and_body_from_file(file, "_response");
     let mut output = match file_body {
-        serde_json::Value::Array(mut vec) => match vec.len() {
+        serde_json::Value::Array(mut arg_sets) => match arg_sets.len() {
             0 => emptygen(&type_name),
-            1 => match vec.pop().unwrap() {
-                serde_json::Value::Object(obj) => {
-                    structgen(obj, &type_name).map(|x| x.1)?
+            1 => match arg_sets.pop().unwrap() {
+                serde_json::Value::Object(args) => {
+                    structgen(args, &type_name).map(|x| x.1)?
                 }
                 val => alias(val, &type_name)?,
             },
-            _ => enumgen(vec, &type_name, false)?,
+            _ => enumgen(arg_sets, &type_name, false)?,
         },
         non_array => {
             panic!("Received {}, expected array", non_array.to_string())
@@ -163,18 +163,18 @@ fn process_arguments(
     let (mod_name, type_name, file_body) =
         get_names_and_body_from_file(file, "_arguments");
     let mut output = match file_body {
-        serde_json::Value::Array(mut vec) => match vec.len() {
+        serde_json::Value::Array(mut arg_sets) => match arg_sets.len() {
             0 => emptygen(&type_name),
-            1 => match vec.pop().unwrap() {
-                serde_json::Value::Object(obj) => {
-                    argumentgen(obj, &type_name).map(|x| x.1)?
+            1 => match arg_sets.pop().unwrap() {
+                serde_json::Value::Object(args) => {
+                    argumentgen(args, &type_name).map(|x| x.1)?
                 }
                 _ => panic!(
                     "Recieved arguments not in object format for file {}",
                     under_to_camel(&type_name)
                 ),
             },
-            _ => enumgen(vec, &type_name, true)?,
+            _ => enumgen(arg_sets, &type_name, true)?,
         },
         non_array => {
             panic!("Received {}, expected array", non_array.to_string())
