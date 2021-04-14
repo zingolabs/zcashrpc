@@ -174,7 +174,11 @@ fn process_arguments(
                     under_to_camel(&type_name)
                 ),
             },
-            _ => enumgen(arg_sets, &type_name, true)?,
+            2 => enumgen(arg_sets, &type_name, true)?,
+            _ => {
+                eprint!("Error, known RPC help output contains a maximum of two sets of arguments.");
+                enumgen(arg_sets, &type_name, true)?
+            }
         },
         non_array => {
             panic!("Received {}, expected array", non_array.to_string())
