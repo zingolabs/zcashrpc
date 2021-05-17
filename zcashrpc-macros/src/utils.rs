@@ -105,14 +105,14 @@ impl VisitMut for V {
     }
 }
 pub fn extract_response_idents() -> String {
-    let pathstr =
-        &format!("{}/zcashrpc-api-lib.rs", &std::env::var("OUT_DIR").unwrap());
-    dbg!(&pathstr);
-    let raw_rs = std::path::Path::new(pathstr);
+    let pathstr = format!(
+        "{}/../src/client/responsetypes.rs",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let raw_rs = std::path::Path::new(&pathstr);
     let mut src = String::new();
     let mut file = std::fs::File::open(&raw_rs).expect("Unable to open file");
     use std::io::Read as _;
     file.read_to_string(&mut src).expect("Unable to read file");
-    //syn::parse_file(&src).expect("Unable to parse file").into()
     src
 }

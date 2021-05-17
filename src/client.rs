@@ -1,15 +1,16 @@
 //! Includes the `Client`
 #[macro_use]
 mod callrpc;
+pub mod responsetypes;
 pub mod utils;
 
 use crate::ResponseResult;
-use serde::de::DeserializeOwned;
-use std::future::Future;
-use zcashrpc_api::{
+use responsetypes::{
     generate::GenerateResponse, getblockchaininfo::GetblockchaininfoResponse,
     z_getnewaddress::ZGetnewaddressResponse,
 };
+use serde::de::DeserializeOwned;
+use std::future::Future;
 
 /// A `Client` is used to make multiple requests to a specific zcashd RPC server. Requests are invoked by async methods that correspond to `zcashd` RPC API method names with request-specific parameters. Each such method has an associated response type.
 pub struct Client {

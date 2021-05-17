@@ -21,14 +21,4 @@ mod test {
         use zcashrpc_macros::declare_all_rpc_methods;
         declare_all_rpc_methods!();
     }
-
-    #[test]
-    fn find_the_file() {
-        let pathstr = &format!(
-            "{}/zcashrpc_api/src/lib.rs",
-            &std::env::var("OUT_DIR").unwrap()
-        );
-        let raw_rs = std::path::Path::new(pathstr);
-        dbg!(&raw_rs);
-    }
 }
