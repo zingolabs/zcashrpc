@@ -51,7 +51,7 @@ impl ReqwClientWrapper {
     pub(crate) fn new(hostport: String, authcookie: String) -> Self {
         Self {
             url: format!("http://{}/", hostport),
-            auth: format!("Basic {}", base64::encode(authcookie)),
+            auth: format!("Basic {}", base64::encode(&authcookie)),
             reqw_client: reqwest::Client::new(),
             idit: (0..),
         }
