@@ -10,7 +10,10 @@ pub fn declare_all_rpc_methods(_: TokenStream) -> TokenStream {
     let src = utils::extract_response_idents();
     let mut syntax = syn::parse_file(&src).expect("Unable to parse file");
     use syn::visit_mut::VisitMut;
-    utils::V.visit_file_mut(&mut syntax);
+    let mut visitor = utils::V {
+        response_idents: vec![],
+    };
+    visitor.visit_file_mut(&mut syntax);
     quote::quote!("a").into()
 }
 

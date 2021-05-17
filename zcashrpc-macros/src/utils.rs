@@ -94,12 +94,15 @@ pub fn format_input(
 }
 
 use syn::visit_mut::VisitMut;
-pub struct V;
+pub(crate) struct V {
+    //idents: std::vec::Vec<syn::Ident>,
+    pub(crate) response_idents: std::vec::Vec<syn::Ident>,
+}
 impl VisitMut for V {
     fn visit_ident_mut(&mut self, ident: &mut syn::Ident) {
         let id = &ident.to_string();
         if let Some(index) = id.rfind("Response") {
-            //dbg!(&id[..index]);
+            self.response_idents.push(ident.clone());
         }
         syn::visit_mut::visit_ident_mut(self, ident);
     }
