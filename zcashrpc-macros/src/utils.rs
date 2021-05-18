@@ -103,7 +103,14 @@ enum ResponseTokens {
     Alias,
 }
 
-fn f() -> (ArgumentTokens, ResponseTokens) {
+fn f(rpc_element: syn::Item) -> (ArgumentTokens, ResponseTokens) {
+    if let syn::Item::Struct(structitem) = rpc_element {
+        println!("struct is: {}", &structitem.ident.to_string());
+    } else if let syn::Item::Type(typeitem) = rpc_element {
+        println!("typeitem is: {}", &typeitem.ident.to_string());
+    } else if let syn::Item::Enum(enumitem) = rpc_element {
+        println!("enumitem is: {}", &enumitem.ident.to_string());
+    }
     (ArgumentTokens::Struct, ResponseTokens::Struct)
 }
 pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
@@ -115,23 +122,7 @@ pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
             println!("rpc: {}", &m.ident.to_string());
             if let Some(c) = m.content {
                 for item in c.1 {
-                    let rpc_tokens = f();
-                    if let syn::Item::Struct(structitem) = item {
-                        println!(
-                            "struct is: {}",
-                            &structitem.ident.to_string()
-                        );
-                    } else if let syn::Item::Type(typeitem) = item {
-                        println!(
-                            "typeitem is: {}",
-                            &typeitem.ident.to_string()
-                        );
-                    } else if let syn::Item::Enum(enumitem) = item {
-                        println!(
-                            "enumitem is: {}",
-                            &enumitem.ident.to_string()
-                        );
-                    }
+                    let rpc_tokens = f(item);
                 }
             }
         }
