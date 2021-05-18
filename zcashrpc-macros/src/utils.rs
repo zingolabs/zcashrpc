@@ -109,10 +109,8 @@ impl VisitMut for ResponseIdentCollector {
     }
 }
 pub fn extract_response_idents() -> String {
-    let pathstr = format!(
-        "{}/../src/client/responsetypes.rs",
-        env!("CARGO_MANIFEST_DIR")
-    );
+    let pathstr =
+        format!("{}/../src/client/rpc_types.rs", env!("CARGO_MANIFEST_DIR"));
     let raw_rs = std::path::Path::new(&pathstr);
     let mut src = String::new();
     let mut file = std::fs::File::open(&raw_rs).expect("Unable to open file");

@@ -1,11 +1,11 @@
 //! Includes the `Client`
 #[macro_use]
 mod callrpc;
-pub mod responsetypes;
+pub mod rpc_types;
 pub mod utils;
 
 use crate::ResponseResult;
-use responsetypes::{
+use rpc_types::{
     generate::GenerateResponse, getblockchaininfo::GetblockchaininfoResponse,
     z_getnewaddress::ZGetnewaddressResponse,
 };
