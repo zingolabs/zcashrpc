@@ -93,6 +93,19 @@ pub fn format_input(
     (call_ident, response_ident, param_stream, arg_id_stream)
 }
 
+enum ArgumentTokens {
+    Struct,
+    Enum,
+}
+enum ResponseTokens {
+    Struct,
+    Enum,
+    Alias,
+}
+
+fn f() -> (ArgumentTokens, ResponseTokens) {
+    (ArgumentTokens::Struct, ResponseTokens::Struct)
+}
 pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
     let source = extract_response_idents();
     let syntax = syn::parse_file(&source).expect("Unable to parse file");
@@ -102,6 +115,7 @@ pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
             println!("rpc: {}", &m.ident.to_string());
             if let Some(c) = m.content {
                 for item in c.1 {
+                    let rpc_tokens = f();
                     if let syn::Item::Struct(structitem) = item {
                         println!(
                             "struct is: {}",
@@ -111,6 +125,11 @@ pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
                         println!(
                             "typeitem is: {}",
                             &typeitem.ident.to_string()
+                        );
+                    } else if let syn::Item::Enum(enumitem) = item {
+                        println!(
+                            "enumitem is: {}",
+                            &enumitem.ident.to_string()
                         );
                     }
                 }
