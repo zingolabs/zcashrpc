@@ -6,11 +6,7 @@ use proc_macro::TokenStream;
 
 #[proc_macro]
 pub fn declare_all_rpc_methods(_: TokenStream) -> TokenStream {
-    let module_asts = utils::create_methodgenerator();
-    for modast in module_asts.modules {
-        let _rpcname =
-            dbg!(modast.ident.to_string().trim_end_matches("Response"));
-    }
+    utils::create_methodgenerator();
     quote::quote!("a").into()
 }
 

@@ -95,25 +95,40 @@ pub fn format_input(
 
 pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
     let source = extract_response_idents();
-    let mut syntax = syn::parse_file(&source).expect("Unable to parse file");
-    let mut reqresponse_types = ClientMethodGenerator { modules: vec![] };
-    reqresponse_types.visit_file_mut(&mut syntax);
-    reqresponse_types
+    let syntax = syn::parse_file(&source).expect("Unable to parse file");
+    for i in syntax.items {
+        if let syn::Item::Mod(m) = i {
+            println!();
+            println!("rpc: {}", &m.ident.to_string());
+            if let Some(c) = m.content {
+                for item in c.1 {
+                    if let syn::Item::Struct(structitem) = item {
+                        println!(
+                            "struct is: {}",
+                            &structitem.ident.to_string()
+                        );
+                    } else if let syn::Item::Type(typeitem) = item {
+                        println!(
+                            "typeitem is: {}",
+                            &typeitem.ident.to_string()
+                        );
+                    }
+                }
+            }
+        }
+    }
+    //let mut reqresponse_types = ClientMethodGenerator { rpc: syntax };
+    //reqresponse_types.visit_file_mut(&mut syntax);
+    //reqresponse_types
+    ClientMethodGenerator {}
 }
 
-use syn::visit_mut::VisitMut;
+use syn::visit::Visit;
 #[derive(Debug)]
-pub(crate) struct ClientMethodGenerator {
-    //idents: std::vec::Vec<syn::Ident>,
-    pub(crate) modules: std::vec::Vec<syn::ItemMod>,
-}
-impl VisitMut for ClientMethodGenerator {
-    fn visit_item_mod_mut(&mut self, module: &mut syn::ItemMod) {
-        let id = &module.ident.to_string();
-        if id.rfind("Response").is_some() {
-            self.modules.push(module.clone());
-        }
-        syn::visit_mut::visit_item_mod_mut(self, module);
+pub(crate) struct ClientMethodGenerator {}
+impl Visit<'_> for ClientMethodGenerator {
+    fn visit_item_mod(&mut self, module: &syn::ItemMod) {
+        syn::visit::visit_item_mod(self, module);
     }
 }
 pub fn extract_response_idents() -> String {
