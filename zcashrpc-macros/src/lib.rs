@@ -18,7 +18,9 @@ fn build_collector(source: &str) -> utils::ResponseIdentCollector {
 pub fn declare_all_rpc_methods(_: TokenStream) -> TokenStream {
     let src = utils::extract_response_idents();
     let responses = build_collector(&src);
-    dbg!(&responses);
+    for response in responses.response_idents {
+        let _rpcname = dbg!(response.to_string().trim_end_matches("Response"));
+    }
     quote::quote!("a").into()
 }
 
