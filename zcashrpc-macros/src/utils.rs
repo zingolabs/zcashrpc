@@ -93,20 +93,10 @@ pub fn format_input(
     (call_ident, response_ident, param_stream, arg_id_stream)
 }
 
-enum ArgumentTokens {
-    Struct,
-    Enum,
-}
-enum ResponseTokens {
-    Struct,
-    Enum,
-    Alias,
-}
-
 fn populate_method_template(
-    rpc_name: &str,
-    args: ArgumentTokens,
-    responses: ResponseTokens,
+    rpc_name: String,
+    args: syn::Item,
+    responses: syn::Item,
 ) -> proc_macro2::TokenStream {
     quote::quote! {
         fn #rpc_name(self, #args) -> Wrapping(#responses) {
@@ -114,25 +104,49 @@ fn populate_method_template(
         }
     }
 }
-fn format_from_tg_to_rpc_client(
-    rpc_name: &str,
-    contents: Vec<syn::Item>,
-) -> proc_macro2::TokenStream {
-    //! Takes a typegen generated rpc definition, extracts elements (arguments, responses,
-    for rpc_element in contents {
-        if let syn::Item::Struct(structitem) = rpc_element {
-            println!("struct is: {}", &structitem.ident.to_string());
-        } else if let syn::Item::Type(typeitem) = rpc_element {
-            println!("typeitem is: {}", &typeitem.ident.to_string());
-        } else if let syn::Item::Enum(enumitem) = rpc_element {
-            println!("enumitem is: {}", &enumitem.ident.to_string());
+struct TemplateElementsBuilder {
+    rpc_name: String,
+    args: Option<syn::Item>,
+    responses: Option<syn::Item>,
+}
+impl TemplateElementsBuilder {
+    fn check_response_or_args(&mut self, element: syn::Item, id: syn::Ident) {
+        if id.to_string().rfind("Response").is_some() {
+            self.responses = Some(element);
+        } else if id.to_string().rfind("Arguments").is_some() {
+            self.args = Some(element);
         }
     }
-    populate_method_template(
+}
+fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
+    match item {
+        Item::Struct(ref x) => &x.ident,
+        Item::Enum(ref x) => &x.ident,
+        Item::Type(ref x) => &x.ident,
+    }
+}
+fn format_from_tg_to_rpc_client(
+    rpc_name: String,
+    contents: Vec<syn::Item>,
+) -> proc_macro2::TokenStream {
+    //! Takes a typegen generated rpc definition, extracts elements:
+    //!   rpc_name: Note the name is converted to a string, because the originating span metadata
+    //!   isn't useful, and is potentially problematic.
+    //!            
+    //!   arguments
+    //!   responses
+    let mut templatebuilder = TemplateElementsBuilder {
         rpc_name,
-        ArgumentTokens::Struct,
-        ResponseTokens::Struct,
-    )
+        args: None,
+        responses: None,
+    };
+    let args;
+    let response;
+    use syn::Item;
+    for rpc_element in contents {
+        templatebuilder.check_response_or_args(rpc_element);
+    }
+    populate_method_template(rpc_name, args, response)
 }
 pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
     let source = extract_response_idents();
@@ -143,7 +157,7 @@ pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
             println!("rpc: {}", &m.ident.to_string());
             if let Some(c) = m.content {
                 let rpc_tokens =
-                    format_from_tg_to_rpc_client(&m.ident.to_string(), c.1);
+                    format_from_tg_to_rpc_client(m.ident.to_string(), c.1);
             }
         }
     }
