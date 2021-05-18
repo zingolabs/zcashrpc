@@ -103,7 +103,22 @@ enum ResponseTokens {
     Alias,
 }
 
-fn f(contents: Vec<syn::Item>) -> (ArgumentTokens, ResponseTokens) {
+fn populate_method_template(
+    rpc_name: &str,
+    args: ArgumentTokens,
+    responses: ResponseTokens,
+) -> proc_macro2::TokenStream {
+    quote::quote! {
+        fn #rpc_name(self, #args) -> Wrapping(#responses) {
+
+        }
+    }
+}
+fn format_from_tg_to_rpc_client(
+    rpc_name: &str,
+    contents: Vec<syn::Item>,
+) -> proc_macro2::TokenStream {
+    //! Takes a typegen generated rpc definition, extracts elements (arguments, responses,
     for rpc_element in contents {
         if let syn::Item::Struct(structitem) = rpc_element {
             println!("struct is: {}", &structitem.ident.to_string());
@@ -113,7 +128,11 @@ fn f(contents: Vec<syn::Item>) -> (ArgumentTokens, ResponseTokens) {
             println!("enumitem is: {}", &enumitem.ident.to_string());
         }
     }
-    (ArgumentTokens::Struct, ResponseTokens::Struct)
+    populate_method_template(
+        rpc_name,
+        ArgumentTokens::Struct,
+        ResponseTokens::Struct,
+    )
 }
 pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
     let source = extract_response_idents();
@@ -123,7 +142,8 @@ pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
             println!();
             println!("rpc: {}", &m.ident.to_string());
             if let Some(c) = m.content {
-                let rpc_tokens = f(c.1);
+                let rpc_tokens =
+                    format_from_tg_to_rpc_client(&m.ident.to_string(), c.1);
             }
         }
     }
