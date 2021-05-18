@@ -94,6 +94,7 @@ pub fn format_input(
 }
 
 use syn::visit_mut::VisitMut;
+#[derive(Debug)]
 pub(crate) struct V {
     //idents: std::vec::Vec<syn::Ident>,
     pub(crate) response_idents: std::vec::Vec<syn::Ident>,
