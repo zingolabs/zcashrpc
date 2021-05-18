@@ -5,21 +5,20 @@ mod utils;
 
 use proc_macro::TokenStream;
 
-fn build_collector(source: &str) -> utils::ResponseIdentCollector {
+fn build_collector(source: &str) -> utils::ClientMethodGenerator {
     let mut syntax = syn::parse_file(&source).expect("Unable to parse file");
     use syn::visit_mut::VisitMut;
-    let mut responses = utils::ResponseIdentCollector {
-        response_idents: vec![],
-    };
+    let mut responses = utils::ClientMethodGenerator { modules: vec![] };
     responses.visit_file_mut(&mut syntax);
     responses
 }
 #[proc_macro]
 pub fn declare_all_rpc_methods(_: TokenStream) -> TokenStream {
     let src = utils::extract_response_idents();
-    let responses = build_collector(&src);
-    for response in responses.response_idents {
-        let _rpcname = dbg!(response.to_string().trim_end_matches("Response"));
+    let module_asts = build_collector(&src);
+    for modast in module_asts.modules {
+        let _rpcname =
+            dbg!(modast.ident.to_string().trim_end_matches("Response"));
     }
     quote::quote!("a").into()
 }

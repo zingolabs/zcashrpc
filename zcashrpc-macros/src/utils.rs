@@ -95,17 +95,17 @@ pub fn format_input(
 
 use syn::visit_mut::VisitMut;
 #[derive(Debug)]
-pub(crate) struct ResponseIdentCollector {
+pub(crate) struct ClientMethodGenerator {
     //idents: std::vec::Vec<syn::Ident>,
-    pub(crate) response_idents: std::vec::Vec<syn::Ident>,
+    pub(crate) modules: std::vec::Vec<syn::ItemMod>,
 }
-impl VisitMut for ResponseIdentCollector {
-    fn visit_ident_mut(&mut self, ident: &mut syn::Ident) {
-        let id = &ident.to_string();
+impl VisitMut for ClientMethodGenerator {
+    fn visit_item_mod_mut(&mut self, module: &mut syn::ItemMod) {
+        let id = &module.ident.to_string();
         if id.rfind("Response").is_some() {
-            self.response_idents.push(ident.clone());
+            self.modules.push(module.clone());
         }
-        syn::visit_mut::visit_ident_mut(self, ident);
+        syn::visit_mut::visit_item_mod_mut(self, module);
     }
 }
 pub fn extract_response_idents() -> String {
