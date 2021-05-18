@@ -93,6 +93,14 @@ pub fn format_input(
     (call_ident, response_ident, param_stream, arg_id_stream)
 }
 
+pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
+    let source = extract_response_idents();
+    let mut syntax = syn::parse_file(&source).expect("Unable to parse file");
+    let mut reqresponse_types = ClientMethodGenerator { modules: vec![] };
+    reqresponse_types.visit_file_mut(&mut syntax);
+    reqresponse_types
+}
+
 use syn::visit_mut::VisitMut;
 #[derive(Debug)]
 pub(crate) struct ClientMethodGenerator {

@@ -4,17 +4,9 @@ mod utils;
 
 use proc_macro::TokenStream;
 
-fn build_collector(source: &str) -> utils::ClientMethodGenerator {
-    let mut syntax = syn::parse_file(&source).expect("Unable to parse file");
-    use syn::visit_mut::VisitMut;
-    let mut responses = utils::ClientMethodGenerator { modules: vec![] };
-    responses.visit_file_mut(&mut syntax);
-    responses
-}
 #[proc_macro]
 pub fn declare_all_rpc_methods(_: TokenStream) -> TokenStream {
-    let src = utils::extract_response_idents();
-    let module_asts = build_collector(&src);
+    let module_asts = utils::create_methodgenerator();
     for modast in module_asts.modules {
         let _rpcname =
             dbg!(modast.ident.to_string().trim_end_matches("Response"));
