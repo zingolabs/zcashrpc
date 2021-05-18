@@ -95,14 +95,14 @@ pub fn format_input(
 
 use syn::visit_mut::VisitMut;
 #[derive(Debug)]
-pub(crate) struct V {
+pub(crate) struct ResponseIdentCollector {
     //idents: std::vec::Vec<syn::Ident>,
     pub(crate) response_idents: std::vec::Vec<syn::Ident>,
 }
-impl VisitMut for V {
+impl VisitMut for ResponseIdentCollector {
     fn visit_ident_mut(&mut self, ident: &mut syn::Ident) {
         let id = &ident.to_string();
-        if let Some(index) = id.rfind("Response") {
+        if id.rfind("Response").is_some() {
             self.response_idents.push(ident.clone());
         }
         syn::visit_mut::visit_ident_mut(self, ident);

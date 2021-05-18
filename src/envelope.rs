@@ -116,5 +116,6 @@ mod test {
             vec![serde_json::Value::Bool(true)],
         );
         let reqw_body = reqwest::Body::from(&test_requenvelope);
+        dbg!(&reqw_body);
     }
 }
