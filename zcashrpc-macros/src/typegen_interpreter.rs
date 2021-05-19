@@ -27,7 +27,8 @@ struct TemplateElements {
 }
 impl TemplateElements {
     fn populate_method_template(self) -> proc_macro2::TokenStream {
-        let rpc_name = self.rpc_name;
+        use proc_macro2::{Ident, Span};
+        let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let args = self.args;
         let responses = self.responses;
         quote::quote! {
