@@ -1,4 +1,4 @@
-macro_rules! rpc_call {
+macro_rules! build_rpc_methodcall_body {
     ( $self:ident . $rpcname:ident ( $( $arg:expr ),* ) ) => {
         {
             let args = vec![

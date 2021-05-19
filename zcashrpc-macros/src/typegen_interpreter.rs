@@ -45,7 +45,9 @@ fn interpolate_into_quote(
 ) -> proc_macro2::TokenStream {
     let argid = unpack_ident_from_element(&args);
     let responseid = unpack_ident_from_element(&responses);
-    quote::quote! [fn #rpc_name(self, args: #argid) -> #responseid {
+    quote::quote! [
+        fn #rpc_name(self, args: #argid)
+            -> impl Future<Output = ResponseResult<#responseid>> {
 
         }
     ]

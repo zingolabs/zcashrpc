@@ -8,7 +8,7 @@ pub fn make_call(
             &mut self,
             #param_stream
         ) -> impl Future<Output = ResponseResult<#response_ident>> {
-            rpc_call!(self.#call_ident(#arg_id_stream))
+            build_rpc_methodcall_body!(self.#call_ident(#arg_id_stream))
         }
     )
     .into()
