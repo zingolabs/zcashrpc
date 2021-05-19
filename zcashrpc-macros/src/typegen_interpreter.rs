@@ -31,7 +31,11 @@ impl TemplateElements {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let args = self.args;
         let responses = self.responses;
-        interpolate_into_quote(rpc_name, args, responses)
+        let temp = interpolate_into_quote(rpc_name, args, responses);
+        if &self.rpc_name == "getinfo" {
+            println!("{}", &temp.to_string());
+        }
+        temp
     }
 }
 fn interpolate_into_quote(
@@ -39,10 +43,12 @@ fn interpolate_into_quote(
     args: syn::Item,
     responses: syn::Item,
 ) -> proc_macro2::TokenStream {
-    quote::quote! [
-    fn #rpc_name(self, #args) -> Wrapping(#responses) {
+    let argid = unpack_ident_from_element(&args);
+    let responseid = unpack_ident_from_element(&responses);
+    quote::quote! [fn #rpc_name(self, args: #argid) -> #responseid {
 
-    }]
+        }
+    ]
 }
 fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
     use syn::Item;
@@ -89,7 +95,6 @@ pub(crate) fn generate_populated_templates() {
         }
     }
 }
-
 pub fn extract_response_idents() -> String {
     let pathstr =
         format!("{}/../src/client/rpc_types.rs", env!("CARGO_MANIFEST_DIR"));
