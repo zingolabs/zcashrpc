@@ -1,12 +1,13 @@
 mod calls;
 mod cli_commands;
+mod typegen_interpreter;
 mod utils;
 
 use proc_macro::TokenStream;
 
 #[proc_macro]
 pub fn declare_all_rpc_methods(_: TokenStream) -> TokenStream {
-    utils::generate_populated_templates();
+    typegen_interpreter::generate_populated_templates();
     quote::quote!("a").into()
 }
 
