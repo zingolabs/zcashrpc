@@ -6,7 +6,7 @@ use proc_macro::TokenStream;
 
 #[proc_macro]
 pub fn declare_all_rpc_methods(_: TokenStream) -> TokenStream {
-    utils::create_methodgenerator();
+    utils::generate_populated_templates();
     quote::quote!("a").into()
 }
 

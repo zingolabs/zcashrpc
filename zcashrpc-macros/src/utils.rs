@@ -143,8 +143,9 @@ fn format_from_tg_to_rpc_client(
     contents: Vec<syn::Item>,
 ) -> proc_macro2::TokenStream {
     //! Takes a typegen generated rpc definition, extracts elements:
-    //!   rpc_name: Note the name is converted to a string, because the originating span metadata
-    //!   isn't useful, and is potentially problematic.
+    //!   rpc_name: Note the name is converted to a string, because the
+    //!   originating span metadata isn't useful, and is potentially
+    //!   problematic.
     //!            
     //!   arguments
     //!   responses
@@ -158,33 +159,23 @@ fn format_from_tg_to_rpc_client(
     }
     templatebuilder.populate_method_template()
 }
-pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
+pub(crate) fn generate_populated_templates() {
     let source = extract_response_idents();
     let syntax = syn::parse_file(&source).expect("Unable to parse file");
-    for i in syntax.items {
-        if let syn::Item::Mod(m) = i {
+    for item in syntax.items {
+        if let syn::Item::Mod(module) = item {
             println!();
-            println!("rpc: {}", &m.ident.to_string());
-            if let Some(c) = m.content {
-                let rpc_tokens =
-                    format_from_tg_to_rpc_client(m.ident.to_string(), c.1);
+            println!("rpc: {}", &module.ident.to_string());
+
+            if let Some(c) = module.content {
+                format_from_tg_to_rpc_client(module.ident.to_string(), c.1);
             }
+        } else {
+            panic!("Non module item in toplevel of typegen output.")
         }
     }
-    //let mut reqresponse_types = ClientMethodGenerator { rpc: syntax };
-    //reqresponse_types.visit_file_mut(&mut syntax);
-    //reqresponse_types
-    ClientMethodGenerator {}
 }
 
-use syn::visit::Visit;
-#[derive(Debug)]
-pub(crate) struct ClientMethodGenerator {}
-impl Visit<'_> for ClientMethodGenerator {
-    fn visit_item_mod(&mut self, module: &syn::ItemMod) {
-        syn::visit::visit_item_mod(self, module);
-    }
-}
 pub fn extract_response_idents() -> String {
     let pathstr =
         format!("{}/../src/client/rpc_types.rs", env!("CARGO_MANIFEST_DIR"));
