@@ -93,36 +93,49 @@ pub fn format_input(
     (call_ident, response_ident, param_stream, arg_id_stream)
 }
 
-fn populate_method_template(
-    rpc_name: String,
-    args: syn::Item,
-    responses: syn::Item,
-) -> proc_macro2::TokenStream {
-    quote::quote! {
-        fn #rpc_name(self, #args) -> Wrapping(#responses) {
-
-        }
-    }
-}
 struct TemplateElementsBuilder {
     rpc_name: String,
     args: Option<syn::Item>,
     responses: Option<syn::Item>,
 }
 impl TemplateElementsBuilder {
-    fn check_response_or_args(&mut self, element: syn::Item, id: syn::Ident) {
+    fn check_response_or_args(&mut self, element: syn::Item) {
+        let id = unpack_ident_from_element(&element);
         if id.to_string().rfind("Response").is_some() {
             self.responses = Some(element);
         } else if id.to_string().rfind("Arguments").is_some() {
             self.args = Some(element);
         }
     }
+    fn populate_method_template(self) -> proc_macro2::TokenStream {
+        let rpc_name = self.rpc_name;
+        match (self.args, self.responses) {
+            //hooray for shadowing!
+            (Some(args), Some(responses)) => {
+                quote::quote! {
+                    fn #rpc_name(self, #args) -> Wrapping(#responses) {
+
+                    }
+                }
+            }
+            (args, responses) => panic!(
+                "{}args: {}\n  responses: {}",
+                "Something missing: \n  ",
+                args.is_none(),
+                responses.is_none()
+            ),
+        }
+    }
 }
 fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
+    use syn::Item;
     match item {
         Item::Struct(ref x) => &x.ident,
         Item::Enum(ref x) => &x.ident,
         Item::Type(ref x) => &x.ident,
+        otherwise => {
+            panic!("Expected Struct, Enum, or Type, found {:?}", otherwise)
+        }
     }
 }
 fn format_from_tg_to_rpc_client(
@@ -140,13 +153,10 @@ fn format_from_tg_to_rpc_client(
         args: None,
         responses: None,
     };
-    let args;
-    let response;
-    use syn::Item;
     for rpc_element in contents {
         templatebuilder.check_response_or_args(rpc_element);
     }
-    populate_method_template(rpc_name, args, response)
+    templatebuilder.populate_method_template()
 }
 pub(crate) fn create_methodgenerator() -> ClientMethodGenerator {
     let source = extract_response_idents();
