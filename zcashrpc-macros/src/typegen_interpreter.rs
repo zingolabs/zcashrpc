@@ -25,18 +25,24 @@ struct TemplateElements {
     args: syn::Item,
     responses: syn::Item,
 }
+use proc_macro2::{Ident, Span};
 impl TemplateElements {
     fn populate_method_template(self) -> proc_macro2::TokenStream {
-        use proc_macro2::{Ident, Span};
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let args = self.args;
         let responses = self.responses;
-        quote::quote! {
-            fn #rpc_name(self, #args) -> Wrapping(#responses) {
-
-            }
-        }
+        interpolate_into_quote(rpc_name, args, responses)
     }
+}
+fn interpolate_into_quote(
+    rpc_name: Ident,
+    args: syn::Item,
+    responses: syn::Item,
+) -> proc_macro2::TokenStream {
+    quote::quote! [
+    fn #rpc_name(self, #args) -> Wrapping(#responses) {
+
+    }]
 }
 fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
     use syn::Item;
@@ -75,9 +81,6 @@ pub(crate) fn generate_populated_templates() {
     let syntax = syn::parse_file(&source).expect("Unable to parse file");
     for item in syntax.items {
         if let syn::Item::Mod(module) = item {
-            println!();
-            println!("rpc: {}", &module.ident.to_string());
-
             if let Some(c) = module.content {
                 format_from_tg_to_rpc_client(module.ident.to_string(), c.1);
             }
