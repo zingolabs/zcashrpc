@@ -4,6 +4,13 @@ struct TemplateElementsBuilder {
     responses: Option<syn::Item>,
 }
 impl TemplateElementsBuilder {
+    fn build(self) -> TemplateElements {
+        TemplateElements {
+            rpc_name: self.rpc_name,
+            args: self.args.expect("Unininitialized??"),
+            responses: self.responses.expect("Unininitialized??"),
+        }
+    }
     fn check_response_or_args(&mut self, element: syn::Item) {
         let id = unpack_ident_from_element(&element);
         if id.to_string().rfind("Response").is_some() {
@@ -12,23 +19,21 @@ impl TemplateElementsBuilder {
             self.args = Some(element);
         }
     }
+}
+struct TemplateElements {
+    rpc_name: String,
+    args: syn::Item,
+    responses: syn::Item,
+}
+impl TemplateElements {
     fn populate_method_template(self) -> proc_macro2::TokenStream {
         let rpc_name = self.rpc_name;
-        match (self.args, self.responses) {
-            //hooray for shadowing!
-            (Some(args), Some(responses)) => {
-                quote::quote! {
-                    fn #rpc_name(self, #args) -> Wrapping(#responses) {
+        let args = self.args;
+        let responses = self.responses;
+        quote::quote! {
+            fn #rpc_name(self, #args) -> Wrapping(#responses) {
 
-                    }
-                }
             }
-            (args, responses) => panic!(
-                "{}args: {}\n  responses: {}",
-                "Something missing: \n  ",
-                args.is_none(),
-                responses.is_none()
-            ),
         }
     }
 }
@@ -62,7 +67,7 @@ fn format_from_tg_to_rpc_client(
     for rpc_element in contents {
         templatebuilder.check_response_or_args(rpc_element);
     }
-    templatebuilder.populate_method_template()
+    templatebuilder.build().populate_method_template()
 }
 pub(crate) fn generate_populated_templates() {
     let source = extract_response_idents();
