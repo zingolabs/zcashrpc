@@ -115,6 +115,47 @@ mod test {
         use super::*;
         #[ignore]
         #[test]
-        fn getinfo_happy() {}
+        fn getinfo_happy_path() {}
+    }
+    mod TemplateElements_populate_method_template {
+        use super::*;
+        #[test]
+        fn getinfo_happy_path() {
+            //! Inputs to parse_quote are copied from earlier typegen outputs.
+            let args_tokens = syn::parse_quote!(
+                #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+                pub struct GetinfoArguments;
+            );
+
+            let response_tokens = syn::parse_quote!(
+                #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+                pub struct GetinfoResponse {
+                    pub proxy: Option<String>,
+                    pub balance: rust_decimal::Decimal,
+                    pub blocks: rust_decimal::Decimal,
+                    pub connections: rust_decimal::Decimal,
+                    pub difficulty: rust_decimal::Decimal,
+                    pub errors: String,
+                    pub keypoololdest: rust_decimal::Decimal,
+                    pub keypoolsize: rust_decimal::Decimal,
+                    pub paytxfee: rust_decimal::Decimal,
+                    pub protocolversion: rust_decimal::Decimal,
+                    pub relayfee: rust_decimal::Decimal,
+                    pub testnet: bool,
+                    pub timeoffset: rust_decimal::Decimal,
+                    pub unlocked_until: rust_decimal::Decimal,
+                    pub version: rust_decimal::Decimal,
+                    pub walletversion: rust_decimal::Decimal,
+                }
+            );
+            let input_getinfo_template_elem = TemplateElements {
+                rpc_name: "getinfo".to_string(),
+                args: syn::Item::Struct(args_tokens),
+                responses: syn::Item::Struct(response_tokens),
+            };
+            let observed_template = dbg!(input_getinfo_template_elem
+                .populate_method_template()
+                .to_string());
+        }
     }
 }
