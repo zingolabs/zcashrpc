@@ -5,10 +5,6 @@ pub mod rpc_types;
 pub mod utils;
 
 use crate::ResponseResult;
-use rpc_types::{
-    generate::GenerateResponse, getblockchaininfo::GetblockchaininfoResponse,
-    getinfo::GetinfoResponse, z_getnewaddress::ZGetnewaddressResponse,
-};
 use serde::de::DeserializeOwned;
 use std::future::Future;
 
@@ -27,12 +23,7 @@ impl Client {
         }
     }
 
-    zcashrpc_macros::declare_rpc_client_methods! {
-        Getinfo,
-        Getblockchaininfo,
-        ZGetnewaddress,
-        Generate (how_many: u32),
-    }
+    zcashrpc_macros::declare_all_rpc_methods! {}
 }
 
 impl Client {
