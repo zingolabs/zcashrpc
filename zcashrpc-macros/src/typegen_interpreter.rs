@@ -154,9 +154,22 @@ mod test {
                 args: syn::Item::Struct(args_tokens),
                 responses: syn::Item::Struct(response_tokens),
             };
-            let observed_template = dbg!(input_getinfo_template_elem
-                .populate_rpcmethod_template()
-                .to_string());
+            let observed_template =
+                input_getinfo_template_elem.populate_rpcmethod_template();
+            #[rustfmt::skip]
+            let expected_template = quote::quote!(
+                fn getinfo(
+                    self,
+                    args: GetinfoArguments
+                ) -> impl Future<Output = ResponseResult<GetinfoResponse>>
+                {
+                    this body in not really implemented haha!
+                }
+            );
+            assert_eq!(
+                expected_template.to_string(),
+                observed_template.to_string()
+            );
         }
     }
 }
