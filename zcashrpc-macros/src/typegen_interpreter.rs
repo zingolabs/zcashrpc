@@ -27,7 +27,7 @@ struct TemplateElements {
 }
 use proc_macro2::{Ident, Span};
 impl TemplateElements {
-    fn populate_method_template(self) -> proc_macro2::TokenStream {
+    fn populate_rpcmethod_template(self) -> proc_macro2::TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let args = self.args;
         let responses = self.responses;
@@ -82,7 +82,7 @@ fn format_from_tg_to_rpc_client(
     for rpc_element in mod_contents {
         templatebuilder.update_if_response_or_args(rpc_element);
     }
-    templatebuilder.build().populate_method_template()
+    templatebuilder.build().populate_rpcmethod_template()
 }
 pub(crate) fn generate_populated_templates() {
     let source = extract_response_idents();
@@ -108,16 +108,17 @@ pub fn extract_response_idents() -> String {
     src
 }
 
+#[allow(non_snake_case)]
 #[cfg(test)]
 mod test {
     use super::*;
     mod format_from_tg_to_rpc_client {
-        use super::*;
+        //use super::*;
         #[ignore]
         #[test]
         fn getinfo_happy_path() {}
     }
-    mod TemplateElements_populate_method_template {
+    mod TemplateElements_populate_rpcmethod_template {
         use super::*;
         #[test]
         fn getinfo_happy_path() {
@@ -154,7 +155,7 @@ mod test {
                 responses: syn::Item::Struct(response_tokens),
             };
             let observed_template = dbg!(input_getinfo_template_elem
-                .populate_method_template()
+                .populate_rpcmethod_template()
                 .to_string());
         }
     }
