@@ -48,3 +48,13 @@ impl Client {
         }
     }
 }
+
+#[cfg(test)]
+mod client {
+    use super::*;
+    #[test]
+    fn serialize_into_output_format_happy_path() {
+        let input_args = vec![serde_json::json!([])];
+        let observed = Client::serialize_into_output_format(input_args);
+    }
+}

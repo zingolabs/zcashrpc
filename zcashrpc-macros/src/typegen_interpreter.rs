@@ -45,11 +45,12 @@ fn interpolate_into_quote(
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
     quote::quote!(
-        fn _h_rpc_name(
+        fn #rpc_name(
             self,
-            args: _h_argid,
-        ) -> impl Future<Output = ResponseResult<_h_responseid>> {
-            self.make_request(_h_rpc_name_string);
+            args: #argid,
+        ) -> impl Future<Output = ResponseResult<#responseid>> {
+            let args_for_make_request = Self::serialize_into_output_format(args);
+            self.make_request(#rpc_name_string, args_for_make_request);
         }
     )
 }
