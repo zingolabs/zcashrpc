@@ -47,10 +47,13 @@ fn interpolate_into_quote(
     quote::quote!(
         fn #rpc_name(
             self,
-            args: #argid,
-        ) -> impl Future<Output = ResponseResult<#responseid>> {
-            let args_for_make_request = Self::serialize_into_output_format(args);
-            self.make_request(#rpc_name_string, args_for_make_request);
+            args: rpc_types::#rpc_name::#argid,
+        ) -> impl Future<
+            Output = ResponseResult<rpc_types::#rpc_name::#responseid>,
+        > {
+            let args_for_make_request =
+                Self::serialize_into_output_format(args);
+            self.make_request(#rpc_name_string, args_for_make_request)
         }
     )
 }
@@ -93,7 +96,10 @@ pub(crate) fn generate_populated_templates() -> TokenStream {
     for item in syntax.items {
         if let syn::Item::Mod(module) = item {
             if let Some(c) = module.content {
-                format_from_tg_to_rpc_client(module.ident.to_string(), c.1);
+                client_method_definitions.extend(format_from_tg_to_rpc_client(
+                    module.ident.to_string(),
+                    c.1,
+                ));
             }
         } else {
             panic!("Non module item in toplevel of typegen output.")
