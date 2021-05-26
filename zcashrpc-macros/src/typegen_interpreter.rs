@@ -120,10 +120,13 @@ mod test {
         observed: T,
     }
     impl<T: PartialEq + Display> Comparator<T> {
-        fn compare_generics(self, expected: T, observed: T) {
+        fn compare(self) {
             //! Our convention is that "expected" is "first"
-            if expected != observed {
-                panic!("Expected not {} \n", expected.to_string());
+            if self.expected != self.observed {
+                panic!(
+                    "\n===\nExpected:\n{}\nObserved:\n{}\n===\n",
+                    self.expected, self.observed
+                );
             }
         }
     }
@@ -176,10 +179,11 @@ mod test {
                 args: syn::Item::Struct(args_tokens),
                 responses: syn::Item::Struct(response_tokens),
             };
-            let observed_template =
-                input_getinfo_template_elem.populate_rpcmethod_template();
+            let observed = input_getinfo_template_elem
+                .populate_rpcmethod_template()
+                .to_string();
             #[rustfmt::skip]
-            let expected_template = quote::quote!(
+            let expected = quote::quote!(
                 fn getinfo(
                     self,
                     args: GetinfoArguments
@@ -187,12 +191,8 @@ mod test {
                 {
                     this body in not really implemented haha!
                 }
-            );
-            /*assert_eq!(
-                expected_template.to_string(),
-                observed_template.to_string(),
-
-            )*/
+            ).to_string();
+            Comparator { expected, observed }.compare();
         }
     }
 }
