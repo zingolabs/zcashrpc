@@ -43,15 +43,15 @@ fn interpolate_into_quote(
     args: syn::Item,
     responses: syn::Item,
 ) -> proc_macro2::TokenStream {
-    let argid = unpack_ident_from_element(&args);
-    let responseid = unpack_ident_from_element(&responses);
-    let rpc_name_string = rpc_name.to_string();
+    let _h_argid = unpack_ident_from_element(&args);
+    let _h_responseid = unpack_ident_from_element(&responses);
+    let _h_rpc_name_string = rpc_name.to_string();
     quote::quote!(
-        fn h_rpc_name(
+        fn _h_rpc_name(
             self,
-            args: h_argid,
-        ) -> impl Future<Output = ResponseResult<h_responseid>> {
-            self.make_request(h_rpc_name_string);
+            args: _h_argid,
+        ) -> impl Future<Output = ResponseResult<_h_responseid>> {
+            self.make_request(_h_rpc_name_string);
         }
     )
 }
