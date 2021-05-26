@@ -32,20 +32,18 @@ impl TemplateElements {
         let args = self.args;
         let responses = self.responses;
         let temp = interpolate_into_quote(rpc_name, args, responses);
-        if &self.rpc_name == "getinfo" {
-            println!("{}", &temp.to_string());
-        }
         temp
     }
 }
+#[allow(unused)]
 fn interpolate_into_quote(
     rpc_name: Ident,
     args: syn::Item,
     responses: syn::Item,
 ) -> proc_macro2::TokenStream {
-    let _h_argid = unpack_ident_from_element(&args);
-    let _h_responseid = unpack_ident_from_element(&responses);
-    let _h_rpc_name_string = rpc_name.to_string();
+    let argid = unpack_ident_from_element(&args);
+    let responseid = unpack_ident_from_element(&responses);
+    let rpc_name_string = rpc_name.to_string();
     quote::quote!(
         fn _h_rpc_name(
             self,
@@ -166,22 +164,19 @@ mod test {
         #[test]
         fn getinfo_happy_path() {}
     }
-    mod TemplateElements_populate_rpcmethod_template {
+    mod interpolate_into_quote {
         use super::*;
         #[test]
         fn getinfo_happy_path() {
             //! Inputs to parse_quote are copied from earlier typegen outputs.
-            let args_tokens = get_getinfo_arguments();
+            let args_tokens = syn::Item::Struct(get_getinfo_arguments());
+            let response_tokens = syn::Item::Struct(get_getinfo_response());
+            let rpc_name = Ident::new("getinfo", Span::call_site());
+            let args = args_tokens;
+            let responses = response_tokens;
 
-            let response_tokens = get_getinfo_response();
-            let input_getinfo_template_elem = TemplateElements {
-                rpc_name: "getinfo".to_string(),
-                args: syn::Item::Struct(args_tokens),
-                responses: syn::Item::Struct(response_tokens),
-            };
-            let observed = input_getinfo_template_elem
-                .populate_rpcmethod_template()
-                .to_string();
+            let observed =
+                interpolate_into_quote(rpc_name, args, responses).to_string();
             #[rustfmt::skip]
             let expected = quote::quote!(
                 fn getinfo(
