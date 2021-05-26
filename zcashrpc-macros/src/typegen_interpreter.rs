@@ -45,8 +45,8 @@ fn interpolate_into_quote(
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
     quote::quote!(
-        fn #rpc_name(
-            self,
+        pub fn #rpc_name(
+            &mut self,
             args: rpc_types::#rpc_name::#argid,
         ) -> impl Future<
             Output = ResponseResult<rpc_types::#rpc_name::#responseid>,

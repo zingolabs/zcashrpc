@@ -26,7 +26,7 @@ impl ResponseEnvelope {
     ) -> ResponseResult<serde_json::Value> {
         use crate::{
             error::JsonRpcViolation::*,
-            Error::{JsonRpcViolation, Response},
+            ServerError::{JsonRpcViolation, Response},
         };
 
         if self.id != clientid {
@@ -93,8 +93,8 @@ mod test {
         let violation = test_respenvelope.unseal_internal(5).expect_err(
             "This should be an error. Client id and server id are different.",
         );
-        use crate::error::Error::JsonRpcViolation as JRVErrVar;
         use crate::error::JsonRpcViolation;
+        use crate::error::ServerError::JsonRpcViolation as JRVErrVar;
         match violation {
             JRVErrVar(JsonRpcViolation::UnexpectedServerId {
                 client: observed_client_id,

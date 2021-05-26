@@ -1,6 +1,4 @@
 //! Includes the `Client`
-#[macro_use]
-mod callrpc;
 pub mod rpc_types;
 pub mod utils;
 
@@ -46,6 +44,17 @@ impl Client {
             let resp = respenv.unseal(id)?;
             Ok(resp)
         }
+    }
+    fn serialize_into_output_format<T: serde::Serialize>(
+        args: T,
+    ) -> Vec<serde_json::Value> {
+        serde_json::json!(args)
+            .as_array()
+            .expect(
+                "Since we have deserialized into our concrete type from a \
+            string input, Result should always be Ok.",
+            )
+            .clone()
     }
 }
 
