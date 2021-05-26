@@ -23,7 +23,7 @@ impl Client {
         }
     }
 
-    //zcashrpc_macros::declare_all_rpc_methods! {}
+    zcashrpc_macros::declare_all_rpc_methods! {}
 }
 
 impl Client {

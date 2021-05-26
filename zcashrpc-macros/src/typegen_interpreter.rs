@@ -1,3 +1,4 @@
+use proc_macro2::{Ident, Span, TokenStream};
 struct TemplateElementsBuilder {
     rpc_name: String,
     args: Option<syn::Item>,
@@ -25,9 +26,8 @@ struct TemplateElements {
     args: syn::Item,
     responses: syn::Item,
 }
-use proc_macro2::{Ident, Span};
 impl TemplateElements {
-    fn populate_rpcmethod_template(self) -> proc_macro2::TokenStream {
+    fn populate_rpcmethod_template(self) -> TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let args = self.args;
         let responses = self.responses;
@@ -68,7 +68,7 @@ fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
 fn format_from_tg_to_rpc_client(
     rpc_name: String,
     mod_contents: Vec<syn::Item>,
-) -> proc_macro2::TokenStream {
+) -> TokenStream {
     //! Takes a typegen generated rpc definition, extracts elements:
     //!   rpc_name: Note the name is converted to a string, because the
     //!   originating span metadata isn't useful, and is potentially
@@ -86,9 +86,10 @@ fn format_from_tg_to_rpc_client(
     }
     templatebuilder.build().populate_rpcmethod_template()
 }
-pub(crate) fn generate_populated_templates() {
+pub(crate) fn generate_populated_templates() -> TokenStream {
     let source = extract_response_idents();
     let syntax = syn::parse_file(&source).expect("Unable to parse file");
+    let mut client_method_definitions = TokenStream::new();
     for item in syntax.items {
         if let syn::Item::Mod(module) = item {
             if let Some(c) = module.content {
@@ -98,6 +99,7 @@ pub(crate) fn generate_populated_templates() {
             panic!("Non module item in toplevel of typegen output.")
         }
     }
+    client_method_definitions
 }
 pub fn extract_response_idents() -> String {
     let pathstr =
