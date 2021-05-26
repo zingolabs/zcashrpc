@@ -38,13 +38,13 @@ impl TemplateElements {
 #[allow(unused)]
 fn interpolate_into_quote(
     rpc_name: Ident,
-    args: syn::Item,
+    args: Option<syn::Item>,
     responses: syn::Item,
 ) -> proc_macro2::TokenStream {
-    let argid = unpack_ident_from_element(&args);
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
-    let args_quote = if argid {
+    let args_quote = if let Some(actualargs) = args {
+        let argid = unpack_ident_from_element(&actualargs);
         Some(quote::quote!(args: rpc_types::#rpc_name::#argid))
     } else {
         None
