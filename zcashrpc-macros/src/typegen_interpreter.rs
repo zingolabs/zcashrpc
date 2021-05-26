@@ -8,7 +8,7 @@ impl TemplateElementsBuilder {
     fn build(self) -> TemplateElements {
         TemplateElements {
             rpc_name: self.rpc_name,
-            args: self.args.expect("Unininitialized??"),
+            args: self.args,
             responses: self.responses.expect("Unininitialized??"),
         }
     }
@@ -23,7 +23,7 @@ impl TemplateElementsBuilder {
 }
 struct TemplateElements {
     rpc_name: String,
-    args: syn::Item,
+    args: Option<syn::Item>,
     responses: syn::Item,
 }
 impl TemplateElements {
@@ -44,10 +44,15 @@ fn interpolate_into_quote(
     let argid = unpack_ident_from_element(&args);
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
+    let args_quote = if argid {
+        Some(quote::quote!(args: rpc_types::#rpc_name::#argid))
+    } else {
+        None
+    };
     quote::quote!(
         pub fn #rpc_name(
             &mut self,
-            args: rpc_types::#rpc_name::#argid,
+            #args_quote,
         ) -> impl Future<
             Output = ResponseResult<rpc_types::#rpc_name::#responseid>,
         > {
