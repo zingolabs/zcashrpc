@@ -23,7 +23,7 @@ impl Client {
         }
     }
 
-    zcashrpc_macros::declare_all_rpc_methods! {}
+    //zcashrpc_macros::declare_all_rpc_methods! {}
 }
 
 impl Client {
@@ -53,7 +53,7 @@ impl Client {
 mod client {
     use super::*;
     #[test]
-    fn serialize_into_output_format_happy_path() {
+    fn serialize_into_output_format_getinfo_happy_path() {
         let input_args = vec![serde_json::json!([])];
         let observed = Client::serialize_into_output_format(input_args);
     }
