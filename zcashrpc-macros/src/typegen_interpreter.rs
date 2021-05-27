@@ -183,7 +183,7 @@ mod test {
         #[test]
         fn getinfo_happy_path() {
             //! Inputs to parse_quote are copied from earlier typegen outputs.
-            let args_tokens = syn::Item::Struct(get_getinfo_arguments());
+            let args_tokens = Some(syn::Item::Struct(get_getinfo_arguments()));
             let response_tokens = syn::Item::Struct(get_getinfo_response());
             let rpc_name = Ident::new("getinfo", Span::call_site());
             let args = args_tokens;

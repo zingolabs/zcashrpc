@@ -12,8 +12,7 @@ pub mod addmultisigaddress {
 pub mod addnode {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct AddnodeArguments(String, String);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct AddnodeResponse;
+    pub type AddnodeResponse = ();
 }
 pub mod backupwallet {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -21,10 +20,7 @@ pub mod backupwallet {
     pub type BackupwalletResponse = String;
 }
 pub mod clearbanned {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ClearbannedArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ClearbannedResponse;
+    pub type ClearbannedResponse = ();
 }
 pub mod createmultisig {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -119,8 +115,7 @@ pub mod decodescript {
 pub mod disconnectnode {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct DisconnectnodeArguments(String);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct DisconnectnodeResponse;
+    pub type DisconnectnodeResponse = ();
 }
 pub mod dumpprivkey {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -135,8 +130,7 @@ pub mod dumpwallet {
 pub mod encryptwallet {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct EncryptwalletArguments(String);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct EncryptwalletResponse;
+    pub type EncryptwalletResponse = ();
 }
 pub mod estimatefee {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -201,8 +195,8 @@ pub mod getaddressbalance {
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetaddressbalanceResponse {
-        pub balance: String,
-        pub received: String,
+        pub balance: rust_decimal::Decimal,
+        pub received: rust_decimal::Decimal,
     }
 }
 pub mod getaddressdeltas {
@@ -345,8 +339,6 @@ pub mod getbalance {
     pub type GetbalanceResponse = rust_decimal::Decimal;
 }
 pub mod getbestblockhash {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetbestblockhashArguments;
     pub type GetbestblockhashResponse = String;
 }
 pub mod getblock {
@@ -448,8 +440,6 @@ pub mod getblock {
 }
 pub mod getblockchaininfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetblockchaininfoArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Consensus {
         pub chaintip: String,
         pub nextblock: String,
@@ -501,8 +491,6 @@ pub mod getblockchaininfo {
     }
 }
 pub mod getblockcount {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetblockcountArguments;
     pub type GetblockcountResponse = rust_decimal::Decimal;
 }
 pub mod getblockdeltas {
@@ -646,8 +634,6 @@ pub mod getblocktemplate {
 }
 pub mod getchaintips {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetchaintipsArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetchaintipsElement {
         pub branchlen: rust_decimal::Decimal,
         pub hash: String,
@@ -657,13 +643,9 @@ pub mod getchaintips {
     pub type GetchaintipsResponse = Vec<GetchaintipsElement>;
 }
 pub mod getconnectioncount {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetconnectioncountArguments;
     pub type GetconnectioncountResponse = rust_decimal::Decimal;
 }
 pub mod getdeprecationinfo {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetdeprecationinfoArguments;
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetdeprecationinfoResponse {
         pub deprecationheight: rust_decimal::Decimal,
@@ -672,23 +654,15 @@ pub mod getdeprecationinfo {
     }
 }
 pub mod getdifficulty {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetdifficultyArguments;
     pub type GetdifficultyResponse = rust_decimal::Decimal;
 }
 pub mod getexperimentalfeatures {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetexperimentalfeaturesArguments;
     pub type GetexperimentalfeaturesResponse = Vec<String>;
 }
 pub mod getgenerate {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetgenerateArguments;
     pub type GetgenerateResponse = bool;
 }
 pub mod getinfo {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetinfoArguments;
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetinfoResponse {
         pub proxy: Option<String>,
@@ -710,13 +684,9 @@ pub mod getinfo {
     }
 }
 pub mod getlocalsolps {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetlocalsolpsArguments;
     pub type GetlocalsolpsResponse = rust_decimal::Decimal;
 }
 pub mod getmemoryinfo {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetmemoryinfoArguments;
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetmemoryinfoResponse {
         pub locked: Locked,
@@ -733,8 +703,6 @@ pub mod getmemoryinfo {
 }
 pub mod getmempoolinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetmempoolinfoArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetmempoolinfoResponse {
         pub bytes: rust_decimal::Decimal,
         pub size: rust_decimal::Decimal,
@@ -742,8 +710,6 @@ pub mod getmempoolinfo {
     }
 }
 pub mod getmininginfo {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetmininginfoArguments;
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetmininginfoResponse {
         pub blocks: rust_decimal::Decimal,
@@ -761,8 +727,6 @@ pub mod getmininginfo {
     }
 }
 pub mod getnettotals {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetnettotalsArguments;
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetnettotalsResponse {
         pub timemillis: rust_decimal::Decimal,
@@ -789,8 +753,6 @@ pub mod getnetworkhashps {
     pub type GetnetworkhashpsResponse = rust_decimal::Decimal;
 }
 pub mod getnetworkinfo {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetnetworkinfoArguments;
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetnetworkinfoResponse {
         pub connections: rust_decimal::Decimal,
@@ -833,8 +795,6 @@ pub mod getnewaddress {
 }
 pub mod getpeerinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetpeerinfoArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetpeerinfoElement {
         pub addr: String,
         pub addrlocal: String,
@@ -861,8 +821,6 @@ pub mod getpeerinfo {
     pub type GetpeerinfoResponse = Vec<GetpeerinfoElement>;
 }
 pub mod getrawchangeaddress {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetrawchangeaddressArguments;
     pub type GetrawchangeaddressResponse = String;
 }
 pub mod getrawmempool {
@@ -1046,8 +1004,6 @@ pub mod gettxoutproof {
 }
 pub mod gettxoutsetinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GettxoutsetinfoArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GettxoutsetinfoResponse {
         pub bestblock: String,
         pub bytes_serialized: rust_decimal::Decimal,
@@ -1059,13 +1015,9 @@ pub mod gettxoutsetinfo {
     }
 }
 pub mod getunconfirmedbalance {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetunconfirmedbalanceArguments;
     pub type GetunconfirmedbalanceResponse = rust_decimal::Decimal;
 }
 pub mod getwalletinfo {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetwalletinfoArguments;
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetwalletinfoResponse {
         pub balance: rust_decimal::Decimal,
@@ -1095,32 +1047,27 @@ pub mod importaddress {
         Option<bool>,
         Option<bool>,
     );
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ImportaddressResponse;
+    pub type ImportaddressResponse = ();
 }
 pub mod importprivkey {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ImportprivkeyArguments(String, Option<String>, Option<bool>);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ImportprivkeyResponse;
+    pub type ImportprivkeyResponse = ();
 }
 pub mod importpubkey {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ImportpubkeyArguments(String, Option<String>, Option<bool>);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ImportpubkeyResponse;
+    pub type ImportpubkeyResponse = ();
 }
 pub mod importwallet {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ImportwalletArguments(String);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ImportwalletResponse;
+    pub type ImportwalletResponse = ();
 }
 pub mod keypoolrefill {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct KeypoolrefillArguments(Option<rust_decimal::Decimal>);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct KeypoolrefillResponse;
+    pub type KeypoolrefillResponse = ();
 }
 pub mod listaccounts {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -1134,19 +1081,12 @@ pub mod listaccounts {
     }
 }
 pub mod listaddressgroupings {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ListaddressgroupingsArguments;
     pub type ListaddressgroupingsResponse = Vec<Vec<Vec<String>>>;
 }
 pub mod listbanned {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ListbannedArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ListbannedResponse;
+    pub type ListbannedResponse = ();
 }
 pub mod listlockunspent {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ListlockunspentArguments;
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ListlockunspentElement {
         pub txid: String,
@@ -1272,10 +1212,7 @@ pub mod move_mod {
     pub type MoveResponse = bool;
 }
 pub mod ping {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct PingArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct PingResponse;
+    pub type PingResponse = ();
 }
 pub mod prioritisetransaction {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -1328,8 +1265,7 @@ pub mod sendtoaddress {
 pub mod setaccount {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct SetaccountArguments(String, String);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct SetaccountResponse;
+    pub type SetaccountResponse = ();
 }
 pub mod setban {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -1339,20 +1275,17 @@ pub mod setban {
         Option<rust_decimal::Decimal>,
         Option<bool>,
     );
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct SetbanResponse;
+    pub type SetbanResponse = ();
 }
 pub mod setgenerate {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct SetgenerateArguments(bool, Option<rust_decimal::Decimal>);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct SetgenerateResponse;
+    pub type SetgenerateResponse = ();
 }
 pub mod setlogfilter {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct SetlogfilterArguments(String);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct SetlogfilterResponse;
+    pub type SetlogfilterResponse = ();
 }
 pub mod settxfee {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -1389,10 +1322,7 @@ pub mod signrawtransaction {
     }
 }
 pub mod stop {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct StopArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct StopResponse;
+    pub type StopResponse = ();
 }
 pub mod submitblock {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -1469,8 +1399,6 @@ pub mod z_getbalance {
     pub type ZGetbalanceResponse = rust_decimal::Decimal;
 }
 pub mod z_getmigrationstatus {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZGetmigrationstatusArguments;
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZGetmigrationstatusResponse {
         pub time_started: Option<rust_decimal::Decimal>,
@@ -1683,8 +1611,7 @@ pub mod z_importviewingkey {
 pub mod z_importwallet {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZImportwalletArguments(String);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZImportwalletResponse;
+    pub type ZImportwalletResponse = ();
 }
 pub mod z_listaddresses {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -1783,8 +1710,7 @@ pub mod z_sendmany {
 pub mod z_setmigration {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZSetmigrationArguments(bool);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZSetmigrationResponse;
+    pub type ZSetmigrationResponse = ();
 }
 pub mod z_shieldcoinbase {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -1822,8 +1748,7 @@ pub mod z_validateaddress {
 pub mod z_validatepaymentdisclosure {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZValidatepaymentdisclosureArguments(String);
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZValidatepaymentdisclosureResponse;
+    pub type ZValidatepaymentdisclosureResponse = ();
 }
 pub mod z_viewtransaction {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -1866,16 +1791,12 @@ pub mod z_viewtransaction {
 }
 pub mod zcbenchmark {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZcbenchmarkArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZcbenchmarkElement {
         pub runningtime: rust_decimal::Decimal,
     }
     pub type ZcbenchmarkResponse = Vec<ZcbenchmarkElement>;
 }
 pub mod zcrawjoinsplit {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZcrawjoinsplitArguments;
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZcrawjoinsplitResponse {
         pub encryptednote1: String,
@@ -1885,8 +1806,6 @@ pub mod zcrawjoinsplit {
 }
 pub mod zcrawkeygen {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZcrawkeygenArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZcrawkeygenResponse {
         pub zcaddress: String,
         pub zcsecretkey: String,
@@ -1895,8 +1814,6 @@ pub mod zcrawkeygen {
 }
 pub mod zcrawreceive {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZcrawreceiveArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZcrawreceiveResponse {
         pub amount: rust_decimal::Decimal,
         pub exists: bool,
@@ -1904,8 +1821,5 @@ pub mod zcrawreceive {
     }
 }
 pub mod zcsamplejoinsplit {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZcsamplejoinsplitArguments;
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZcsamplejoinsplitResponse;
+    pub type ZcsamplejoinsplitResponse = ();
 }
