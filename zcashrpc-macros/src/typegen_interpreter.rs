@@ -43,11 +43,14 @@ fn interpolate_into_quote(
 ) -> proc_macro2::TokenStream {
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
-    let args_quote = if let Some(actualargs) = args {
+    let (args_quote, serialize_quote) = if let Some(actualargs) = args {
         let argid = unpack_ident_from_element(&actualargs);
-        Some(quote::quote!(args: rpc_types::#rpc_name::#argid))
+        (
+            Some(quote::quote!(args: rpc_types::#rpc_name::#argid)),
+            quote::quote!(Self::serialize_into_output_format(args)),
+        )
     } else {
-        None
+        (None, quote::quote!(Vec::new()))
     };
     quote::quote!(
         pub fn #rpc_name(
@@ -56,8 +59,7 @@ fn interpolate_into_quote(
         ) -> impl Future<
             Output = ResponseResult<rpc_types::#rpc_name::#responseid>,
         > {
-            let args_for_make_request =
-                Self::serialize_into_output_format(args);
+            let args_for_make_request = #serialize_quote;
             self.make_request(#rpc_name_string, args_for_make_request)
         }
     )
