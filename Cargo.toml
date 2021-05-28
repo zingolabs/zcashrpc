@@ -21,7 +21,6 @@ rust_decimal = "*"
 
 [dev-dependencies]
 tokio = { version = "0.2.23", features = ["macros"] }
-testutils = { git = "https://github.com/zingolabs/testutils.git", branch = "main" }
 
 [features]
 default = ["cookie-finder"]

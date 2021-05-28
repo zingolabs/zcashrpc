@@ -64,6 +64,8 @@ mod client {
     #[test]
     fn serialize_into_output_format_getinfo_happy_path() {
         let input_args = vec![serde_json::json!([])];
+        let expected = vec![serde_json::Value::Array(vec![])];
         let observed = Client::serialize_into_output_format(input_args);
+        assert_eq!(expected, observed);
     }
 }
