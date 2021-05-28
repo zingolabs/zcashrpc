@@ -181,7 +181,30 @@ mod test {
         }
         #[test]
         fn z_getnewaddress_no_arg() {
-            assert_eq!(true, false);
+            //Create expected
+            #[rustfmt::skip]
+            let expected = quote::quote!(
+                pub fn z_getnewaddress(
+                    &mut self,
+                    args: rpc_types::z_getnewaddress::ZGetnewaddressArguments
+                ) -> impl Future<
+                    Output = ResponseResult<
+                        rpc_types::z_getnewaddress::ZGetnewaddressResponse
+                    >,
+                > {
+                    let args_for_make_request = Self::serialize_into_output_format(args);
+                    self.make_request("z_getnewaddress", args_for_make_request)
+                }
+            )
+            .to_string();
+
+            //Make observation
+            let input_mod_contents = 
+            let observation = format_from_tg_to_rpc_client(
+                "z_getnewaddress".to_string(),
+                todo!(),
+            );
+            testutils::Comparator { expected, observed }.compare();
         }
         #[test]
         fn z_getnewaddress_sprout() {
