@@ -179,6 +179,10 @@ mod test {
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
+        #[test]
+        fn z_getnewaddress_no_arg() {}
+        #[test]
+        fn z_getnewaddress_sprout() {}
     }
     mod interpolate_into_quote {
         use super::*;
@@ -209,5 +213,9 @@ mod test {
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
+        #[test]
+        fn z_getnewaddress_no_arg() {}
+        #[test]
+        fn z_getnewaddress_sprout() {}
     }
 }

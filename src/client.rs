@@ -68,4 +68,18 @@ mod client {
         let observed = Client::serialize_into_output_format(input_args);
         assert_eq!(expected, observed);
     }
+    #[test]
+    fn serialize_into_output_format_z_getnewaddress_no_arg() {
+        //let input_args = vec![serde_json::json!([])];
+        //let expected = vec![serde_json::Value::Array(vec![])];
+        //let observed = Client::serialize_into_output_format(input_args);
+        //assert_eq!(expected, observed);
+    }
+    #[test]
+    fn serialize_into_output_format_z_getnewaddress_sprout() {
+        //let input_args = vec![serde_json::json!([])];
+        //let expected = vec![serde_json::Value::Array(vec![])];
+        //let observed = Client::serialize_into_output_format(input_args);
+        //assert_eq!(expected, observed);
+    }
 }
