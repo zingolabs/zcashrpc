@@ -128,6 +128,7 @@ pub fn extract_response_idents() -> String {
 #[allow(non_snake_case)]
 #[cfg(test)]
 mod test {
+    use super::*;
     use std::fmt::Display;
     struct Comparator<T: PartialEq + Display> {
         expected: T,
@@ -167,18 +168,33 @@ mod test {
             }
         )
     }
-    fn get_getinfo_arguments() -> syn::ItemStruct {
-        syn::parse_quote!(
-            #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-            pub struct GetinfoArguments;
-        )
-    }
-    use super::*;
     mod format_from_tg_to_rpc_client {
-        //use super::*;
-        #[ignore]
+        use super::*;
         #[test]
-        fn getinfo_happy_path() {}
+        fn getinfo_happy_path() {
+            let input_mod_contents =
+                vec![syn::Item::Struct(get_getinfo_response())];
+            let observed = format_from_tg_to_rpc_client(
+                "getinfo".to_string(),
+                input_mod_contents,
+            )
+            .to_string();
+            #[rustfmt::skip]
+            let expected = quote::quote!(
+                pub fn getinfo(
+                    &mut self,
+                ) -> impl Future<
+                    Output = ResponseResult<
+                        rpc_types::getinfo::GetinfoResponse
+                    >,
+                > {
+                    let args_for_make_request = Vec::new();
+                    self.make_request("getinfo", args_for_make_request)
+                }
+            )
+            .to_string();
+            Comparator { expected, observed }.compare();
+        }
     }
     mod interpolate_into_quote {
         use super::*;
@@ -195,14 +211,18 @@ mod test {
                 interpolate_into_quote(rpc_name, args, responses).to_string();
             #[rustfmt::skip]
             let expected = quote::quote!(
-                fn getinfo(
-                    self,
-                    args: GetinfoArguments
-                ) -> impl Future<Output = ResponseResult<GetinfoResponse>>
-                {
-                    this body in not really implemented haha!
+                pub fn getinfo(
+                    &mut self,
+                ) -> impl Future<
+                    Output = ResponseResult<
+                        rpc_types::getinfo::GetinfoResponse
+                    >,
+                > {
+                    let args_for_make_request = Vec::new();
+                    self.make_request("getinfo", args_for_make_request)
                 }
-            ).to_string();
+            )
+            .to_string();
             Comparator { expected, observed }.compare();
         }
     }

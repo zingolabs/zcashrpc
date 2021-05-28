@@ -11,4 +11,4 @@ macro_rules! run_smoketest {
 }
 
 run_smoketest!(getblockchaininfo);
-run_smoketest!(z_getnewaddress);
+//run_smoketest!(z_getnewaddress);
