@@ -129,22 +129,6 @@ pub fn extract_response_idents() -> String {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::fmt::Display;
-    struct Comparator<T: PartialEq + Display> {
-        expected: T,
-        observed: T,
-    }
-    impl<T: PartialEq + Display> Comparator<T> {
-        fn compare(self) {
-            //! Our convention is that "expected" is "first"
-            if self.expected != self.observed {
-                panic!(
-                    "\n===\nExpected:\n{}\nObserved:\n{}\n===\n",
-                    self.expected, self.observed
-                );
-            }
-        }
-    }
     fn get_getinfo_response() -> syn::ItemStruct {
         syn::parse_quote!(
             #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -193,7 +177,7 @@ mod test {
                 }
             )
             .to_string();
-            Comparator { expected, observed }.compare();
+            testutils::Comparator { expected, observed }.compare();
         }
     }
     mod interpolate_into_quote {
@@ -223,7 +207,7 @@ mod test {
                 }
             )
             .to_string();
-            Comparator { expected, observed }.compare();
+            testutils::Comparator { expected, observed }.compare();
         }
     }
 }

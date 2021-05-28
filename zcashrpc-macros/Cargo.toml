@@ -12,3 +12,6 @@ quote = "1.0"
 proc-macro2 = "1.0"
 syn = { version = "1.0.72", features = [ "full", "parsing", "visit-mut", "extra-traits" ] }
 json_typegen = "0.4.1"
+
+[dev-dependencies]
+testutils = { git = "https://github.com/zingolabs/testutils.git", branch = "main" }
