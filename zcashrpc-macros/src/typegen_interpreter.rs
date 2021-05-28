@@ -152,6 +152,17 @@ mod test {
             }
         )
     }
+    fn make_z_getnewaddress_mod_contents() -> [syn::Item; 2] {
+        [
+            syn::parse_quote!(
+                #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+                pub struct ZGetnewaddressArguments(Option<String>);
+            ),
+            syn::parse_quote!(
+                pub type ZGetnewaddressResponse = String;
+            ),
+        ]
+    }
     mod format_from_tg_to_rpc_client {
         use super::*;
         #[test]
@@ -180,7 +191,7 @@ mod test {
             testutils::Comparator { expected, observed }.compare();
         }
         #[test]
-        fn z_getnewaddress_no_arg() {
+        fn z_getnewaddress() {
             //Create expected
             #[rustfmt::skip]
             let expected = quote::quote!(
@@ -199,16 +210,13 @@ mod test {
             .to_string();
 
             //Make observation
-            let input_mod_contents = 
-            let observation = format_from_tg_to_rpc_client(
+            let input_mod_contents = make_z_getnewaddress_mod_contents();
+            let observed = format_from_tg_to_rpc_client(
                 "z_getnewaddress".to_string(),
-                todo!(),
-            );
+                input_mod_contents.to_vec(),
+            )
+            .to_string();
             testutils::Comparator { expected, observed }.compare();
-        }
-        #[test]
-        fn z_getnewaddress_sprout() {
-            assert_eq!(true, false);
         }
     }
     mod interpolate_into_quote {
@@ -241,12 +249,28 @@ mod test {
             testutils::Comparator { expected, observed }.compare();
         }
         #[test]
-        fn z_getnewaddress_no_arg() {
-            assert_eq!(true, false);
-        }
-        #[test]
-        fn z_getnewaddress_sprout() {
-            assert_eq!(true, false);
+        fn z_getnewaddress() {
+            let rpc_name = Ident::new("z_getnewaddress", Span::call_site());
+            let [args, responses] = make_z_getnewaddress_mod_contents();
+            let observed =
+                interpolate_into_quote(rpc_name, Some(args), responses)
+                    .to_string();
+            #[rustfmt::skip]
+            let expected =  quote::quote!(
+                pub fn z_getnewaddress(
+                    &mut self,
+                    args: rpc_types::z_getnewaddress::ZGetnewaddressArguments
+                ) -> impl Future<
+                    Output = ResponseResult<
+                        rpc_types::z_getnewaddress::ZGetnewaddressResponse
+                    >,
+                > {
+                    let args_for_make_request = Self::serialize_into_output_format(args);
+                    self.make_request("z_getnewaddress", args_for_make_request)
+                }
+            )
+           .to_string();
+            testutils::Comparator { expected, observed }.compare();
         }
     }
 }
