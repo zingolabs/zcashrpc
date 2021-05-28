@@ -180,9 +180,13 @@ mod test {
             testutils::Comparator { expected, observed }.compare();
         }
         #[test]
-        fn z_getnewaddress_no_arg() {}
+        fn z_getnewaddress_no_arg() {
+            assert_eq!(true, false);
+        }
         #[test]
-        fn z_getnewaddress_sprout() {}
+        fn z_getnewaddress_sprout() {
+            assert_eq!(true, false);
+        }
     }
     mod interpolate_into_quote {
         use super::*;
@@ -214,8 +218,12 @@ mod test {
             testutils::Comparator { expected, observed }.compare();
         }
         #[test]
-        fn z_getnewaddress_no_arg() {}
+        fn z_getnewaddress_no_arg() {
+            assert_eq!(true, false);
+        }
         #[test]
-        fn z_getnewaddress_sprout() {}
+        fn z_getnewaddress_sprout() {
+            assert_eq!(true, false);
+        }
     }
 }
