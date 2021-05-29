@@ -286,5 +286,10 @@ mod test {
            .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
+        #[ignore]
+        #[test]
+        fn z_mergetoaddress() {
+            todo!("Exercise enum for actualargs.");
+        }
     }
 }

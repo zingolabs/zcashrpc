@@ -15,3 +15,4 @@ macro_rules! run_smoketest {
 run_smoketest!(happy_gbi, getblockchaininfo());
 run_smoketest!(noarg_zgna, z_getnewaddress(json!(None::<String>)));
 run_smoketest!(onearg_zgna, z_getnewaddress(json!("sapling")));
+//run_smoketest!(onearg_zmergetoaddress, z_mergetoaddress(json!("sapling")));
