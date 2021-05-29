@@ -1,7 +1,7 @@
 macro_rules! run_smoketest {
-    ($x:ident ($($args:expr)?)) => {
+    ($tn:ident, $x:ident ($($args:expr)?)) => {
         #[tokio::test]
-        async fn $x() {
+        async fn $tn() {
             #[allow(unused_imports)]
             use serde_json::{json, from_value};
             let _response = zcashrpc::client::utils::make_client(true)
@@ -12,5 +12,6 @@ macro_rules! run_smoketest {
     };
 }
 
-run_smoketest!(getblockchaininfo());
-run_smoketest!(z_getnewaddress(json!(None::<String>)));
+run_smoketest!(happy_gbi, getblockchaininfo());
+run_smoketest!(noarg_zgna, z_getnewaddress(json!(None::<String>)));
+run_smoketest!(onearg_zgna, z_getnewaddress(json!("sapling")));
