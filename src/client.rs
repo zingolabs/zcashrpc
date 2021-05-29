@@ -49,7 +49,13 @@ impl Client {
     fn serialize_into_output_format<T: serde::Serialize>(
         args: T,
     ) -> Vec<serde_json::Value> {
-        serde_json::json!(args).as_array().unwrap().clone()
+        serde_json::json!(args)
+            .as_array()
+            .unwrap()
+            .iter()
+            .cloned()
+            .filter(|x| !x.is_null())
+            .collect()
     }
 }
 
