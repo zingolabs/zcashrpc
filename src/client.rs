@@ -49,13 +49,20 @@ impl Client {
     fn serialize_into_output_format<T: serde::Serialize>(
         args: T,
     ) -> Vec<serde_json::Value> {
-        serde_json::json!(args)
-            .as_array()
-            .unwrap()
-            .iter()
-            .cloned()
-            .filter(|x| !x.is_null())
-            .collect()
+        let x = serde_json::json!(args).as_array().unwrap().clone();
+        if x[0].is_null() {
+            if x.len() != 1 {
+                panic!("WHAAA?")
+            } else {
+                Vec::new()
+            }
+        } else {
+            if x.iter().any(|x| x.is_null()) {
+                panic!("WHAAA? number 2")
+            } else {
+                x
+            }
+        }
     }
 }
 
