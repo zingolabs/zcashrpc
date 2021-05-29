@@ -1,4 +1,5 @@
 use proc_macro2::{Ident, Span, TokenStream};
+use quote::quote;
 struct TemplateElementsBuilder {
     rpc_name: String,
     args: Option<syn::Item>,
@@ -41,18 +42,31 @@ fn interpolate_into_quote(
     args: Option<syn::Item>,
     responses: syn::Item,
 ) -> proc_macro2::TokenStream {
+    use quote::ToTokens;
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
     let (args_quote, serialize_quote) = if let Some(actualargs) = args {
         let argid = unpack_ident_from_element(&actualargs);
+        let mut token_args = quote!(args);
+        if let syn::Item::Struct(ref argcontents) = actualargs {
+            if let syn::Fields::Unnamed(fields) = &argcontents.fields {
+                if fields.unnamed.len() == 1 {
+                    token_args = quote!([#token_args]);
+                }
+            } else {
+                panic!("Argument struct is not unnamed!");
+            }
+        } else {
+            //dbg!(actualargs.to_token_stream().to_string());
+        }
         (
-            Some(quote::quote!(args: rpc_types::#rpc_name::#argid)),
-            quote::quote!(Self::serialize_into_output_format(args)),
+            Some(quote!(args: rpc_types::#rpc_name::#argid)),
+            quote!(Self::serialize_into_output_format(#token_args)),
         )
     } else {
-        (None, quote::quote!(Vec::new()))
+        (None, quote!(Vec::new()))
     };
-    quote::quote!(
+    quote!(
         pub fn #rpc_name(
             &mut self,
             #args_quote
@@ -175,7 +189,7 @@ mod test {
             )
             .to_string();
             #[rustfmt::skip]
-            let expected = quote::quote!(
+            let expected = quote!(
                 pub fn getinfo(
                     &mut self,
                 ) -> impl Future<
@@ -194,7 +208,7 @@ mod test {
         fn z_getnewaddress() {
             //Create expected
             #[rustfmt::skip]
-            let expected = quote::quote!(
+            let expected = quote!(
                 pub fn z_getnewaddress(
                     &mut self,
                     args: rpc_types::z_getnewaddress::ZGetnewaddressArguments
@@ -233,7 +247,7 @@ mod test {
             let observed =
                 interpolate_into_quote(rpc_name, args, responses).to_string();
             #[rustfmt::skip]
-            let expected = quote::quote!(
+            let expected = quote!(
                 pub fn getinfo(
                     &mut self,
                 ) -> impl Future<
@@ -256,7 +270,7 @@ mod test {
                 interpolate_into_quote(rpc_name, Some(args), responses)
                     .to_string();
             #[rustfmt::skip]
-            let expected =  quote::quote!(
+            let expected =  quote!(
                 pub fn z_getnewaddress(
                     &mut self,
                     args: rpc_types::z_getnewaddress::ZGetnewaddressArguments
