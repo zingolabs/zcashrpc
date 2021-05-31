@@ -36,7 +36,7 @@ impl TemplateElements {
         temp
     }
 }
-fn pack_args_and_name_into_tokenstream(
+fn convert_tg_args_for_rpc_method(
     rpc_name: &Ident,
     args: Option<syn::Item>,
 ) -> (Option<TokenStream>, TokenStream) {
@@ -72,7 +72,7 @@ fn interpolate_into_quote(
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
     let (args_quote, serialize_quote) =
-        pack_args_and_name_into_tokenstream(&rpc_name, args);
+        convert_tg_args_for_rpc_method(&rpc_name, args);
     quote!(
         pub fn #rpc_name(
             &mut self,
