@@ -212,6 +212,21 @@ mod test {
             }
             .compare();
         }
+        #[test]
+        fn getinfo_none_case() {
+            let expected_serial_af_call = quote::quote!(Vec::new()).to_string();
+
+            let input_rpc_name_id = Ident::new("getinfo", Span::call_site());
+            let (observed_args_method_param, observed_serial_af_call) =
+                convert_tg_args_for_rpc_method(&input_rpc_name_id, None);
+            assert!(observed_args_method_param.is_none());
+            let observed_serial_af_call = observed_serial_af_call.to_string();
+            testutils::Comparator {
+                expected: expected_serial_af_call,
+                observed: observed_serial_af_call,
+            }
+            .compare();
+        }
     }
     mod format_from_tg_to_rpc_client {
         use super::*;
