@@ -36,16 +36,11 @@ impl TemplateElements {
         temp
     }
 }
-#[allow(unused)]
-fn interpolate_into_quote(
-    rpc_name: Ident,
+fn pack_args_and_name_into_tokenstream(
+    rpc_name: &Ident,
     args: Option<syn::Item>,
-    responses: syn::Item,
-) -> proc_macro2::TokenStream {
-    use quote::ToTokens;
-    let responseid = unpack_ident_from_element(&responses);
-    let rpc_name_string = rpc_name.to_string();
-    let (args_quote, serialize_quote) = if let Some(actualargs) = args {
+) -> (Option<TokenStream>, TokenStream) {
+    if let Some(actualargs) = args {
         let argid = unpack_ident_from_element(&actualargs);
         let mut token_args = quote!(args);
         if let syn::Item::Struct(ref argcontents) = actualargs {
@@ -65,7 +60,19 @@ fn interpolate_into_quote(
         )
     } else {
         (None, quote!(Vec::new()))
-    };
+    }
+}
+#[allow(unused)]
+fn interpolate_into_quote(
+    rpc_name: Ident,
+    args: Option<syn::Item>,
+    responses: syn::Item,
+) -> proc_macro2::TokenStream {
+    use quote::ToTokens;
+    let responseid = unpack_ident_from_element(&responses);
+    let rpc_name_string = rpc_name.to_string();
+    let (args_quote, serialize_quote) =
+        pack_args_and_name_into_tokenstream(&rpc_name, args);
     quote!(
         pub fn #rpc_name(
             &mut self,
