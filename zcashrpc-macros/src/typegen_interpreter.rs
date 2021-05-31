@@ -62,13 +62,11 @@ fn convert_tg_args_for_rpc_method(
         (None, quote!(Vec::new()))
     }
 }
-#[allow(unused)]
 fn interpolate_into_quote(
     rpc_name: Ident,
     args: Option<syn::Item>,
     responses: syn::Item,
 ) -> proc_macro2::TokenStream {
-    use quote::ToTokens;
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
     let (args_quote, serialize_quote) =
@@ -183,6 +181,37 @@ mod test {
                 pub type ZGetnewaddressResponse = String;
             ),
         ]
+    }
+    mod convert_tg_args_for_rpc_method {
+        use super::*;
+        #[test]
+        fn z_getnewaddress_some_case() {
+            let expected_args_method_param = "args : rpc_types :: z_getnewaddress :: ZGetnewaddressArguments".to_string();
+            let expected_serial_af_call =
+                "Self :: serialize_into_output_format ([args])".to_string();
+
+            let input_rpc_name_id =
+                Ident::new("z_getnewaddress", Span::call_site());
+            let input_args = make_z_getnewaddress_mod_contents()[0].clone();
+            let (wrapped_observed_args_method_param, observed_serial_af_call) =
+                convert_tg_args_for_rpc_method(
+                    &input_rpc_name_id,
+                    Some(input_args),
+                );
+            let observed_args_method_param =
+                wrapped_observed_args_method_param.unwrap().to_string();
+            let observed_serial_af_call = observed_serial_af_call.to_string();
+            testutils::Comparator {
+                expected: expected_args_method_param,
+                observed: observed_args_method_param,
+            }
+            .compare();
+            testutils::Comparator {
+                expected: expected_serial_af_call,
+                observed: observed_serial_af_call,
+            }
+            .compare();
+        }
     }
     mod format_from_tg_to_rpc_client {
         use super::*;
