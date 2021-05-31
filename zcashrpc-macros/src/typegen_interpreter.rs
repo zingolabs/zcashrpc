@@ -14,11 +14,25 @@ impl TemplateElementsBuilder {
         }
     }
     fn update_if_response_or_args(&mut self, element: syn::Item) {
+        // Add assertions about shapes of tg interpretations
         let id = unpack_ident_from_element(&element);
         if id.to_string().rfind("Response").is_some() {
             self.responses = Some(element);
         } else if id.to_string().rfind("Arguments").is_some() {
             self.args = Some(element);
+        }
+    }
+}
+fn validate_enum_arguments_shape(argcontents: &syn::ItemEnum) {
+    assert!(argcontents.variants.len() == 2);
+    for variant in &argcontents.variants {
+        if let syn::Fields::Unnamed(fields) = &variant.fields {
+            assert!(fields.unnamed.len() == 1, "Unexpected unnamed field.");
+        } else {
+            panic!(
+                "contained unexpected non-unnamed fields: {:#?}",
+                variant.fields
+            );
         }
     }
 }
@@ -53,22 +67,8 @@ fn convert_tg_args_for_rpc_method(
                 }
             }
             syn::Item::Enum(ref argcontents) => {
-                assert!(argcontents.variants.len() == 2);
-                for variant in &argcontents.variants {
-                    if let syn::Fields::Unnamed(fields) = &variant.fields {
-                        assert!(
-                            fields.unnamed.len() == 1,
-                            "Unexpected unnamed field."
-                        );
-                    } else {
-                        panic!(
-                            "contained unexpected non-unnamed fields: {:#?}",
-                            variant.fields
-                        );
-                    }
-                }
+                validate_enum_arguments_shape(&argcontents);
                 token_args = quote!([#token_args]);
-                dbg!("And blammo");
             }
             _ => {
                 panic!("Neither Struct nor Enum")
