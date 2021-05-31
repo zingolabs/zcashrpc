@@ -217,7 +217,7 @@ mod test {
                         rpc_types::z_getnewaddress::ZGetnewaddressResponse
                     >,
                 > {
-                    let args_for_make_request = Self::serialize_into_output_format(args);
+                    let args_for_make_request = Self::serialize_into_output_format([args]);
                     self.make_request("z_getnewaddress", args_for_make_request)
                 }
             )
@@ -279,7 +279,7 @@ mod test {
                         rpc_types::z_getnewaddress::ZGetnewaddressResponse
                     >,
                 > {
-                    let args_for_make_request = Self::serialize_into_output_format(args);
+                    let args_for_make_request = Self::serialize_into_output_format([args]);
                     self.make_request("z_getnewaddress", args_for_make_request)
                 }
             )
