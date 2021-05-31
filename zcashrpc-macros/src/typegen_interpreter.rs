@@ -19,6 +19,11 @@ impl TemplateElementsBuilder {
         if id.to_string().rfind("Response").is_some() {
             self.responses = Some(element);
         } else if id.to_string().rfind("Arguments").is_some() {
+            match element {
+                syn::Item::Enum(ref argcontents) => {
+                    validate_enum_arguments_shape(argcontents)
+                }
+            }
             self.args = Some(element);
         }
     }
