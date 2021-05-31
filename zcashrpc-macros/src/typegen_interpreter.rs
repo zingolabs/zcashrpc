@@ -43,16 +43,22 @@ fn convert_tg_args_for_rpc_method(
     if let Some(actualargs) = args {
         let argid = unpack_ident_from_element(&actualargs);
         let mut token_args = quote!(args);
-        if let syn::Item::Struct(ref argcontents) = actualargs {
-            if let syn::Fields::Unnamed(fields) = &argcontents.fields {
-                if fields.unnamed.len() == 1 {
-                    token_args = quote!([#token_args]);
+        match actualargs {
+            syn::Item::Struct(ref argcontents) => {
+                if let syn::Fields::Unnamed(fields) = &argcontents.fields {
+                    if fields.unnamed.len() == 1 {
+                        token_args = quote!([#token_args]);
+                    }
+                } else {
+                    panic!("Argument struct is not unnamed!");
                 }
-            } else {
-                panic!("Argument struct is not unnamed!");
             }
-        } else {
-            //dbg!(actualargs.to_token_stream().to_string());
+            syn::Item::Enum(ref argcontents) => {
+                dbg!("And blammo");
+            }
+            _ => {
+                panic!("Neither Struct nor Enum")
+            }
         }
         (
             Some(quote!(args: rpc_types::#rpc_name::#argid)),
