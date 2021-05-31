@@ -32,8 +32,7 @@ impl TemplateElements {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let args = self.args;
         let responses = self.responses;
-        let temp = interpolate_into_quote(rpc_name, args, responses);
-        temp
+        interpolate_into_quote(rpc_name, args, responses)
     }
 }
 fn convert_tg_args_for_rpc_method(
@@ -54,6 +53,21 @@ fn convert_tg_args_for_rpc_method(
                 }
             }
             syn::Item::Enum(ref argcontents) => {
+                assert!(argcontents.variants.len() == 2);
+                for variant in &argcontents.variants {
+                    if let syn::Fields::Unnamed(fields) = &variant.fields {
+                        assert!(
+                            fields.unnamed.len() == 1,
+                            "Unexpected unnamed field."
+                        );
+                    } else {
+                        panic!(
+                            "contained unexpected non-unnamed fields: {:#?}",
+                            variant.fields
+                        );
+                    }
+                }
+                token_args = quote!([#token_args]);
                 dbg!("And blammo");
             }
             _ => {
@@ -233,8 +247,32 @@ mod test {
             }
             .compare();
         }
+        fn get_getaddressdeltasarguments_tokens() -> Option<syn::Item> {
+            Some(syn::parse_quote!(
+                #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+                pub enum GetaddressdeltasArguments {
+                    MultiAddress(Arg1),
+                    Address(String),
+                }
+            ))
+        }
         #[test]
-        fn get_addressdeltas_an_enum_args_case() {
+        fn get_addressdeltas_enumarg_multiaddress_case() {
+            let input_args = get_getaddressdeltasarguments_tokens();
+            let input_rpc_name_id =
+                Ident::new("getaddressdeltas", Span::call_site());
+            let (args_params, serialize_argument) =
+                convert_tg_args_for_rpc_method(&input_rpc_name_id, input_args);
+            dbg!(serialize_argument.to_string());
+            /*let expected_serialize_argument = quote::quote!(
+                Self::serialize_into_output_format(
+                    match
+                    #token_args))
+            );*/
+        }
+        #[ignore]
+        #[test]
+        fn get_addressdeltas_enumarg_address_case() {
             use rust_decimal::Decimal;
             #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
             pub struct Arg1 {
@@ -243,12 +281,7 @@ mod test {
                 pub start: Option<Decimal>,
                 pub addresses: Vec<String>,
             }
-            let input_arg1 = Arg1 {
-                chain_info: Some(true),
-                end: Some(Decimal::from(2)),
-                start: Some(Decimal::from(1)),
-                addresses: vec!["fooble".to_string()],
-            };
+            todo!("BORKEN!");
             #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
             pub enum GetaddressdeltasArguments {
                 MultiAddress(Arg1),
