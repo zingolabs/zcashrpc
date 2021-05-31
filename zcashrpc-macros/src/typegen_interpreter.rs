@@ -227,6 +227,22 @@ mod test {
             }
             .compare();
         }
+        #[should_panic(expected = "Argument struct is not unnamed!")]
+        #[test]
+        fn named_field_argument_structure() {
+            let input_args = syn::parse_quote!(
+                struct BadField {
+                    naughty: String,
+                }
+            );
+            let input_rpc_name_id =
+                Ident::new("NO_REAL_RPC", Span::call_site());
+
+            convert_tg_args_for_rpc_method(
+                &input_rpc_name_id,
+                Some(input_args),
+            );
+        }
     }
     mod format_from_tg_to_rpc_client {
         use super::*;
