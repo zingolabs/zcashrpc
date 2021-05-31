@@ -233,6 +233,28 @@ mod test {
             }
             .compare();
         }
+        #[test]
+        fn get_addressdeltas_an_enum_args_case() {
+            use rust_decimal::Decimal;
+            #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+            pub struct Arg1 {
+                pub chain_info: Option<bool>,
+                pub end: Option<Decimal>,
+                pub start: Option<Decimal>,
+                pub addresses: Vec<String>,
+            }
+            let input_arg1 = Arg1 {
+                chain_info: Some(true),
+                end: Some(Decimal::from(2)),
+                start: Some(Decimal::from(1)),
+                addresses: vec!["fooble".to_string()],
+            };
+            #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+            pub enum GetaddressdeltasArguments {
+                MultiAddress(Arg1),
+                Address(String),
+            }
+        }
         #[should_panic(expected = "Argument struct is not unnamed!")]
         #[test]
         fn named_field_argument_structure() {
@@ -305,6 +327,11 @@ mod test {
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
+        #[ignore]
+        #[test]
+        fn z_mergetoaddress() {
+            todo!("Exercise Option<arg> args.");
+        }
     }
     mod interpolate_into_quote {
         use super::*;
@@ -362,7 +389,7 @@ mod test {
         #[ignore]
         #[test]
         fn z_mergetoaddress() {
-            todo!("Exercise enum for actualargs.");
+            todo!("Exercise Option<arg> args.");
         }
     }
 }

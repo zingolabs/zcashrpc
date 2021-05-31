@@ -15,3 +15,5 @@ json_typegen = "0.4.1"
 
 [dev-dependencies]
 testutils = { git = "https://github.com/zingolabs/testutils.git", branch = "main" }
+rust_decimal = "*"
+serde = "*"
