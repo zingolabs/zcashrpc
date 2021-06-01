@@ -14,7 +14,6 @@ impl TemplateElementsBuilder {
         }
     }
     fn update_if_response_or_args(&mut self, element: syn::Item) {
-        // Add assertions about shapes of tg interpretations
         let id = unpack_ident_from_element(&element);
         if id.to_string().rfind("Response").is_some() {
             self.responses = Some(element);
@@ -106,6 +105,20 @@ fn convert_tg_args_for_rpc_method(
         (None, quote!(Vec::new()))
     }
 }
+fn prep_docstring_for_interpolate(doctest: TokenStream) -> TokenStream {
+    //! We receive a TokenStream and convert to a String so that the caller
+    //! has syntax highlighting for the interpolatee.
+    let marked_up = format! {"```{}```", doctest.to_string()};
+    quote!(#[doc=#marked_up])
+}
+fn generate_doctest(
+    rpc_name: &Ident,
+    args: &Option<syn::Item>,
+    responses: &syn::Item,
+) -> proc_macro2::TokenStream {
+    let doctest = quote![ assert_eq!(1 + 1, 2); ];
+    prep_docstring_for_interpolate(doctest)
+}
 fn interpolate_into_quote(
     rpc_name: Ident,
     args: Option<syn::Item>,
@@ -113,6 +126,7 @@ fn interpolate_into_quote(
 ) -> proc_macro2::TokenStream {
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
+    let doctest = generate_doctest(&rpc_name, &args, &responses);
     let (args_quote, serialize_quote) =
         convert_tg_args_for_rpc_method(&rpc_name, args);
     quote!(
@@ -122,6 +136,7 @@ fn interpolate_into_quote(
         ) -> impl Future<
             Output = ResponseResult<rpc_types::#rpc_name::#responseid>,
         > {
+            #doctest
             let args_for_make_request = #serialize_quote;
             self.make_request(#rpc_name_string, args_for_make_request)
         }
