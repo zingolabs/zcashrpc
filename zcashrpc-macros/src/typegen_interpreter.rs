@@ -108,7 +108,7 @@ fn convert_tg_args_for_rpc_method(
 fn prep_docstring_for_interpolate(doctest: TokenStream) -> TokenStream {
     //! We receive a TokenStream and convert to a String so that the caller
     //! has syntax highlighting for the interpolatee.
-    let marked_up = format! {"```{}```", doctest.to_string()};
+    let marked_up = format! {"```rust\n fn(){{ {} }}```", doctest.to_string()};
     quote!(#![doc=#marked_up])
 }
 fn generate_doctest(
