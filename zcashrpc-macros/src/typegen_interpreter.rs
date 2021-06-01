@@ -23,9 +23,29 @@ impl TemplateElementsBuilder {
                 syn::Item::Enum(ref argcontents) => {
                     validate_enum_arguments_shape(argcontents)
                 }
+                syn::Item::Struct(ref argcontents) => {
+                    validate_struct_arguments_shape(argcontents)
+                }
+                _ => {
+                    panic!()
+                }
             }
             self.args = Some(element);
         }
+    }
+}
+fn validate_struct_arguments_shape(argcontents: &syn::ItemStruct) {
+    use quote::ToTokens;
+    dbg!(&argcontents.to_token_stream().to_string());
+    if let syn::Fields::Unnamed(fields) = &argcontents.fields {
+        let unnamed_fields_len = fields.unnamed.len();
+        assert!(
+            (unnamed_fields_len > 0) && (unnamed_fields_len < 5),
+            "Unnexpected number of arg fields: {}",
+            unnamed_fields_len
+        );
+    } else {
+        panic!("Expected a tuple-like struct.");
     }
 }
 fn validate_enum_arguments_shape(argcontents: &syn::ItemEnum) {
