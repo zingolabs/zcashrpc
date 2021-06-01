@@ -192,6 +192,17 @@ pub fn extract_response_idents() -> String {
 #[cfg(test)]
 mod test {
     use super::*;
+    mod negative {
+        //! Tests of scenarios we don't expect in common operation
+        #[ignore]
+        #[test]
+        fn inject_unexpected_typegen_output_rpc_type() {
+            todo!(
+                "Typegen should produce a few primitive types.  This \
+                Test should use disallowed primitive types for input."
+            );
+        }
+    }
     fn get_getinfo_response() -> syn::ItemStruct {
         syn::parse_quote!(
             #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
