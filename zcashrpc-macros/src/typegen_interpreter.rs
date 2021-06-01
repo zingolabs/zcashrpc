@@ -108,7 +108,7 @@ fn convert_tg_args_for_rpc_method(
 fn prep_docstring_for_interpolate(doctest: TokenStream) -> TokenStream {
     //! We receive a TokenStream and convert to a String so that the caller
     //! has syntax highlighting for the interpolatee.
-    let marked_up = format! {"```rust\n fn(){{ {} }}```", doctest.to_string()};
+    let marked_up = format! {"```rust\n{}\n```", doctest.to_string()};
     quote!(#![doc=#marked_up])
 }
 fn generate_doctest(
@@ -116,7 +116,13 @@ fn generate_doctest(
     args: &Option<syn::Item>,
     responses: &syn::Item,
 ) -> proc_macro2::TokenStream {
-    let doctest = quote![ assert_eq!(1 + 1, 2); ];
+    let doctest_name = format! { "test_{}", &rpc_name.to_string() };
+    let dt_name_ident = Ident::new(&doctest_name, Span::call_site());
+    let doctest = quote![
+           fn #dt_name_ident() {
+               assert!(true);
+           }
+    ];
     prep_docstring_for_interpolate(doctest)
 }
 fn interpolate_into_quote(
