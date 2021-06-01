@@ -973,7 +973,7 @@ pub mod getreceivedbyaddress {
 }
 pub mod getspentinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetspentinfoArguments();
+    pub struct GetspentinfoArguments(String);
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetspentinfoResponse {
         pub index: rust_decimal::Decimal,

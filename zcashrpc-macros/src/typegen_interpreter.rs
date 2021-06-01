@@ -36,13 +36,12 @@ impl TemplateElementsBuilder {
 }
 fn validate_struct_arguments_shape(argcontents: &syn::ItemStruct) {
     use quote::ToTokens;
-    dbg!(&argcontents.to_token_stream().to_string());
     if let syn::Fields::Unnamed(fields) = &argcontents.fields {
         let unnamed_fields_len = fields.unnamed.len();
         assert!(
-            (unnamed_fields_len > 0) && (unnamed_fields_len < 5),
-            "Unnexpected number of arg fields: {}",
-            unnamed_fields_len
+            (unnamed_fields_len > 0) && (unnamed_fields_len < 7),
+            "Unnexpected number of arg fields in: {}",
+            argcontents.to_token_stream().to_string(),
         );
     } else {
         panic!("Expected a tuple-like struct.");
