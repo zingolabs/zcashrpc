@@ -109,7 +109,7 @@ fn prep_docstring_for_interpolate(doctest: TokenStream) -> TokenStream {
     //! We receive a TokenStream and convert to a String so that the caller
     //! has syntax highlighting for the interpolatee.
     let marked_up = format! {"```{}```", doctest.to_string()};
-    quote!(#[doc=#marked_up])
+    quote!(#![doc=#marked_up])
 }
 fn generate_doctest(
     rpc_name: &Ident,
