@@ -268,6 +268,25 @@ mod test {
             .compare();
         }
         #[test]
+        #[should_panic(
+            "Expected Struct, Enum, or Type, found union Why { \
+         what : & mut String , who : * const [Box < i128 >] , }"
+        )]
+        fn non_struct_non_enum() {
+            let ident_we_dont_care_about =
+                Ident::new("stringnotappearinginthisoutput", Span::call_site());
+            let invalid_item_type = syn::parse_quote![
+                union Why {
+                    what: &mut String,
+                    who: *const [Box<i128>],
+                }
+            ];
+            convert_tg_args_for_rpc_method(
+                &ident_we_dont_care_about,
+                Some(invalid_item_type),
+            );
+        }
+        #[test]
         fn getinfo_none_case() {
             let expected_serial_af_call = quote::quote!(Vec::new()).to_string();
 
