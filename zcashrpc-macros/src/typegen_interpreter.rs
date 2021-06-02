@@ -66,10 +66,10 @@ struct TemplateElements {
     responses: syn::Item,
 }
 impl TemplateElements {
-    fn populate_rpcmethod_template(self) -> TokenStream {
+    fn populate_rpcmethod_template(&self) -> TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
-        let args = self.args;
-        let responses = self.responses;
+        let args = &self.args;
+        let responses = &self.responses;
         interpolate_fragments_into_methodtemplate(rpc_name, args, responses)
     }
     fn new(rpc_name: String, mod_contents: Vec<syn::Item>) -> Self {
@@ -93,7 +93,7 @@ impl TemplateElements {
 }
 fn convert_tg_args_for_rpc_method(
     rpc_name: &Ident,
-    args: Option<syn::Item>,
+    args: &Option<syn::Item>,
 ) -> (Option<TokenStream>, TokenStream) {
     if let Some(actualargs) = args {
         let argid = unpack_ident_from_element(&actualargs);
@@ -126,13 +126,13 @@ fn convert_tg_args_for_rpc_method(
 }
 fn interpolate_fragments_into_methodtemplate(
     rpc_name: Ident,
-    args: Option<syn::Item>,
-    responses: syn::Item,
+    args: &Option<syn::Item>,
+    responses: &syn::Item,
 ) -> proc_macro2::TokenStream {
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
     let (args_quote, serialize_quote) =
-        convert_tg_args_for_rpc_method(&rpc_name, args);
+        convert_tg_args_for_rpc_method(&rpc_name, &args);
     quote!(
         pub fn #rpc_name(
             &mut self,
@@ -258,7 +258,7 @@ mod test {
             let (wrapped_observed_args_method_param, observed_serial_af_call) =
                 convert_tg_args_for_rpc_method(
                     &input_rpc_name_id,
-                    Some(input_args),
+                    &Some(input_args),
                 );
             let observed_args_method_param =
                 wrapped_observed_args_method_param.unwrap().to_string();
@@ -276,7 +276,7 @@ mod test {
         }
         #[test]
         #[should_panic(
-            "Expected Struct, Enum, or Type, found union Why { \
+            expected = "Expected Struct, Enum, or Type, found union Why { \
          what : & mut String , who : * const [Box < i128 >] , }"
         )]
         fn non_struct_non_enum() {
@@ -290,7 +290,7 @@ mod test {
             ];
             convert_tg_args_for_rpc_method(
                 &ident_we_dont_care_about,
-                Some(invalid_item_type),
+                &Some(invalid_item_type),
             );
         }
         #[test]
@@ -299,7 +299,7 @@ mod test {
 
             let input_rpc_name_id = Ident::new("getinfo", Span::call_site());
             let (observed_args_method_param, observed_serial_af_call) =
-                convert_tg_args_for_rpc_method(&input_rpc_name_id, None);
+                convert_tg_args_for_rpc_method(&input_rpc_name_id, &None);
             assert!(observed_args_method_param.is_none());
             let observed_serial_af_call = observed_serial_af_call.to_string();
             testutils::Comparator {
@@ -323,7 +323,7 @@ mod test {
             let input_rpc_name_id =
                 Ident::new("getaddressdeltas", Span::call_site());
             let (args_params, serialize_argument) =
-                convert_tg_args_for_rpc_method(&input_rpc_name_id, input_args);
+                convert_tg_args_for_rpc_method(&input_rpc_name_id, &input_args);
             dbg!(serialize_argument.to_string());
             /*let expected_serialize_argument = quote::quote!(
                 Self::serialize_into_output_format(
@@ -362,7 +362,7 @@ mod test {
 
             convert_tg_args_for_rpc_method(
                 &input_rpc_name_id,
-                Some(input_args),
+                &Some(input_args),
             );
         }
     }
@@ -441,7 +441,7 @@ mod test {
             let responses = response_tokens;
 
             let observed = interpolate_fragments_into_methodtemplate(
-                rpc_name, args, responses,
+                rpc_name, &args, &responses,
             )
             .to_string();
             #[rustfmt::skip]
@@ -466,8 +466,8 @@ mod test {
             let [args, responses] = make_z_getnewaddress_mod_contents();
             let observed = interpolate_fragments_into_methodtemplate(
                 rpc_name,
-                Some(args),
-                responses,
+                &Some(args),
+                &responses,
             )
             .to_string();
             #[rustfmt::skip]
