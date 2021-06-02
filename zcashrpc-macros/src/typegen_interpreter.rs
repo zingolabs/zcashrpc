@@ -71,7 +71,7 @@ impl TemplateElements {
         let responseid = unpack_ident_from_element(&self.responses);
         let rpc_name_string = rpc_name.to_string();
         let (args_quote, serialize_quote) =
-            convert_tg_args_for_rpc_method(&rpc_name, &self.args);
+            generate_args_frag(&rpc_name, &self.args);
         quote!(
             pub fn #rpc_name(
                 &mut self,
@@ -103,7 +103,7 @@ impl TemplateElements {
         templatebuilder.build()
     }
 }
-fn convert_tg_args_for_rpc_method(
+fn generate_args_frag(
     rpc_name: &Ident,
     args: &Option<syn::Item>,
 ) -> (Option<TokenStream>, TokenStream) {
@@ -272,7 +272,7 @@ mod test {
             ),
         ]
     }
-    mod convert_tg_args_for_rpc_method {
+    mod generate_args_frag {
         use super::*;
         #[test]
         fn z_getnewaddress_some_case() {
@@ -284,10 +284,7 @@ mod test {
                 Ident::new("z_getnewaddress", Span::call_site());
             let input_args = make_z_getnewaddress_mod_contents()[0].clone();
             let (wrapped_observed_args_method_param, observed_serial_af_call) =
-                convert_tg_args_for_rpc_method(
-                    &input_rpc_name_id,
-                    &Some(input_args),
-                );
+                generate_args_frag(&input_rpc_name_id, &Some(input_args));
             let observed_args_method_param =
                 wrapped_observed_args_method_param.unwrap().to_string();
             let observed_serial_af_call = observed_serial_af_call.to_string();
@@ -316,7 +313,7 @@ mod test {
                     who: *const [Box<i128>],
                 }
             ];
-            convert_tg_args_for_rpc_method(
+            generate_args_frag(
                 &ident_we_dont_care_about,
                 &Some(invalid_item_type),
             );
@@ -327,7 +324,7 @@ mod test {
 
             let input_rpc_name_id = Ident::new("getinfo", Span::call_site());
             let (observed_args_method_param, observed_serial_af_call) =
-                convert_tg_args_for_rpc_method(&input_rpc_name_id, &None);
+                generate_args_frag(&input_rpc_name_id, &None);
             assert!(observed_args_method_param.is_none());
             let observed_serial_af_call = observed_serial_af_call.to_string();
             testutils::Comparator {
@@ -351,7 +348,7 @@ mod test {
             let input_rpc_name_id =
                 Ident::new("getaddressdeltas", Span::call_site());
             let (args_params, serialize_argument) =
-                convert_tg_args_for_rpc_method(&input_rpc_name_id, &input_args);
+                generate_args_frag(&input_rpc_name_id, &input_args);
             dbg!(serialize_argument.to_string());
             /*let expected_serialize_argument = quote::quote!(
                 Self::serialize_into_output_format(
@@ -388,10 +385,7 @@ mod test {
             let input_rpc_name_id =
                 Ident::new("NO_REAL_RPC", Span::call_site());
 
-            convert_tg_args_for_rpc_method(
-                &input_rpc_name_id,
-                &Some(input_args),
-            );
+            generate_args_frag(&input_rpc_name_id, &Some(input_args));
         }
     }
     mod interpolate_into_method {
