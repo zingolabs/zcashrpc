@@ -386,6 +386,7 @@ mod test {
     }
     mod format_from_tg_to_rpc_client {
         use super::*;
+        #[ignore]
         #[test]
         fn getinfo_happy_path() {
             let input_mod_contents =
@@ -411,6 +412,7 @@ mod test {
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
+        #[ignore]
         #[test]
         fn z_getnewaddress() {
             //Create expected
@@ -447,6 +449,7 @@ mod test {
     }
     mod interpolate_into_quote {
         use super::*;
+        #[ignore]
         #[test]
         fn getinfo_happy_path() {
             //! Inputs to parse_quote are copied from earlier typegen outputs.
@@ -474,6 +477,7 @@ mod test {
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
+        #[ignore]
         #[test]
         fn z_getnewaddress() {
             let rpc_name = Ident::new("z_getnewaddress", Span::call_site());
