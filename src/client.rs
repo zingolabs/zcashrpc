@@ -22,7 +22,7 @@ impl Client {
     }
 }
 
-zcashrpc_macros::declare_all_rpc_methods! {}
+zcashrpc_macros::implement_rpc_call_methods! {}
 impl Client {
     fn make_request<R>(
         &mut self,
