@@ -179,6 +179,11 @@ pub(crate) fn generate_populated_templates() -> TokenStream {
         impl Client {
             #client_method_definitions
         }
+        #[cfg(test)]
+        mod test {
+            use super::*;
+            #unittests_of_rpc_methods
+        }
     )
 }
 pub fn extract_response_idents() -> String {
