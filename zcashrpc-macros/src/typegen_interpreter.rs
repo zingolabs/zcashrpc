@@ -152,7 +152,11 @@ fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
         Item::Enum(ref x) => &x.ident,
         Item::Type(ref x) => &x.ident,
         otherwise => {
-            panic!("Expected Struct, Enum, or Type, found {:?}", otherwise)
+            use quote::ToTokens as _;
+            panic!(
+                "Expected Struct, Enum, or Type, found {}",
+                otherwise.to_token_stream().to_string()
+            )
         }
     }
 }
