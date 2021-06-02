@@ -68,17 +68,12 @@ struct TemplateElements {
 impl TemplateElements {
     fn interpolate_fragments_into_methodtemplate(
         &self,
-        rpc_name: Ident,
-        args: &Option<syn::Item>,
-        responses: &syn::Item,
     ) -> proc_macro2::TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
-        let args = &self.args;
-        let responses = &self.responses;
-        let responseid = unpack_ident_from_element(&responses);
+        let responseid = unpack_ident_from_element(&self.responses);
         let rpc_name_string = rpc_name.to_string();
         let (args_quote, serialize_quote) =
-            convert_tg_args_for_rpc_method(&rpc_name, &args);
+            convert_tg_args_for_rpc_method(&rpc_name, &self.args);
         quote!(
             pub fn #rpc_name(
                 &mut self,
@@ -167,8 +162,10 @@ pub(crate) fn generate_populated_templates() -> TokenStream {
             if let Some(c) = module.content {
                 let template_elements =
                     TemplateElements::new(module.ident.to_string(), c.1);
-                client_method_definitions
-                    .extend(template_elements.populate_rpcmethod_template());
+                client_method_definitions.extend(
+                    template_elements
+                        .interpolate_fragments_into_methodtemplate(),
+                );
             }
         } else {
             panic!("Non module item in toplevel of typegen output.")
