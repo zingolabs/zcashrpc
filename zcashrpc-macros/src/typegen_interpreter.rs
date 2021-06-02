@@ -155,7 +155,11 @@ fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
         Item::Enum(ref x) => &x.ident,
         Item::Type(ref x) => &x.ident,
         otherwise => {
-            panic!("Expected Struct, Enum, or Type, found {:?}", otherwise)
+            use quote::ToTokens as _;
+            panic!(
+                "Expected Struct, Enum, or Type, found {}",
+                otherwise.to_token_stream().to_string()
+            )
         }
     }
 }
@@ -479,6 +483,25 @@ mod test {
         #[test]
         fn z_mergetoaddress() {
             todo!("Exercise Option<arg> args.");
+        }
+    }
+    mod unpack_ident_from_element {
+        use super::*;
+        #[test]
+        #[should_panic(
+            expected = "Expected Struct, Enum, or Type, found impl serde :: \
+            Reserialize for GethorcruxdeltasResponse { fn anteserialize \
+             (self : Pin < Box < Self > >) -> bool { true } }"
+        )]
+        fn invalid_item_type() {
+            let bad_element = syn::parse_quote![
+                impl serde::Reserialize for GethorcruxdeltasResponse {
+                    fn anteserialize(self: Pin<Box<Self>>) -> bool {
+                        true
+                    }
+                }
+            ];
+            unpack_ident_from_element(&bad_element);
         }
     }
 }
