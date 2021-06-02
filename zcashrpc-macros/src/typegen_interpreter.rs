@@ -196,12 +196,24 @@ mod test {
     use super::*;
     mod negative {
         //! Tests of scenarios we don't expect in common operation
-        #[ignore]
+        use super::*;
         #[test]
-        fn inject_unexpected_typegen_output_rpc_type() {
-            todo!(
-                "Typegen should produce a few primitive types.  This \
-                Test should use disallowed primitive types for input."
+        #[should_panic(
+            expected = "Expected Struct, Enum, or Type, found union Why { \
+         what : & mut String , who : * const [Box < i128 >] , }"
+        )]
+        fn non_struct_non_enum() {
+            let ident_we_dont_care_about =
+                Ident::new("stringnotappearinginthisoutput", Span::call_site());
+            let invalid_item_type = syn::parse_quote![
+                union Why {
+                    what: &mut String,
+                    who: *const [Box<i128>],
+                }
+            ];
+            generate_args_frag(
+                &ident_we_dont_care_about,
+                &Some(invalid_item_type),
             );
         }
     }
@@ -298,25 +310,6 @@ mod test {
                 observed: observed_serial_af_call,
             }
             .compare();
-        }
-        #[test]
-        #[should_panic(
-            expected = "Expected Struct, Enum, or Type, found union Why { \
-         what : & mut String , who : * const [Box < i128 >] , }"
-        )]
-        fn non_struct_non_enum() {
-            let ident_we_dont_care_about =
-                Ident::new("stringnotappearinginthisoutput", Span::call_site());
-            let invalid_item_type = syn::parse_quote![
-                union Why {
-                    what: &mut String,
-                    who: *const [Box<i128>],
-                }
-            ];
-            generate_args_frag(
-                &ident_we_dont_care_about,
-                &Some(invalid_item_type),
-            );
         }
         #[test]
         fn getinfo_none_case() {
