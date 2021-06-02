@@ -114,15 +114,16 @@ fn prep_docstring_for_interpolate(doctest: TokenStream) -> TokenStream {
 fn generate_doctest(
     rpc_name: &Ident,
     args: &Option<syn::Item>,
-    responses: &syn::Item,
 ) -> proc_macro2::TokenStream {
-    let doctest_name = format! { "test_{}", &rpc_name.to_string() };
-    let dt_name_ident = Ident::new(&doctest_name, Span::call_site());
     #[rustfmt::skip]
     let doctest = quote![
-        fn #dt_name_ident() {
-            assert!(true);
-        }];
+        use zcashrpc::Client;
+        let mut mockclient = Client::new(
+            "HOSTPORT".to_string(), "AUTHCOOKIE".to_string()
+        );
+        let observed = mockclient.#rpc_name(#args);
+        assert!(true);
+    ];
     prep_docstring_for_interpolate(doctest)
 }
 fn interpolate_into_quote(
@@ -132,7 +133,7 @@ fn interpolate_into_quote(
 ) -> proc_macro2::TokenStream {
     let responseid = unpack_ident_from_element(&responses);
     let rpc_name_string = rpc_name.to_string();
-    let doctest = generate_doctest(&rpc_name, &args, &responses);
+    let doctest = generate_doctest(&rpc_name, &args);
     let (args_quote, serialize_quote) =
         convert_tg_args_for_rpc_method(&rpc_name, args);
     quote!(
