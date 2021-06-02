@@ -72,6 +72,24 @@ impl TemplateElements {
         let responses = self.responses;
         interpolate_fragments_into_methodtemplate(rpc_name, args, responses)
     }
+    fn new(rpc_name: String, mod_contents: Vec<syn::Item>) -> TokenStream {
+        //! Takes a typegen generated rpc definition, extracts elements:
+        //!   rpc_name: Note the name is converted to a string, because the
+        //!   originating span metadata isn't useful, and is potentially
+        //!   problematic.
+        //!            
+        //!   arguments
+        //!   responses
+        let mut templatebuilder = TemplateElementsBuilder {
+            rpc_name,
+            args: None,
+            responses: None,
+        };
+        for rpc_element in mod_contents {
+            templatebuilder.update_if_response_or_args(rpc_element);
+        }
+        templatebuilder.build().populate_rpcmethod_template()
+    }
 }
 fn convert_tg_args_for_rpc_method(
     rpc_name: &Ident,
@@ -138,27 +156,6 @@ fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
         }
     }
 }
-fn format_from_tg_to_rpc_client(
-    rpc_name: String,
-    mod_contents: Vec<syn::Item>,
-) -> TokenStream {
-    //! Takes a typegen generated rpc definition, extracts elements:
-    //!   rpc_name: Note the name is converted to a string, because the
-    //!   originating span metadata isn't useful, and is potentially
-    //!   problematic.
-    //!            
-    //!   arguments
-    //!   responses
-    let mut templatebuilder = TemplateElementsBuilder {
-        rpc_name,
-        args: None,
-        responses: None,
-    };
-    for rpc_element in mod_contents {
-        templatebuilder.update_if_response_or_args(rpc_element);
-    }
-    templatebuilder.build().populate_rpcmethod_template()
-}
 pub(crate) fn generate_populated_templates() -> TokenStream {
     let source = extract_response_idents();
     let syntax = syn::parse_file(&source).expect("Unable to parse file");
@@ -167,7 +164,7 @@ pub(crate) fn generate_populated_templates() -> TokenStream {
         if let syn::Item::Mod(module) = item {
             if let Some(c) = module.content {
                 let client_method_definition =
-                    format_from_tg_to_rpc_client(module.ident.to_string(), c.1);
+                    TemplateElements::new(module.ident.to_string(), c.1);
                 client_method_definitions.extend(client_method_definition);
             }
         } else {
@@ -368,13 +365,13 @@ mod test {
             );
         }
     }
-    mod format_from_tg_to_rpc_client {
+    mod TemplateElements_new {
         use super::*;
         #[test]
         fn getinfo_happy_path() {
             let input_mod_contents =
                 vec![syn::Item::Struct(get_getinfo_response())];
-            let observed = format_from_tg_to_rpc_client(
+            let observed = TemplateElements::new(
                 "getinfo".to_string(),
                 input_mod_contents,
             )
@@ -416,7 +413,7 @@ mod test {
 
             //Make observation
             let input_mod_contents = make_z_getnewaddress_mod_contents();
-            let observed = format_from_tg_to_rpc_client(
+            let observed = TemplateElements::new(
                 "z_getnewaddress".to_string(),
                 input_mod_contents.to_vec(),
             )
