@@ -70,7 +70,7 @@ impl TemplateElements {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let args = self.args;
         let responses = self.responses;
-        interpolate_into_quote(rpc_name, args, responses)
+        interpolate_fragments_into_methodtemplate(rpc_name, args, responses)
     }
 }
 fn convert_tg_args_for_rpc_method(
@@ -106,7 +106,7 @@ fn convert_tg_args_for_rpc_method(
         (None, quote!(Vec::new()))
     }
 }
-fn interpolate_into_quote(
+fn interpolate_fragments_into_methodtemplate(
     rpc_name: Ident,
     args: Option<syn::Item>,
     responses: syn::Item,
@@ -166,21 +166,21 @@ pub(crate) fn generate_populated_templates() -> TokenStream {
     for item in syntax.items {
         if let syn::Item::Mod(module) = item {
             if let Some(c) = module.content {
-                client_method_definitions.extend(format_from_tg_to_rpc_client(
-                    module.ident.to_string(),
-                    c.1,
-                ));
+                let client_method_definition =
+                    format_from_tg_to_rpc_client(module.ident.to_string(), c.1);
+                client_method_definitions.extend(client_method_definition);
             }
         } else {
             panic!("Non module item in toplevel of typegen output.")
         }
     }
+    let unittests_of_rpc_methods = quote!();
     quote!(
         impl Client {
             #client_method_definitions
         }
         #[cfg(test)]
-        mod test {
+        mod __rpc_method_tests {
             use super::*;
             #unittests_of_rpc_methods
         }
@@ -429,7 +429,7 @@ mod test {
             todo!("Exercise Option<arg> args.");
         }
     }
-    mod interpolate_into_quote {
+    mod interpolate_fragments_into_methodtemplate {
         use super::*;
         #[test]
         fn getinfo_happy_path() {
@@ -440,8 +440,10 @@ mod test {
             let args = args_tokens;
             let responses = response_tokens;
 
-            let observed =
-                interpolate_into_quote(rpc_name, args, responses).to_string();
+            let observed = interpolate_fragments_into_methodtemplate(
+                rpc_name, args, responses,
+            )
+            .to_string();
             #[rustfmt::skip]
             let expected = quote!(
                 pub fn getinfo(
@@ -462,9 +464,12 @@ mod test {
         fn z_getnewaddress() {
             let rpc_name = Ident::new("z_getnewaddress", Span::call_site());
             let [args, responses] = make_z_getnewaddress_mod_contents();
-            let observed =
-                interpolate_into_quote(rpc_name, Some(args), responses)
-                    .to_string();
+            let observed = interpolate_fragments_into_methodtemplate(
+                rpc_name,
+                Some(args),
+                responses,
+            )
+            .to_string();
             #[rustfmt::skip]
             let expected =  quote!(
                 pub fn z_getnewaddress(
