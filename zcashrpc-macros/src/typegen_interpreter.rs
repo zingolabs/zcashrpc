@@ -72,7 +72,7 @@ impl TemplateElements {
         let responses = self.responses;
         interpolate_fragments_into_methodtemplate(rpc_name, args, responses)
     }
-    fn new(rpc_name: String, mod_contents: Vec<syn::Item>) -> TokenStream {
+    fn new(rpc_name: String, mod_contents: Vec<syn::Item>) -> Self {
         //! Takes a typegen generated rpc definition, extracts elements:
         //!   rpc_name: Note the name is converted to a string, because the
         //!   originating span metadata isn't useful, and is potentially
@@ -88,7 +88,7 @@ impl TemplateElements {
         for rpc_element in mod_contents {
             templatebuilder.update_if_response_or_args(rpc_element);
         }
-        templatebuilder.build().populate_rpcmethod_template()
+        templatebuilder.build()
     }
 }
 fn convert_tg_args_for_rpc_method(
@@ -163,9 +163,10 @@ pub(crate) fn generate_populated_templates() -> TokenStream {
     for item in syntax.items {
         if let syn::Item::Mod(module) = item {
             if let Some(c) = module.content {
-                let client_method_definition =
+                let template_elements =
                     TemplateElements::new(module.ident.to_string(), c.1);
-                client_method_definitions.extend(client_method_definition);
+                client_method_definitions
+                    .extend(template_elements.populate_rpcmethod_template());
             }
         } else {
             panic!("Non module item in toplevel of typegen output.")
@@ -365,7 +366,7 @@ mod test {
             );
         }
     }
-    mod TemplateElements_new {
+    mod populate_rpcmethod_template {
         use super::*;
         #[test]
         fn getinfo_happy_path() {
@@ -375,6 +376,7 @@ mod test {
                 "getinfo".to_string(),
                 input_mod_contents,
             )
+            .populate_rpcmethod_template()
             .to_string();
             #[rustfmt::skip]
             let expected = quote!(
@@ -417,6 +419,7 @@ mod test {
                 "z_getnewaddress".to_string(),
                 input_mod_contents.to_vec(),
             )
+            .populate_rpcmethod_template()
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
