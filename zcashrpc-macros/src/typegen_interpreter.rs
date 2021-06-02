@@ -66,11 +66,30 @@ struct TemplateElements {
     responses: syn::Item,
 }
 impl TemplateElements {
-    fn populate_rpcmethod_template(&self) -> TokenStream {
+    fn interpolate_fragments_into_methodtemplate(
+        &self,
+        rpc_name: Ident,
+        args: &Option<syn::Item>,
+        responses: &syn::Item,
+    ) -> proc_macro2::TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let args = &self.args;
         let responses = &self.responses;
-        interpolate_fragments_into_methodtemplate(rpc_name, args, responses)
+        let responseid = unpack_ident_from_element(&responses);
+        let rpc_name_string = rpc_name.to_string();
+        let (args_quote, serialize_quote) =
+            convert_tg_args_for_rpc_method(&rpc_name, &args);
+        quote!(
+            pub fn #rpc_name(
+                &mut self,
+                #args_quote
+            ) -> impl Future<
+                Output = ResponseResult<rpc_types::#rpc_name::#responseid>,
+            > {
+                let args_for_make_request = #serialize_quote;
+                self.make_request(#rpc_name_string, args_for_make_request)
+            }
+        )
     }
     fn new(rpc_name: String, mod_contents: Vec<syn::Item>) -> Self {
         //! Takes a typegen generated rpc definition, extracts elements:
@@ -123,27 +142,6 @@ fn convert_tg_args_for_rpc_method(
     } else {
         (None, quote!(Vec::new()))
     }
-}
-fn interpolate_fragments_into_methodtemplate(
-    rpc_name: Ident,
-    args: &Option<syn::Item>,
-    responses: &syn::Item,
-) -> proc_macro2::TokenStream {
-    let responseid = unpack_ident_from_element(&responses);
-    let rpc_name_string = rpc_name.to_string();
-    let (args_quote, serialize_quote) =
-        convert_tg_args_for_rpc_method(&rpc_name, &args);
-    quote!(
-        pub fn #rpc_name(
-            &mut self,
-            #args_quote
-        ) -> impl Future<
-            Output = ResponseResult<rpc_types::#rpc_name::#responseid>,
-        > {
-            let args_for_make_request = #serialize_quote;
-            self.make_request(#rpc_name_string, args_for_make_request)
-        }
-    )
 }
 fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
     use syn::Item;
