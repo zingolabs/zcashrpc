@@ -66,9 +66,7 @@ struct TemplateElements {
     responses: syn::Item,
 }
 impl TemplateElements {
-    fn interpolate_fragments_into_methodtemplate(
-        &self,
-    ) -> proc_macro2::TokenStream {
+    fn interpolate_into_method(&self) -> proc_macro2::TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let responseid = unpack_ident_from_element(&self.responses);
         let rpc_name_string = rpc_name.to_string();
@@ -162,10 +160,8 @@ pub(crate) fn generate_populated_templates() -> TokenStream {
             if let Some(c) = module.content {
                 let template_elements =
                     TemplateElements::new(module.ident.to_string(), c.1);
-                client_method_definitions.extend(
-                    template_elements
-                        .interpolate_fragments_into_methodtemplate(),
-                );
+                client_method_definitions
+                    .extend(template_elements.interpolate_into_method());
             }
         } else {
             panic!("Non module item in toplevel of typegen output.")
@@ -365,7 +361,7 @@ mod test {
             );
         }
     }
-    mod populate_rpcmethod_template {
+    mod interpolate_into_method {
         use super::*;
         #[test]
         fn getinfo_happy_path() {
@@ -375,7 +371,7 @@ mod test {
                 "getinfo".to_string(),
                 input_mod_contents,
             )
-            .populate_rpcmethod_template()
+            .interpolate_into_method()
             .to_string();
             #[rustfmt::skip]
             let expected = quote!(
@@ -418,72 +414,8 @@ mod test {
                 "z_getnewaddress".to_string(),
                 input_mod_contents.to_vec(),
             )
-            .populate_rpcmethod_template()
+            .interpolate_into_method()
             .to_string();
-            testutils::Comparator { expected, observed }.compare();
-        }
-        #[ignore]
-        #[test]
-        fn z_mergetoaddress() {
-            todo!("Exercise Option<arg> args.");
-        }
-    }
-    mod interpolate_fragments_into_methodtemplate {
-        use super::*;
-        #[test]
-        fn getinfo_happy_path() {
-            //! Inputs to parse_quote are copied from earlier typegen outputs.
-            let args_tokens = None;
-            let response_tokens = syn::Item::Struct(get_getinfo_response());
-            let rpc_name = Ident::new("getinfo", Span::call_site());
-            let args = args_tokens;
-            let responses = response_tokens;
-
-            let observed = interpolate_fragments_into_methodtemplate(
-                rpc_name, &args, &responses,
-            )
-            .to_string();
-            #[rustfmt::skip]
-            let expected = quote!(
-                pub fn getinfo(
-                    &mut self,
-                ) -> impl Future<
-                    Output = ResponseResult<
-                        rpc_types::getinfo::GetinfoResponse
-                    >,
-                > {
-                    let args_for_make_request = Vec::new();
-                    self.make_request("getinfo", args_for_make_request)
-                }
-            )
-            .to_string();
-            testutils::Comparator { expected, observed }.compare();
-        }
-        #[test]
-        fn z_getnewaddress() {
-            let rpc_name = Ident::new("z_getnewaddress", Span::call_site());
-            let [args, responses] = make_z_getnewaddress_mod_contents();
-            let observed = interpolate_fragments_into_methodtemplate(
-                rpc_name,
-                &Some(args),
-                &responses,
-            )
-            .to_string();
-            #[rustfmt::skip]
-            let expected =  quote!(
-                pub fn z_getnewaddress(
-                    &mut self,
-                    args: rpc_types::z_getnewaddress::ZGetnewaddressArguments
-                ) -> impl Future<
-                    Output = ResponseResult<
-                        rpc_types::z_getnewaddress::ZGetnewaddressResponse
-                    >,
-                > {
-                    let args_for_make_request = Self::serialize_into_output_format([args]);
-                    self.make_request("z_getnewaddress", args_for_make_request)
-                }
-            )
-           .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
         #[ignore]
