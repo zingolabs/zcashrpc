@@ -175,7 +175,11 @@ pub(crate) fn generate_populated_templates() -> TokenStream {
             panic!("Non module item in toplevel of typegen output.")
         }
     }
-    client_method_definitions
+    quote!(
+        impl Client {
+            #client_method_definitions
+        }
+    )
 }
 pub fn extract_response_idents() -> String {
     let pathstr =

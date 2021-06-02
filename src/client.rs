@@ -20,10 +20,9 @@ impl Client {
             inner: utils::ReqwClientWrapper::new(hostport, authcookie),
         }
     }
-
-    zcashrpc_macros::declare_all_rpc_methods! {}
 }
 
+zcashrpc_macros::declare_all_rpc_methods! {}
 impl Client {
     fn make_request<R>(
         &mut self,
