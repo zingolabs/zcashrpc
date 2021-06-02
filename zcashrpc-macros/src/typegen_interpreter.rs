@@ -463,7 +463,7 @@ mod test {
                         rpc_types::z_mergetoaddress::ZMergetoaddressResponse
                     >,
                 > {
-                    let args_for_make_request = Self::serialize_into_output_format([args]);
+                    let args_for_make_request = Self::serialize_into_output_format(args);
                     self.make_request("z_mergetoaddress", args_for_make_request)
                 }
             )
@@ -471,14 +471,13 @@ mod test {
 
             //Make observation
             let input_mod_contents = make_z_mergetoaddress_mod_contents();
-            /*
             let observed = TemplateElements::new(
                 "z_mergetoaddress".to_string(),
                 input_mod_contents.to_vec(),
             )
             .interpolate_into_method()
             .to_string();
-            testutils::Comparator { expected, observed }.compare();*/
+            testutils::Comparator { expected, observed }.compare();
         }
     }
 }
