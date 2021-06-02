@@ -118,11 +118,11 @@ fn generate_doctest(
 ) -> proc_macro2::TokenStream {
     let doctest_name = format! { "test_{}", &rpc_name.to_string() };
     let dt_name_ident = Ident::new(&doctest_name, Span::call_site());
+    #[rustfmt::skip]
     let doctest = quote![
-           // # fn #dt_name_ident() {
-               assert!(true);
-           // # }
-    ];
+        fn #dt_name_ident() {
+            assert!(true);
+        }];
     prep_docstring_for_interpolate(doctest)
 }
 fn interpolate_into_quote(
