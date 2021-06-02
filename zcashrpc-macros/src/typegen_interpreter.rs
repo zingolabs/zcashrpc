@@ -239,6 +239,39 @@ mod test {
             ),
         ]
     }
+    fn make_z_mergetoaddress_mod_contents() -> [syn::Item; 2] {
+        [
+            syn::parse_quote!(
+                #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+                pub struct ZMergetoaddressArguments(
+                    Vec<String>,
+                    String,
+                    #[serde(skip_serializing_if = "Option::is_none")]
+                    Option<rust_decimal::Decimal>,
+                    #[serde(skip_serializing_if = "Option::is_none")]
+                    Option<rust_decimal::Decimal>,
+                    #[serde(skip_serializing_if = "Option::is_none")]
+                    Option<rust_decimal::Decimal>,
+                    #[serde(skip_serializing_if = "Option::is_none")]
+                    Option<String>,
+                );
+            ),
+            syn::parse_quote!(
+                #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+                pub struct ZMergetoaddressResponse {
+                    pub merging_notes: rust_decimal::Decimal,
+                    pub merging_shielded_value: rust_decimal::Decimal,
+                    pub merging_transparent_value: rust_decimal::Decimal,
+                    pub merging_u_t_x_os: rust_decimal::Decimal,
+                    pub opid: String,
+                    pub remaining_notes: rust_decimal::Decimal,
+                    pub remaining_shielded_value: rust_decimal::Decimal,
+                    pub remaining_transparent_value: rust_decimal::Decimal,
+                    pub remaining_u_t_x_os: rust_decimal::Decimal,
+                }
+            ),
+        ]
+    }
     mod convert_tg_args_for_rpc_method {
         use super::*;
         #[test]
@@ -418,10 +451,34 @@ mod test {
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
-        #[ignore]
         #[test]
         fn z_mergetoaddress() {
-            todo!("Exercise Option<arg> args.");
+            #[rustfmt::skip]
+            let expected = quote!(
+                pub fn z_mergetoaddress(
+                    &mut self,
+                    args: rpc_types::z_mergetoaddress::ZMergetoaddressArguments
+                ) -> impl Future<
+                    Output = ResponseResult<
+                        rpc_types::z_mergetoaddress::ZMergetoaddressResponse
+                    >,
+                > {
+                    let args_for_make_request = Self::serialize_into_output_format([args]);
+                    self.make_request("z_mergetoaddress", args_for_make_request)
+                }
+            )
+            .to_string();
+
+            //Make observation
+            let input_mod_contents = make_z_mergetoaddress_mod_contents();
+            /*
+            let observed = TemplateElements::new(
+                "z_mergetoaddress".to_string(),
+                input_mod_contents.to_vec(),
+            )
+            .interpolate_into_method()
+            .to_string();
+            testutils::Comparator { expected, observed }.compare();*/
         }
     }
 }
