@@ -56,8 +56,7 @@ impl Client {
         R: DeserializeOwned,
     {
         use crate::json::parse_value;
-        let inner = serde_json::json!(1);
-        async move { parse_value(inner) }
+        async move { crate::json::parse_value(serde_json::json!(1)) }
     }
     fn serialize_into_output_format<T: serde::Serialize>(
         args: T,
