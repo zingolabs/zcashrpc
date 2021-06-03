@@ -409,7 +409,7 @@ mod test {
             .to_string();
             #[rustfmt::skip]
             let expected = quote!(
-                pub fn getinfo(
+                fn getinfo(
                     &mut self,
                 ) ->  std::pin::Pin<Box< dyn Future <
                     Output = ResponseResult<
@@ -417,9 +417,7 @@ mod test {
                     >>>>
                 {
                     let args_for_make_request = Vec::new();
-                    Box::pin(
-                        self.make_request("getinfo", args_for_make_request)
-                    )
+                    self.make_request("getinfo", args_for_make_request)
                 }
             )
             .to_string();
@@ -430,7 +428,7 @@ mod test {
             //Create expected
             #[rustfmt::skip]
             let expected = quote!(
-                pub fn z_getnewaddress(
+                fn z_getnewaddress(
                     &mut self,
                     args: rpc_types::z_getnewaddress::ZGetnewaddressArguments
                 ) ->  std::pin::Pin<Box< dyn Future <
@@ -439,9 +437,7 @@ mod test {
                     >>>>
                 {
                     let args_for_make_request = Self::serialize_into_output_format([args]);
-                    Box::pin(
-                        self.make_request("z_getnewaddress", args_for_make_request)
-                    )
+                    self.make_request("z_getnewaddress", args_for_make_request)
                 }
             )
             .to_string();
@@ -460,7 +456,7 @@ mod test {
         fn z_mergetoaddress() {
             #[rustfmt::skip]
             let expected = quote!(
-                pub fn z_mergetoaddress(
+                fn z_mergetoaddress(
                     &mut self,
                     args: rpc_types::z_mergetoaddress::ZMergetoaddressArguments
                 ) ->  std::pin::Pin<Box< dyn Future <
@@ -469,9 +465,7 @@ mod test {
                     >>>>
                 {
                     let args_for_make_request = Self::serialize_into_output_format(args);
-                    Box::pin(
-                        self.make_request("z_mergetoaddress", args_for_make_request)
-                    )
+                    self.make_request("z_mergetoaddress", args_for_make_request)
                 }
             )
             .to_string();
