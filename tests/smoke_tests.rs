@@ -2,6 +2,7 @@ macro_rules! run_smoketest {
     ($tn:ident, $x:ident ($($args:expr)?)) => {
         #[tokio::test]
         async fn $tn() {
+            use zcashrpc::client::ProcedureCall;
             #[allow(unused_imports)]
             use serde_json::{json, from_value};
             let _response = zcashrpc::client::utils::make_client(true)

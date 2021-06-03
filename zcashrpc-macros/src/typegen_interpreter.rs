@@ -167,7 +167,7 @@ pub(crate) fn generate_populated_templates() -> TokenStream {
     }
     let unittests_of_rpc_methods = quote!();
     quote!(
-    trait ProcedureCall {
+    pub trait ProcedureCall {
         fn make_request<R>(
             &mut self,
             method: &'static str,
