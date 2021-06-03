@@ -23,12 +23,12 @@ impl Client {
 }
 
 zcashrpc_macros::implement_rpc_call_methods! {}
-impl Client {
+impl ProcedureCall for Client {
     fn make_request<R>(
         &mut self,
         method: &'static str,
         args: Vec<serde_json::Value>,
-    ) -> impl Future<Output = ResponseResult<R>>
+    ) -> std::pin::Pin<Box<dyn Future<Output = ResponseResult<R>>>>
     where
         R: DeserializeOwned,
     {
@@ -36,32 +36,14 @@ impl Client {
         use crate::{envelope::ResponseEnvelope, json};
 
         let (id, sendfut) = self.inner.procedure_call(method, args);
-        async move {
+        Box::pin(async move {
             let reqresp = sendfut.await?;
             let text = reqresp.text().await?;
             let respenv: ResponseEnvelope =
                 json::parse_value(json::parse_string(text)?)?;
             let resp = respenv.unseal(id)?;
             Ok(resp)
-        }
-    }
-    fn serialize_into_output_format<T: serde::Serialize>(
-        args: T,
-    ) -> Vec<serde_json::Value> {
-        let x = serde_json::json!(args).as_array().unwrap().clone();
-        if x[0].is_null() {
-            if x.len() != 1 {
-                panic!("WHAAA?")
-            } else {
-                Vec::new()
-            }
-        } else {
-            if x.iter().any(|x| x.is_null()) {
-                panic!("WHAAA? number 2")
-            } else {
-                x
-            }
-        }
+        })
     }
 }
 

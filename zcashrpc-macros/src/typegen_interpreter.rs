@@ -73,15 +73,13 @@ impl TemplateElements {
         let (args_param_fragment, serialize_args_fragment) =
             generate_args_frag(&rpc_name, &self.args);
         quote!(
-            pub fn #rpc_name(
+            fn #rpc_name(
                 &mut self,
                 #args_param_fragment
             ) -> std::pin::Pin<Box<dyn Future<
                 Output = ResponseResult<rpc_types::#rpc_name::#responseid>>>> {
                 let args_for_make_request = #serialize_args_fragment;
-                Box::pin(
-                    self.make_request(#rpc_name_string, args_for_make_request)
-                )
+                self.make_request(#rpc_name_string, args_for_make_request)
             }
         )
     }
@@ -154,13 +152,13 @@ fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
 pub(crate) fn generate_populated_templates() -> TokenStream {
     let source = extract_response_idents();
     let syntax = syn::parse_file(&source).expect("Unable to parse file");
-    let mut client_method_definitions = TokenStream::new();
+    let mut caller_method_definitions = TokenStream::new();
     for item in syntax.items {
         if let syn::Item::Mod(module) = item {
             if let Some(c) = module.content {
                 let template_elements =
                     TemplateElements::new(module.ident.to_string(), c.1);
-                client_method_definitions
+                caller_method_definitions
                     .extend(template_elements.interpolate_into_method());
             }
         } else {
@@ -169,11 +167,38 @@ pub(crate) fn generate_populated_templates() -> TokenStream {
     }
     let unittests_of_rpc_methods = quote!();
     quote!(
-        impl Client {
-            #client_method_definitions
+    trait ProcedureCall {
+        fn make_request<R>(
+            &mut self,
+            method: &'static str,
+            args: Vec<serde_json::Value>,
+        ) -> std::pin::Pin<Box<dyn Future<Output = ResponseResult<R>>>>
+        where
+            R: DeserializeOwned;
+        fn serialize_into_output_format<T: serde::Serialize>(
+            args: T,
+        ) -> Vec<serde_json::Value> {
+            let x = serde_json::json!(args).as_array().unwrap().clone();
+            if x[0].is_null() {
+                if x.len() != 1 {
+                    panic!("WHAAA?")
+                } else {
+                    Vec::new()
+                }
+            } else {
+                if x.iter().any(|x| x.is_null()) {
+                    panic!("WHAAA? number 2")
+                } else {
+                    x
+                }
+            }
         }
+        #caller_method_definitions
+    }
         #[cfg(test)]
-        mod __rpc_method_tests {
+        mod __procedurecall_methodtests {
+            struct MockClient{
+            }
             use super::*;
             #unittests_of_rpc_methods
         }
