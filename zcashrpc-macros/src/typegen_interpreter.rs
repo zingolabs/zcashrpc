@@ -76,11 +76,12 @@ impl TemplateElements {
             pub fn #rpc_name(
                 &mut self,
                 #args_param_fragment
-            ) -> impl Future<
-                Output = ResponseResult<rpc_types::#rpc_name::#responseid>,
-            > {
+            ) -> std::pin::Pin<Box<dyn Future<
+                Output = ResponseResult<rpc_types::#rpc_name::#responseid>>>> {
                 let args_for_make_request = #serialize_args_fragment;
-                self.make_request(#rpc_name_string, args_for_make_request)
+                Box::pin(
+                    self.make_request(#rpc_name_string, args_for_make_request)
+                )
             }
         )
     }
@@ -385,13 +386,15 @@ mod test {
             let expected = quote!(
                 pub fn getinfo(
                     &mut self,
-                ) -> impl Future<
+                ) ->  std::pin::Pin<Box< dyn Future <
                     Output = ResponseResult<
                         rpc_types::getinfo::GetinfoResponse
-                    >,
-                > {
+                    >>>>
+                {
                     let args_for_make_request = Vec::new();
-                    self.make_request("getinfo", args_for_make_request)
+                    Box::pin(
+                        self.make_request("getinfo", args_for_make_request)
+                    )
                 }
             )
             .to_string();
