@@ -105,9 +105,9 @@ impl TemplateElements {
 }
 fn generate_args_frag(
     rpc_name: &Ident,
-    args: &Option<syn::Item>,
+    tg_argtype: &Option<syn::Item>,
 ) -> (Option<TokenStream>, TokenStream) {
-    if let Some(some_contents) = args {
+    if let Some(some_contents) = tg_argtype {
         let argid = unpack_ident_from_element(&some_contents);
         let mut token_args = quote!(args);
         match some_contents {
