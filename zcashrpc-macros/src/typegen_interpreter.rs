@@ -408,13 +408,15 @@ mod test {
                 pub fn z_getnewaddress(
                     &mut self,
                     args: rpc_types::z_getnewaddress::ZGetnewaddressArguments
-                ) -> impl Future<
+                ) ->  std::pin::Pin<Box< dyn Future <
                     Output = ResponseResult<
                         rpc_types::z_getnewaddress::ZGetnewaddressResponse
-                    >,
-                > {
+                    >>>>
+                {
                     let args_for_make_request = Self::serialize_into_output_format([args]);
-                    self.make_request("z_getnewaddress", args_for_make_request)
+                    Box::pin(
+                        self.make_request("z_getnewaddress", args_for_make_request)
+                    )
                 }
             )
             .to_string();
