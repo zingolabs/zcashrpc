@@ -120,7 +120,7 @@ fn generate_args_frag(
                     panic!("Argument struct is not unnamed!");
                 }
             }
-            syn::Item::Enum(ref argcontents) => {
+            syn::Item::Enum(_) => {
                 token_args = quote!([#token_args]);
             }
             _ => {
@@ -335,32 +335,25 @@ mod test {
             ))
         }
         #[test]
-        fn get_addressdeltas_enumarg_multiaddress_case() {
+        fn get_addressdeltas_enumarg_example() {
+            // Compare serialize arguments
+            let expected =
+                quote!(Self::serialize_into_output_format([args])).to_string();
             let input_args = get_getaddressdeltasarguments_tokens();
             let input_rpc_name_id =
                 Ident::new("getaddressdeltas", Span::call_site());
             let (args_param_fragment, serialize_argument) =
                 generate_args_frag(&input_rpc_name_id, &input_args);
-            dbg!(args_param_fragment.unwrap().to_string());
-            dbg!(serialize_argument.to_string());
-        }
-        #[ignore]
-        #[test]
-        fn get_addressdeltas_enumarg_address_case() {
-            use rust_decimal::Decimal;
-            #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-            pub struct Arg1 {
-                pub chain_info: Option<bool>,
-                pub end: Option<Decimal>,
-                pub start: Option<Decimal>,
-                pub addresses: Vec<String>,
-            }
-            todo!("BORKEN!");
-            #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-            pub enum GetaddressdeltasArguments {
-                MultiAddress(Arg1),
-                Address(String),
-            }
+            let observed = serialize_argument.to_string();
+            testutils::Comparator { expected, observed }.compare();
+
+            // Compare args_param_fragment
+            let expected = quote!(
+                args: rpc_types::getaddressdeltas::GetaddressdeltasArguments
+            )
+            .to_string();
+            let observed = args_param_fragment.unwrap().to_string();
+            testutils::Comparator { expected, observed }.compare();
         }
         #[should_panic(expected = "Argument struct is not unnamed!")]
         #[test]
