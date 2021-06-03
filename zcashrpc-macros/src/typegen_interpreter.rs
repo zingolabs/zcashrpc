@@ -121,7 +121,6 @@ fn generate_args_frag(
                 }
             }
             syn::Item::Enum(ref argcontents) => {
-                validate_enum_arguments_shape(&argcontents);
                 token_args = quote!([#token_args]);
             }
             _ => {
