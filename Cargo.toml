@@ -25,3 +25,4 @@ tokio = { version = "0.2.23", features = ["macros"] }
 [features]
 default = ["cookie-finder"]
 cookie-finder = ["dirs"]
+unittest = []

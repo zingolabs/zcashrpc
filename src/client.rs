@@ -23,7 +23,11 @@ impl Client {
 }
 
 zcashrpc_macros::implement_rpc_call_methods! {}
+#[cfg(all(feature = "unittest", test))]
+#[derive(serde::de::DeserializeOwned)]
+struct MockR;
 impl Client {
+    #[cfg(not(all(feature = "unittest", test)))]
     fn make_request<R>(
         &mut self,
         method: &'static str,
@@ -44,6 +48,17 @@ impl Client {
             let resp = respenv.unseal(id)?;
             Ok(resp)
         }
+    }
+    #[cfg(all(feature = "unittest", test))]
+    fn make_request<R>(
+        &mut self,
+        method: &'static str,
+        args: Vec<serde_json::Value>,
+    ) -> impl Future<Output = ResponseResult<R>>
+    where
+        R: DeserializeOwned,
+    {
+        async move { std::future::ready(ResponseResult::Ok(MockR {})).await }
     }
     fn serialize_into_output_format<T: serde::Serialize>(
         args: T,
