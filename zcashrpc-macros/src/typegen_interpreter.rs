@@ -70,16 +70,16 @@ impl TemplateElements {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let responseid = unpack_ident_from_element(&self.responses);
         let rpc_name_string = rpc_name.to_string();
-        let (args_quote, serialize_quote) =
+        let (args_fragment, serialize_args_fragment) =
             generate_args_frag(&rpc_name, &self.args);
         quote!(
             pub fn #rpc_name(
                 &mut self,
-                #args_quote
+                #args_fragment
             ) -> impl Future<
                 Output = ResponseResult<rpc_types::#rpc_name::#responseid>,
             > {
-                let args_for_make_request = #serialize_quote;
+                let args_for_make_request = #serialize_args_fragment;
                 self.make_request(#rpc_name_string, args_for_make_request)
             }
         )
@@ -343,11 +343,6 @@ mod test {
             let (args_params, serialize_argument) =
                 generate_args_frag(&input_rpc_name_id, &input_args);
             dbg!(serialize_argument.to_string());
-            /*let expected_serialize_argument = quote::quote!(
-                Self::serialize_into_output_format(
-                    match
-                    #token_args))
-            );*/
         }
         #[ignore]
         #[test]
