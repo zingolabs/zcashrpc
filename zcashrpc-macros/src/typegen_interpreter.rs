@@ -438,13 +438,15 @@ mod test {
                 pub fn z_mergetoaddress(
                     &mut self,
                     args: rpc_types::z_mergetoaddress::ZMergetoaddressArguments
-                ) -> impl Future<
+                ) ->  std::pin::Pin<Box< dyn Future <
                     Output = ResponseResult<
                         rpc_types::z_mergetoaddress::ZMergetoaddressResponse
-                    >,
-                > {
+                    >>>>
+                {
                     let args_for_make_request = Self::serialize_into_output_format(args);
-                    self.make_request("z_mergetoaddress", args_for_make_request)
+                    Box::pin(
+                        self.make_request("z_mergetoaddress", args_for_make_request)
+                    )
                 }
             )
             .to_string();
