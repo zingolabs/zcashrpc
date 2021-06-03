@@ -107,10 +107,10 @@ fn generate_args_frag(
     rpc_name: &Ident,
     args: &Option<syn::Item>,
 ) -> (Option<TokenStream>, TokenStream) {
-    if let Some(actualargs) = args {
-        let argid = unpack_ident_from_element(&actualargs);
+    if let Some(some_contents) = args {
+        let argid = unpack_ident_from_element(&some_contents);
         let mut token_args = quote!(args);
-        match actualargs {
+        match some_contents {
             syn::Item::Struct(ref argcontents) => {
                 if let syn::Fields::Unnamed(fields) = &argcontents.fields {
                     if fields.unnamed.len() == 1 {
@@ -342,6 +342,8 @@ mod test {
                 Ident::new("getaddressdeltas", Span::call_site());
             let (args_param_fragment, serialize_argument) =
                 generate_args_frag(&input_rpc_name_id, &input_args);
+            dbg!(args_param_fragment.unwrap().to_string());
+            dbg!(serialize_argument.to_string());
         }
         #[ignore]
         #[test]
