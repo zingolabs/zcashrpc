@@ -23,6 +23,19 @@ impl Client {
 }
 
 zcashrpc_macros::implement_rpc_call_methods! {}
+
+trait Requestor {
+    fn make_request_core<R: DeserializeOwned>(
+        self: &mut Self,
+        method: &'static str,
+        args: Vec<serde_json::Value>,
+    ) -> (u64, dyn std::future::Future<Output = ResponseResult<R>>) {
+        dbg!(&args);
+
+        self.inner.procedure_call(method, args)
+    }
+}
+impl Requestor for Client {}
 impl Client {
     fn make_request<R>(
         &mut self,
@@ -32,10 +45,8 @@ impl Client {
     where
         R: DeserializeOwned,
     {
-        dbg!(&args);
+        let (id, sendfut) = self.make_request_core(method, args);
         use crate::{envelope::ResponseEnvelope, json};
-
-        let (id, sendfut) = self.inner.procedure_call(method, args);
         async move {
             let reqresp = sendfut.await?;
             let text = reqresp.text().await?;
