@@ -70,12 +70,12 @@ impl TemplateElements {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let responseid = unpack_ident_from_element(&self.responses);
         let rpc_name_string = rpc_name.to_string();
-        let (args_fragment, serialize_args_fragment) =
+        let (args_param_fragment, serialize_args_fragment) =
             generate_args_frag(&rpc_name, &self.args);
         quote!(
             pub fn #rpc_name(
                 &mut self,
-                #args_fragment
+                #args_param_fragment
             ) -> impl Future<
                 Output = ResponseResult<rpc_types::#rpc_name::#responseid>,
             > {
@@ -340,9 +340,8 @@ mod test {
             let input_args = get_getaddressdeltasarguments_tokens();
             let input_rpc_name_id =
                 Ident::new("getaddressdeltas", Span::call_site());
-            let (args_params, serialize_argument) =
+            let (args_param_fragment, serialize_argument) =
                 generate_args_frag(&input_rpc_name_id, &input_args);
-            dbg!(serialize_argument.to_string());
         }
         #[ignore]
         #[test]
