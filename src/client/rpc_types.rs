@@ -193,14 +193,14 @@ pub mod getaddednodeinfo {
 }
 pub mod getaddressbalance {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct Arg1 {
-        pub addresses: Vec<String>,
-    }
     #[serde(untagged)]
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub enum GetaddressbalanceArguments {
         MultiAddress(Arg1),
         Address(String),
+    }
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    pub struct Arg1 {
+        pub addresses: Vec<String>,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetaddressbalanceResponse {
@@ -210,17 +210,27 @@ pub mod getaddressbalance {
 }
 pub mod getaddressdeltas {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    #[serde(untagged)]
+    pub enum GetaddressdeltasArguments {
+        MultiAddress(Arg1),
+        Address(String),
+    }
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Arg1 {
         pub chain_info: Option<bool>,
         pub end: Option<rust_decimal::Decimal>,
         pub start: Option<rust_decimal::Decimal>,
         pub addresses: Vec<String>,
     }
-    #[serde(untagged)]
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub enum GetaddressdeltasArguments {
-        MultiAddress(Arg1),
-        Address(String),
+    #[serde(untagged)]
+    pub enum GetaddressdeltasResponse {
+        Regular(Vec<Regular>),
+        Verbose {
+            deltas: Vec<Deltas>,
+            end: End,
+            start: Start,
+        },
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Deltas {
@@ -248,16 +258,6 @@ pub mod getaddressdeltas {
         pub hash: String,
         pub height: rust_decimal::Decimal,
     }
-    #[serde(untagged)]
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub enum GetaddressdeltasResponse {
-        Regular(Vec<Regular>),
-        Verbose {
-            deltas: Vec<Deltas>,
-            end: End,
-            start: Start,
-        },
-    }
 }
 pub mod getaddressesbyaccount {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -266,14 +266,14 @@ pub mod getaddressesbyaccount {
 }
 pub mod getaddressmempool {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct Arg1 {
-        pub addresses: Vec<String>,
-    }
     #[serde(untagged)]
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub enum GetaddressmempoolArguments {
         MultiAddress(Arg1),
         Address(String),
+    }
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    pub struct Arg1 {
+        pub addresses: Vec<String>,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetaddressmempoolElement {
@@ -289,30 +289,40 @@ pub mod getaddressmempool {
 }
 pub mod getaddresstxids {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    #[serde(untagged)]
+    pub enum GetaddresstxidsArguments {
+        MultiAddress(Arg1),
+        Address(String),
+    }
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Arg1 {
         pub end: Option<rust_decimal::Decimal>,
         pub start: Option<rust_decimal::Decimal>,
         pub addresses: Vec<String>,
     }
-    #[serde(untagged)]
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub enum GetaddresstxidsArguments {
-        MultiAddress(Arg1),
-        Address(String),
-    }
     pub type GetaddresstxidsResponse = Vec<String>;
 }
 pub mod getaddressutxos {
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    #[serde(untagged)]
+    pub enum GetaddressutxosArguments {
+        MultiAddress(Arg1),
+        Address(String),
+    }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Arg1 {
         pub chain_info: Option<bool>,
         pub addresses: Vec<String>,
     }
-    #[serde(untagged)]
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub enum GetaddressutxosArguments {
-        MultiAddress(Arg1),
-        Address(String),
+    #[serde(untagged)]
+    pub enum GetaddressutxosResponse {
+        Regular(Vec<Regular>),
+        Verbose {
+            hash: String,
+            height: rust_decimal::Decimal,
+            utxos: Vec<Utxos>,
+        },
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Regular {
@@ -331,16 +341,6 @@ pub mod getaddressutxos {
         pub satoshis: rust_decimal::Decimal,
         pub script: String,
         pub txid: String,
-    }
-    #[serde(untagged)]
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub enum GetaddressutxosResponse {
-        Regular(Vec<Regular>),
-        Verbose {
-            hash: String,
-            height: rust_decimal::Decimal,
-            utxos: Vec<Utxos>,
-        },
     }
 }
 pub mod getbalance {
@@ -364,6 +364,43 @@ pub mod getblock {
         #[serde(skip_serializing_if = "Option::is_none")]
         Option<rust_decimal::Decimal>,
     );
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    #[serde(untagged)]
+    pub enum GetblockResponse {
+        Regular(String),
+        Verbose {
+            bits: String,
+            confirmations: rust_decimal::Decimal,
+            difficulty: rust_decimal::Decimal,
+            finalsaplingroot: String,
+            hash: String,
+            height: rust_decimal::Decimal,
+            merkleroot: String,
+            nextblockhash: String,
+            nonce: rust_decimal::Decimal,
+            previousblockhash: String,
+            size: rust_decimal::Decimal,
+            time: rust_decimal::Decimal,
+            tx: Vec<String>,
+            version: rust_decimal::Decimal,
+        },
+        VeryVerbose {
+            bits: String,
+            confirmations: rust_decimal::Decimal,
+            difficulty: rust_decimal::Decimal,
+            finalsaplingroot: String,
+            hash: String,
+            height: rust_decimal::Decimal,
+            merkleroot: String,
+            nextblockhash: String,
+            nonce: rust_decimal::Decimal,
+            previousblockhash: String,
+            size: rust_decimal::Decimal,
+            time: rust_decimal::Decimal,
+            tx: Vec<Tx>,
+            version: rust_decimal::Decimal,
+        },
+    }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ScriptPubKey {
         pub addresses: Vec<String>,
@@ -420,43 +457,6 @@ pub mod getblock {
         pub n: rust_decimal::Decimal,
         pub script_pub_key: ScriptPubKey,
         pub value: rust_decimal::Decimal,
-    }
-    #[serde(untagged)]
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub enum GetblockResponse {
-        Regular(String),
-        Verbose {
-            bits: String,
-            confirmations: rust_decimal::Decimal,
-            difficulty: rust_decimal::Decimal,
-            finalsaplingroot: String,
-            hash: String,
-            height: rust_decimal::Decimal,
-            merkleroot: String,
-            nextblockhash: String,
-            nonce: rust_decimal::Decimal,
-            previousblockhash: String,
-            size: rust_decimal::Decimal,
-            time: rust_decimal::Decimal,
-            tx: Vec<String>,
-            version: rust_decimal::Decimal,
-        },
-        VeryVerbose {
-            bits: String,
-            confirmations: rust_decimal::Decimal,
-            difficulty: rust_decimal::Decimal,
-            finalsaplingroot: String,
-            hash: String,
-            height: rust_decimal::Decimal,
-            merkleroot: String,
-            nextblockhash: String,
-            nonce: rust_decimal::Decimal,
-            previousblockhash: String,
-            size: rust_decimal::Decimal,
-            time: rust_decimal::Decimal,
-            tx: Vec<Tx>,
-            version: rust_decimal::Decimal,
-        },
     }
 }
 pub mod getblockchaininfo {
@@ -577,8 +577,8 @@ pub mod getblockheader {
         String,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
-    #[serde(untagged)]
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    #[serde(untagged)]
     pub enum GetblockheaderResponse {
         Regular(String),
         Verbose {
@@ -865,6 +865,12 @@ pub mod getrawmempool {
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    #[serde(untagged)]
+    pub enum GetrawmempoolResponse {
+        Regular(Vec<String>),
+        Verbose { transactionid: Transactionid },
+    }
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Transactionid {
         pub currentpriority: rust_decimal::Decimal,
         pub depends: Vec<String>,
@@ -873,12 +879,6 @@ pub mod getrawmempool {
         pub size: rust_decimal::Decimal,
         pub startingpriority: rust_decimal::Decimal,
         pub time: rust_decimal::Decimal,
-    }
-    #[serde(untagged)]
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub enum GetrawmempoolResponse {
-        Regular(Vec<String>),
-        Verbose { transactionid: Transactionid },
     }
 }
 pub mod getrawtransaction {
@@ -889,6 +889,27 @@ pub mod getrawtransaction {
         Option<rust_decimal::Decimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
     );
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    #[serde(untagged)]
+    pub enum GetrawtransactionResponse {
+        Regular(String),
+        Verbose {
+            expiryheight: Option<rust_decimal::Decimal>,
+            blockhash: String,
+            blocktime: rust_decimal::Decimal,
+            confirmations: rust_decimal::Decimal,
+            hex: String,
+            in_active_chain: bool,
+            locktime: rust_decimal::Decimal,
+            size: rust_decimal::Decimal,
+            time: rust_decimal::Decimal,
+            txid: String,
+            version: rust_decimal::Decimal,
+            vin: Vec<Vin>,
+            vjoinsplit: Vec<Vjoinsplit>,
+            vout: Vec<Vout>,
+        },
+    }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ScriptPubKey {
         pub addresses: Vec<String>,
@@ -928,27 +949,6 @@ pub mod getrawtransaction {
         pub n: rust_decimal::Decimal,
         pub script_pub_key: ScriptPubKey,
         pub value: rust_decimal::Decimal,
-    }
-    #[serde(untagged)]
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub enum GetrawtransactionResponse {
-        Regular(String),
-        Verbose {
-            expiryheight: Option<rust_decimal::Decimal>,
-            blockhash: String,
-            blocktime: rust_decimal::Decimal,
-            confirmations: rust_decimal::Decimal,
-            hex: String,
-            in_active_chain: bool,
-            locktime: rust_decimal::Decimal,
-            size: rust_decimal::Decimal,
-            time: rust_decimal::Decimal,
-            txid: String,
-            version: rust_decimal::Decimal,
-            vin: Vec<Vin>,
-            vjoinsplit: Vec<Vjoinsplit>,
-            vout: Vec<Vout>,
-        },
     }
 }
 pub mod getreceivedbyaccount {
@@ -1528,28 +1528,7 @@ pub mod z_getoperationresult {
         #[serde(skip_serializing_if = "Option::is_none")] Option<Vec<String>>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct Amounts {
-        pub address: String,
-        pub amount: rust_decimal::Decimal,
-    }
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct Error {
-        pub code: rust_decimal::Decimal,
-        pub message: String,
-    }
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct Params {
-        pub amounts: Vec<Amounts>,
-        pub fee: rust_decimal::Decimal,
-        pub fromaddress: String,
-        pub minconf: rust_decimal::Decimal,
-    }
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct Result {
-        pub txid: String,
-    }
     #[serde(untagged)]
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub enum ZGetoperationresultElement {
         Executing {
             creation_time: rust_decimal::Decimal,
@@ -1576,13 +1555,6 @@ pub mod z_getoperationresult {
             status: String,
         },
     }
-    pub type ZGetoperationresultResponse = Vec<ZGetoperationresultElement>;
-}
-pub mod z_getoperationstatus {
-    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct ZGetoperationstatusArguments(
-        #[serde(skip_serializing_if = "Option::is_none")] Option<Vec<String>>,
-    );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Amounts {
         pub address: String,
@@ -1604,8 +1576,15 @@ pub mod z_getoperationstatus {
     pub struct Result {
         pub txid: String,
     }
-    #[serde(untagged)]
+    pub type ZGetoperationresultResponse = Vec<ZGetoperationresultElement>;
+}
+pub mod z_getoperationstatus {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    pub struct ZGetoperationstatusArguments(
+        #[serde(skip_serializing_if = "Option::is_none")] Option<Vec<String>>,
+    );
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    #[serde(untagged)]
     pub enum ZGetoperationstatusElement {
         Executing {
             creation_time: rust_decimal::Decimal,
@@ -1631,6 +1610,27 @@ pub mod z_getoperationstatus {
             params: Params,
             status: String,
         },
+    }
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    pub struct Amounts {
+        pub address: String,
+        pub amount: rust_decimal::Decimal,
+    }
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    pub struct Error {
+        pub code: rust_decimal::Decimal,
+        pub message: String,
+    }
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    pub struct Params {
+        pub amounts: Vec<Amounts>,
+        pub fee: rust_decimal::Decimal,
+        pub fromaddress: String,
+        pub minconf: rust_decimal::Decimal,
+    }
+    #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
+    pub struct Result {
+        pub txid: String,
     }
     pub type ZGetoperationstatusResponse = Vec<ZGetoperationstatusElement>;
 }
