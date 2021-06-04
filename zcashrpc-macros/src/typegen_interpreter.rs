@@ -174,7 +174,7 @@ fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
         }
     }
 }
-pub(crate) fn generate_rpc_from_typegen_output(
+pub(crate) fn generate_rpc_interface(
     interpolater: impl Fn(&TemplateElements) -> TokenStream,
 ) -> TokenStream {
     let source = extract_response_idents();
