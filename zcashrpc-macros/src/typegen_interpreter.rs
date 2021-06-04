@@ -55,8 +55,8 @@ impl TemplateElements {
         &self,
     ) -> proc_macro2::TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
-        let responseid = unpack_ident_from_element(&self.responses);
-        let rpc_name_string = rpc_name.to_string();
+        let _responseid = unpack_ident_from_element(&self.responses);
+        let _rpc_name_string = rpc_name.to_string();
         let args = if let Some(_) = self.args {
             Some(quote!(todo!("Can't autogenerate mock args yet!")))
         } else {
@@ -194,7 +194,6 @@ pub(crate) fn generate_rpc_interface(
             panic!("Non module item in toplevel of typegen output.")
         }
     }
-    let unittests_of_rpc_methods = quote!();
     quote!(#caller_method_definitions)
 }
 pub fn extract_response_idents() -> String {
