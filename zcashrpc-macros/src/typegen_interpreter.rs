@@ -149,7 +149,7 @@ fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
         }
     }
 }
-pub(crate) fn generate_populated_templates() -> TokenStream {
+pub(crate) fn generate_procedurecall_trait_declaration() -> TokenStream {
     let source = extract_response_idents();
     let syntax = syn::parse_file(&source).expect("Unable to parse file");
     let mut caller_method_definitions = TokenStream::new();

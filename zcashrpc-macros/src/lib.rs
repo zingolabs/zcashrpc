@@ -7,7 +7,7 @@ use proc_macro::TokenStream;
 
 #[proc_macro]
 pub fn implement_rpc_call_methods(_: TokenStream) -> TokenStream {
-    typegen_interpreter::generate_populated_templates().into()
+    typegen_interpreter::generate_procedurecall_trait_declaration().into()
 }
 
 #[proc_macro]

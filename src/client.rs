@@ -23,6 +23,7 @@ impl Client {
 }
 
 zcashrpc_macros::implement_rpc_call_methods! {}
+// ProcedureCall is procedurally generated
 impl ProcedureCall for Client {
     fn make_request<R>(
         &mut self,
