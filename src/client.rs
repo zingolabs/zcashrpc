@@ -22,8 +22,35 @@ impl Client {
     }
 }
 
-zcashrpc_macros::implement_rpc_call_methods! {}
-// ProcedureCall is procedurally generated
+pub trait ProcedureCall {
+    fn make_request<R>(
+        &mut self,
+        method: &'static str,
+        args: Vec<serde_json::Value>,
+    ) -> std::pin::Pin<Box<dyn Future<Output = ResponseResult<R>>>>
+    where
+        R: DeserializeOwned;
+    fn serialize_into_output_format<T: serde::Serialize>(
+        args: T,
+    ) -> Vec<serde_json::Value> {
+        let x = serde_json::json!(args).as_array().unwrap().clone();
+        if x[0].is_null() {
+            if x.len() != 1 {
+                panic!("WHAAA?")
+            } else {
+                Vec::new()
+            }
+        } else {
+            if x.iter().any(|x| x.is_null()) {
+                panic!("WHAAA? number 2")
+            } else {
+                x
+            }
+        }
+    }
+    zcashrpc_macros::implement_rpc_call_methods! {}
+}
+
 impl ProcedureCall for Client {
     fn make_request<R>(
         &mut self,

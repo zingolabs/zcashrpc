@@ -166,43 +166,7 @@ pub(crate) fn generate_procedurecall_trait_declaration() -> TokenStream {
         }
     }
     let unittests_of_rpc_methods = quote!();
-    quote!(
-    pub trait ProcedureCall {
-        fn make_request<R>(
-            &mut self,
-            method: &'static str,
-            args: Vec<serde_json::Value>,
-        ) -> std::pin::Pin<Box<dyn Future<Output = ResponseResult<R>>>>
-        where
-            R: DeserializeOwned;
-        fn serialize_into_output_format<T: serde::Serialize>(
-            args: T,
-        ) -> Vec<serde_json::Value> {
-            let x = serde_json::json!(args).as_array().unwrap().clone();
-            if x[0].is_null() {
-                if x.len() != 1 {
-                    panic!("WHAAA?")
-                } else {
-                    Vec::new()
-                }
-            } else {
-                if x.iter().any(|x| x.is_null()) {
-                    panic!("WHAAA? number 2")
-                } else {
-                    x
-                }
-            }
-        }
-        #caller_method_definitions
-    }
-        #[cfg(test)]
-        mod __procedurecall_methodtests {
-            struct MockClient{
-            }
-            use super::*;
-            #unittests_of_rpc_methods
-        }
-    )
+    quote!(#caller_method_definitions)
 }
 pub fn extract_response_idents() -> String {
     let pathstr =
