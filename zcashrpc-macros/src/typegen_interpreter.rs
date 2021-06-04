@@ -175,7 +175,7 @@ fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
     }
 }
 pub(crate) fn generate_rpc_from_typegen_output(
-    templater: impl Fn(&TemplateElements) -> TokenStream,
+    interpolater: impl Fn(&TemplateElements) -> TokenStream,
 ) -> TokenStream {
     let source = extract_response_idents();
     let syntax = syn::parse_file(&source).expect("Unable to parse file");
@@ -185,7 +185,8 @@ pub(crate) fn generate_rpc_from_typegen_output(
             if let Some(c) = module.content {
                 let template_elements =
                     TemplateElements::new(module.ident.to_string(), c.1);
-                caller_method_definitions.extend(templater(&template_elements));
+                caller_method_definitions
+                    .extend(interpolater(&template_elements));
             }
         } else {
             panic!("Non module item in toplevel of typegen output.")
