@@ -464,7 +464,8 @@ mod test {
                         rpc_types::z_mergetoaddress::ZMergetoaddressResponse
                     >>>>
                 {
-                    let args_for_make_request = Self::serialize_into_output_format(args);
+                    let args_for_make_request =
+                        Self::serialize_into_output_format(args);
                     self.make_request("z_mergetoaddress", args_for_make_request)
                 }
             )
