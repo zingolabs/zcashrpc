@@ -32,7 +32,7 @@ pub(crate) struct TemplateElements {
     responses: syn::Item,
 }
 impl TemplateElements {
-    pub(crate) fn procedurecall_trait_method(
+    pub(crate) fn interpolate_procedurecall_method(
         &self,
     ) -> proc_macro2::TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
@@ -51,7 +51,9 @@ impl TemplateElements {
             }
         )
     }
-    pub(crate) fn procedurecall_unittest(&self) -> proc_macro2::TokenStream {
+    pub(crate) fn interpolate_procedurecall_unittest(
+        &self,
+    ) -> proc_macro2::TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let responseid = unpack_ident_from_element(&self.responses);
         let rpc_name_string = rpc_name.to_string();
@@ -386,7 +388,7 @@ mod test {
             generate_args_frag(&input_rpc_name_id, &Some(input_args));
         }
     }
-    mod procedurecall_trait_method {
+    mod interpolate_procedurecall_method {
         use super::*;
         #[test]
         fn getinfo_happy_path() {
@@ -396,7 +398,7 @@ mod test {
                 "getinfo".to_string(),
                 input_mod_contents,
             )
-            .procedurecall_trait_method()
+            .interpolate_procedurecall_method()
             .to_string();
             #[rustfmt::skip]
             let expected = quote!(
@@ -439,7 +441,7 @@ mod test {
                 "z_getnewaddress".to_string(),
                 input_mod_contents.to_vec(),
             )
-            .procedurecall_trait_method()
+            .interpolate_procedurecall_method()
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
@@ -468,7 +470,7 @@ mod test {
                 "z_mergetoaddress".to_string(),
                 input_mod_contents.to_vec(),
             )
-            .procedurecall_trait_method()
+            .interpolate_procedurecall_method()
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }

@@ -1,14 +1,12 @@
-mod calls;
-mod cli_commands;
 mod typegen_interpreter;
-mod utils;
 
 use proc_macro::TokenStream;
+use typegen_interpreter::TemplateElements;
 
 #[proc_macro]
 pub fn define_rpc_methods(_: TokenStream) -> TokenStream {
     typegen_interpreter::generate_rpc_interface(
-        typegen_interpreter::TemplateElements::procedurecall_trait_method,
+        TemplateElements::interpolate_procedurecall_method,
     )
     .into()
 }
@@ -16,7 +14,7 @@ pub fn define_rpc_methods(_: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn define_rpc_unittests(_: TokenStream) -> TokenStream {
     let tests = typegen_interpreter::generate_rpc_interface(
-        typegen_interpreter::TemplateElements::procedurecall_unittest,
+        TemplateElements::interpolate_procedurecall_unittest,
     );
     quote::quote!(
         mod __procgen_unittests {
