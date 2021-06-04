@@ -22,6 +22,40 @@ impl Client {
     }
 }
 
+#[cfg(test)]
+struct MockClient;
+
+#[cfg(test)]
+impl MockClient {
+    fn new() -> Self {
+        Self
+    }
+}
+
+#[cfg(test)]
+impl ProcedureCall for MockClient {
+    fn make_request<R>(
+        &mut self,
+        method: &'static str,
+        args: Vec<serde_json::Value>,
+    ) -> std::pin::Pin<Box<dyn Future<Output = ResponseResult<R>>>>
+    where
+        R: DeserializeOwned,
+    {
+        use crate::error::{ResponseError, ServerError};
+        Box::pin(async move {
+            Err(ServerError::Response(ResponseError {
+                code: 666,
+                message: "Can't actually generate mock responses yet! Sorry"
+                    .to_string(),
+            }))
+        })
+    }
+}
+
+#[cfg(test)]
+zcashrpc_macros::implement_rpc_call_unittests!();
+
 pub trait ProcedureCall {
     fn make_request<R>(
         &mut self,

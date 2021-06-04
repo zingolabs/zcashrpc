@@ -60,13 +60,15 @@ fn validate_enum_arguments_shape(argcontents: &syn::ItemEnum) {
         }
     }
 }
-struct TemplateElements {
+pub(crate) struct TemplateElements {
     rpc_name: String,
     args: Option<syn::Item>,
     responses: syn::Item,
 }
 impl TemplateElements {
-    fn interpolate_into_method(&self) -> proc_macro2::TokenStream {
+    pub(crate) fn procedurecall_trait_method(
+        &self,
+    ) -> proc_macro2::TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let responseid = unpack_ident_from_element(&self.responses);
         let rpc_name_string = rpc_name.to_string();
@@ -82,6 +84,29 @@ impl TemplateElements {
                 self.make_request(#rpc_name_string, args_for_make_request)
             }
         )
+    }
+    pub(crate) fn procedurecall_unittest(&self) -> proc_macro2::TokenStream {
+        let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
+        let responseid = unpack_ident_from_element(&self.responses);
+        let rpc_name_string = rpc_name.to_string();
+        let args = if let Some(_) = self.args {
+            Some(quote!(todo!("Can't autogenerate mock args yet!")))
+        } else {
+            None
+        };
+
+        quote![
+            #[ignore]
+            #[tokio::test]
+            #[allow(unreachable_code)]
+            async fn #rpc_name(
+            )
+            {
+                let mut client = MockClient::new();
+                client.#rpc_name(#args).await.unwrap();
+
+            }
+        ]
     }
     fn new(rpc_name: String, mod_contents: Vec<syn::Item>) -> Self {
         //! Takes a typegen generated rpc definition, extracts elements:
@@ -149,7 +174,9 @@ fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
         }
     }
 }
-pub(crate) fn generate_procedurecall_trait_declaration() -> TokenStream {
+pub(crate) fn generate_rpc_from_typegen_output(
+    templater: impl Fn(&TemplateElements) -> TokenStream,
+) -> TokenStream {
     let source = extract_response_idents();
     let syntax = syn::parse_file(&source).expect("Unable to parse file");
     let mut caller_method_definitions = TokenStream::new();
@@ -158,8 +185,7 @@ pub(crate) fn generate_procedurecall_trait_declaration() -> TokenStream {
             if let Some(c) = module.content {
                 let template_elements =
                     TemplateElements::new(module.ident.to_string(), c.1);
-                caller_method_definitions
-                    .extend(template_elements.interpolate_into_method());
+                caller_method_definitions.extend(templater(&template_elements));
             }
         } else {
             panic!("Non module item in toplevel of typegen output.")
@@ -359,7 +385,7 @@ mod test {
             generate_args_frag(&input_rpc_name_id, &Some(input_args));
         }
     }
-    mod interpolate_into_method {
+    mod procedurecall_trait_method {
         use super::*;
         #[test]
         fn getinfo_happy_path() {
@@ -369,7 +395,7 @@ mod test {
                 "getinfo".to_string(),
                 input_mod_contents,
             )
-            .interpolate_into_method()
+            .procedurecall_trait_method()
             .to_string();
             #[rustfmt::skip]
             let expected = quote!(
@@ -412,7 +438,7 @@ mod test {
                 "z_getnewaddress".to_string(),
                 input_mod_contents.to_vec(),
             )
-            .interpolate_into_method()
+            .procedurecall_trait_method()
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
@@ -441,7 +467,7 @@ mod test {
                 "z_mergetoaddress".to_string(),
                 input_mod_contents.to_vec(),
             )
-            .interpolate_into_method()
+            .procedurecall_trait_method()
             .to_string();
             testutils::Comparator { expected, observed }.compare();
         }
