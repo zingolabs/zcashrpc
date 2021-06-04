@@ -6,7 +6,7 @@ mod utils;
 use proc_macro::TokenStream;
 
 #[proc_macro]
-pub fn implement_rpc_call_methods(_: TokenStream) -> TokenStream {
+pub fn define_rpc_call_methods(_: TokenStream) -> TokenStream {
     typegen_interpreter::generate_rpc_from_typegen_output(
         typegen_interpreter::TemplateElements::procedurecall_trait_method,
     )
@@ -14,7 +14,7 @@ pub fn implement_rpc_call_methods(_: TokenStream) -> TokenStream {
 }
 
 #[proc_macro]
-pub fn implement_rpc_call_unittests(_: TokenStream) -> TokenStream {
+pub fn define_rpc_call_unittests(_: TokenStream) -> TokenStream {
     let tests = typegen_interpreter::generate_rpc_from_typegen_output(
         typegen_interpreter::TemplateElements::procedurecall_unittest,
     );
