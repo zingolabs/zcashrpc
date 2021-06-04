@@ -19,7 +19,7 @@ jobs:
       run: cd .. && git clone https://github.com/zingolabs/quizface.git 
 
     - name: Clone Zcrpctypegen
-      run: cd .. && https://github.com/zingolabs/zcrpctypegen.git
+      run: cd .. && git clone https://github.com/zingolabs/zcrpctypegen.git
 
     - name: Run Tests
       run: >- 
