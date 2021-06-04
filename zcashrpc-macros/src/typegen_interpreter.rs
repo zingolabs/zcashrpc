@@ -1,39 +1,5 @@
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
-struct TemplateElementsBuilder {
-    rpc_name: String,
-    args: Option<syn::Item>,
-    responses: Option<syn::Item>,
-}
-impl TemplateElementsBuilder {
-    fn build(self) -> TemplateElements {
-        TemplateElements {
-            rpc_name: self.rpc_name,
-            args: self.args,
-            responses: self.responses.expect("Unininitialized??"),
-        }
-    }
-    fn update_if_response_or_args(&mut self, element: syn::Item) {
-        // Add assertions about shapes of tg interpretations
-        let id = unpack_ident_from_element(&element);
-        if id.to_string().rfind("Response").is_some() {
-            self.responses = Some(element);
-        } else if id.to_string().rfind("Arguments").is_some() {
-            match element {
-                syn::Item::Enum(ref argcontents) => {
-                    validate_enum_arguments_shape(argcontents)
-                }
-                syn::Item::Struct(ref argcontents) => {
-                    validate_struct_arguments_shape(argcontents)
-                }
-                _ => {
-                    panic!()
-                }
-            }
-            self.args = Some(element);
-        }
-    }
-}
 fn validate_struct_arguments_shape(argcontents: &syn::ItemStruct) {
     use quote::ToTokens;
     if let syn::Fields::Unnamed(fields) = &argcontents.fields {
@@ -125,6 +91,40 @@ impl TemplateElements {
             templatebuilder.update_if_response_or_args(rpc_element);
         }
         templatebuilder.build()
+    }
+}
+struct TemplateElementsBuilder {
+    rpc_name: String,
+    args: Option<syn::Item>,
+    responses: Option<syn::Item>,
+}
+impl TemplateElementsBuilder {
+    fn build(self) -> TemplateElements {
+        TemplateElements {
+            rpc_name: self.rpc_name,
+            args: self.args,
+            responses: self.responses.expect("Unininitialized??"),
+        }
+    }
+    fn update_if_response_or_args(&mut self, element: syn::Item) {
+        // Add assertions about shapes of tg interpretations
+        let id = unpack_ident_from_element(&element);
+        if id.to_string().rfind("Response").is_some() {
+            self.responses = Some(element);
+        } else if id.to_string().rfind("Arguments").is_some() {
+            match element {
+                syn::Item::Enum(ref argcontents) => {
+                    validate_enum_arguments_shape(argcontents)
+                }
+                syn::Item::Struct(ref argcontents) => {
+                    validate_struct_arguments_shape(argcontents)
+                }
+                _ => {
+                    panic!()
+                }
+            }
+            self.args = Some(element);
+        }
     }
 }
 fn generate_args_frag(
