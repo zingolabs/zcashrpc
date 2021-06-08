@@ -76,6 +76,29 @@ impl TemplateElements {
             }
         ]
     }
+
+    pub(crate) fn interpolate_zcashrcli_matcharms(&self) -> TokenStream {
+        let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
+        let responseid = unpack_ident_from_element(&self.responses);
+        let args_from_input = if let Some(actual_args) = &self.args {
+            let argsid = unpack_ident_from_element(&actual_args);
+            Some(quote!(
+                serde_json::from_value::<
+                    zcashrpc::client::rpc_types::#rpc_name::#argsid
+                >(serde_json::json!(inputs)).unwrap()
+            ))
+        } else {
+            None
+        };
+        let rpc_name_string = rpc_name.to_string();
+        quote![
+            #rpc_name_string => {
+                dbg!(zcashrpc::client::utils::make_client(true)
+                    .#rpc_name(#args_from_input).await.unwrap());
+            }
+        ]
+    }
+
     fn new(rpc_name: String, mod_contents: Vec<syn::Item>) -> Self {
         //! Takes a typegen generated rpc definition, extracts elements:
         //!   rpc_name: Note the name is converted to a string, because the
