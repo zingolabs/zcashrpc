@@ -33,4 +33,9 @@ jobs:
        && zcashd -daemon
        && cd ../quizface
        && cat lists/passing.txt | xargs cargo run
-       && cd .. && ls -la"
+       && cd ../zcrpctypegen
+       && cargo test
+       && cargo run ../quizface/output/metascrubbing_0.2.0
+       && cp output/metascrubbing_0.2.0_0.2.0/rpc_response_types.rs ../zcashrpc/src/client/rpc_types.rs
+       && cd ../zcashrpc
+       && cargo test"
