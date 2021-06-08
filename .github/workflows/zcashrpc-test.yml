@@ -18,22 +18,25 @@ jobs:
     - name: Clone Quizface
       run: cd .. && git clone https://github.com/zingolabs/quizface.git 
 
+    - name: Clone Zcrpctypegen
+      run: cd .. && git clone https://github.com/zingolabs/zcrpctypegen.git
+
     - name: Run Tests
       run: >- 
        docker run 
        -v /home/runner/work/zcashrpc/zcashrpc:/zcashrpc
        -v /home/runner/work/zcashrpc/quizface:/quizface
+       -v /home/runner/work/zcashrpc/zcrpctypegen:/zcrpctypegen
        ghcr.io/zingolabs/zcashrpc:latest
        bash -c "mv ./zcash/src/zcash-cli /usr/local/bin/zcash-cli
        && mv ./zcash/src/zcashd /usr/local/bin/zcashd
        && zcashd -daemon
-       && cd zcashrpc
-       && cargo test
        && cd ../quizface
+       && git checkout meta_scrubbing
        && cat lists/passing.txt | xargs cargo run
-       && cd ../zcashrpc/zcashrpc-typegen
+       && cd ../zcrpctypegen
        && cargo test
-       && cargo run ../../quizface/output/v4.3.0_0.2.0
-       && cp output/v4.3.0_0.2.0_0.2.0/rpc_response_types.rs ../src/client/subcomponents.rs
-       && cd ..
+       && cargo run ../quizface/output/metascrubbing_0.2.0
+       && cp output/metascrubbing_0.2.0_0.2.0/rpc_response_types.rs ../zcashrpc/src/client/rpc_types.rs
+       && cd ../zcashrpc
        && cargo test"

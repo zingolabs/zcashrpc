@@ -2,12 +2,12 @@
 
 use serde::{Deserialize, Serialize};
 
-/// A `ResponseResult<R>` is a convenience type-alias for `Result<R, Error>`.
-pub type ResponseResult<R> = Result<R, Error>;
+/// A `ResponseResult<R>` is a convenience type-alias for `Result<R, ServerError>`.
+pub type ResponseResult<R> = Result<R, ServerError>;
 
-/// An `Error` represents errors encountered in making an RPC request, and encompasses application-level error responses, protocol errors, and transient failures.
+/// An `ServerError` represents errors encountered in making an RPC request, and encompasses application-level error responses, protocol errors, and transient failures.
 #[derive(Debug, derive_more::From)]
-pub enum Error {
+pub enum ServerError {
     /// A `Response` represents an application-level error sent back from `zcashd`.
     Response(ResponseError),
 
@@ -52,3 +52,7 @@ pub enum JsonRpcViolation {
         error: ResponseError,
     },
 }
+
+pub type UserInputResult<R> = Result<R, UserInputError>;
+#[derive(Debug, derive_more::From)]
+pub enum UserInputError {}

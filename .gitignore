@@ -2,3 +2,4 @@
 /target
 **/*.rs.bk
 /zcashrpc-typegen/output.rs
+tags

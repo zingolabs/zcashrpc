@@ -1,21 +1,26 @@
-mod calls;
-mod cli_commands;
-mod responses;
-mod utils;
+mod typegen_interpreter;
 
 use proc_macro::TokenStream;
+use typegen_interpreter::TemplateElements;
 
 #[proc_macro]
-pub fn declare_rpc_client_methods(input: TokenStream) -> TokenStream {
-    utils::make_code(input.into(), calls::make_call).into()
+pub fn define_rpc_methods(_: TokenStream) -> TokenStream {
+    typegen_interpreter::generate_rpc_interface(
+        TemplateElements::interpolate_procedurecall_method,
+    )
+    .into()
 }
 
 #[proc_macro]
-pub fn declare_rpc_response_types(_input: TokenStream) -> TokenStream {
-    responses::declare_rpc_response_types().into()
-}
-
-#[proc_macro]
-pub fn declare_rcli_command_types(input: TokenStream) -> TokenStream {
-    utils::make_code(input.into(), cli_commands::make_command).into()
+pub fn define_rpc_unittests(_: TokenStream) -> TokenStream {
+    let tests = typegen_interpreter::generate_rpc_interface(
+        TemplateElements::interpolate_procedurecall_unittest,
+    );
+    quote::quote!(
+        mod __procgen_unittests {
+            use super::*;
+            #tests
+        }
+    )
+    .into()
 }
