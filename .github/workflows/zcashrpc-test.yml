@@ -32,6 +32,7 @@ jobs:
        && mv ./zcash/src/zcashd /usr/local/bin/zcashd
        && zcashd -daemon
        && cd ../quizface
+       && git checkout meta_scrubbing
        && cat lists/passing.txt | xargs cargo run
        && cd ../zcrpctypegen
        && cargo test
