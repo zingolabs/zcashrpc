@@ -26,6 +26,7 @@ jobs:
        docker run 
        -v /home/runner/work/zcashrpc/zcashrpc:/zcashrpc
        -v /home/runner/work/zcashrpc/quizface:/quizface
+       -v /home/runner/work/zcashrpc/zcrpctypegen:/zcrpctypegen
        ghcr.io/zingolabs/zcashrpc:latest
        bash -c "mv ./zcash/src/zcash-cli /usr/local/bin/zcash-cli
        && mv ./zcash/src/zcashd /usr/local/bin/zcashd
