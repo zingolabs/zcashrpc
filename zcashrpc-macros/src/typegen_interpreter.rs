@@ -222,6 +222,7 @@ fn generate_args_frag(
     }
 }
 
+#[rustfmt::skip]
 fn get_arg_fields(
     args_type: &Option<syn::Item>,
 ) -> Option<Vec<&syn::FieldsUnnamed>> {
@@ -229,7 +230,6 @@ fn get_arg_fields(
         return None;
     };
     let mut return_vector = vec![];
-    #[rustfmt::skip]
     match args_type {
         Some(syn::Item::Struct(args_struct)) => {
             if let syn::Fields::Unnamed(fields) = &args_struct.fields {
@@ -244,7 +244,7 @@ fn get_arg_fields(
                     panic!()
                 }
             }
-            return return_vector
+            return Some(return_vector)
         },
         _ => panic!(),
     }
