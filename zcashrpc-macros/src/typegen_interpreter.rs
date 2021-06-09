@@ -83,18 +83,55 @@ impl TemplateElements {
         let args_from_input = if let Some(actual_args) = &self.args {
             let argsid = unpack_ident_from_element(&actual_args);
             Some(quote!(
-                serde_json::from_value::<
-                    zcashrpc::client::rpc_types::#rpc_name::#argsid
-                >(serde_json::json!(inputs)).unwrap()
+            serde_json::from_value::<
+                zcashrpc::client::rpc_types::#rpc_name::#argsid
+            >(serde_json::json!(inputs));
             ))
         } else {
             None
         };
+        let (serialize_args, put_args_in_call) = if let Some(arg_fields) =
+            get_arg_fields(&self.args)
+        {
+            let argsid = unpack_ident_from_element(self.args.as_ref().unwrap());
+            (
+                quote!(let input_struct =
+                    serde_json::from_value::<
+                        zcashrpc::client::rpc_types::#rpc_name::#argsid
+                    >(serde_json::json!(inputs));
+                    assert!(
+                        input_struct.is_ok(),
+                        "Input cannot be serialzed as a {}",
+                        stringify!(#argsid),
+                    );
+                ),
+                Some(quote!(input_struct.unwrap())),
+            )
+        } else {
+            (
+                quote!(assert_eq!(
+                    inputs.len(),
+                    0,
+                    "ERROR: {} doesn't take any input",
+                    stringify!(#rpc_name)
+                );),
+                None,
+            )
+        };
+        assert_eq!(
+            args_from_input.is_some(),
+            put_args_in_call.is_some(),
+            "{}\n===\n{}",
+            args_from_input.unwrap_or(quote!(None)).to_string(),
+            put_args_in_call.unwrap_or(quote!(None)).to_string()
+        );
+
         let rpc_name_string = rpc_name.to_string();
         quote![
             #rpc_name_string => {
+                #serialize_args
                 dbg!(zcashrpc::client::utils::make_client(true)
-                    .#rpc_name(#args_from_input).await.unwrap());
+                    .#rpc_name(#put_args_in_call).await).unwrap();
             }
         ]
     }
@@ -184,6 +221,22 @@ fn generate_args_frag(
         (None, quote!(Vec::new()))
     }
 }
+
+fn get_arg_fields(
+    args_type: &Option<syn::Item>,
+) -> Option<&syn::FieldsUnnamed> {
+    if let Some(syn::Item::Struct(args_struct)) = args_type {
+        if let syn::Fields::Unnamed(fields) = &args_struct.fields {
+            return Some(fields);
+        }
+    }
+
+    if let Some(confusion) = args_type {
+        dbg!(confusion);
+    }
+    None
+}
+
 fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
     use syn::Item;
     match item {
