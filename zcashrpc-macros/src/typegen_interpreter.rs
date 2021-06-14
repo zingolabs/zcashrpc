@@ -91,7 +91,7 @@ impl TemplateElements {
             None
         };
         let (serialize_args, put_args_in_call) = if let Some(arg_fields) =
-            get_arg_fields(&self.args)
+            self.unpack_args()
         {
             let argsid = unpack_ident_from_element(self.args.as_ref().unwrap());
             (
@@ -134,6 +134,35 @@ impl TemplateElements {
                     .#rpc_name(#put_args_in_call).await).unwrap();
             }
         ]
+    }
+
+    fn unpack_args(&self) -> Option<Vec<&syn::FieldsUnnamed>> {
+        if self.args.is_none() {
+            return None;
+        };
+        let mut return_vector = vec![];
+        match &self.args {
+            Some(syn::Item::Struct(args_struct)) => {
+                if let syn::Fields::Unnamed(fields) = &args_struct.fields {
+                    return Some(vec![fields]);
+                } else {
+                    panic!("A")
+                }
+            }
+            Some(syn::Item::Enum(content)) => {
+                for argument_variant in &content.variants {
+                    if let syn::Fields::Unnamed(fields) =
+                        &argument_variant.fields
+                    {
+                        return_vector.push(fields);
+                    } else {
+                        panic!("B")
+                    }
+                }
+                return Some(return_vector);
+            }
+            _ => panic!("C"),
+        }
     }
 
     fn new(rpc_name: String, mod_contents: Vec<syn::Item>) -> Self {
@@ -219,35 +248,6 @@ fn generate_args_frag(
         )
     } else {
         (None, quote!(Vec::new()))
-    }
-}
-
-fn get_arg_fields(
-    args_type: &Option<syn::Item>,
-) -> Option<Vec<&syn::FieldsUnnamed>> {
-    if args_type.is_none() {
-        return None;
-    };
-    let mut return_vector = vec![];
-    match args_type {
-        Some(syn::Item::Struct(args_struct)) => {
-            if let syn::Fields::Unnamed(fields) = &args_struct.fields {
-                return Some(vec![fields]);
-            } else {
-                panic!("A")
-            }
-        }
-        Some(syn::Item::Enum(content)) => {
-            for argument_variant in &content.variants {
-                if let syn::Fields::Unnamed(fields) = &argument_variant.fields {
-                    return_vector.push(fields);
-                } else {
-                    panic!("B")
-                }
-            }
-            return Some(return_vector);
-        }
-        _ => panic!("C"),
     }
 }
 
