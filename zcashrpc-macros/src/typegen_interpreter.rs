@@ -90,33 +90,35 @@ impl TemplateElements {
         } else {
             None
         };
-        let (serialize_args, put_args_in_call) = if let Some(arg_fields) =
-            self.unpack_args()
-        {
-            let argsid = unpack_ident_from_element(self.args.as_ref().unwrap());
-            (
-                quote!(let input_struct =
-                    serde_json::from_value::<
-                        zcashrpc::client::rpc_types::#rpc_name::#argsid
-                    >(serde_json::json!(inputs));
-                    assert!(
-                        input_struct.is_ok(),
-                        "Input cannot be serialzed as a {}",
-                        stringify!(#argsid),
-                    );
-                ),
-                Some(quote!(input_struct.unwrap())),
-            )
-        } else {
-            (
-                quote!(assert_eq!(
+        let (serialize_args, put_args_in_call) = {
+            if self.args.is_none() {
+                (
+                    quote!(assert_eq!(
                     inputs.len(),
                     0,
                     "ERROR: {} doesn't take any input",
                     stringify!(#rpc_name)
                 );),
-                None,
-            )
+                    None,
+                )
+            } else {
+                let arg_fields = self.unpack_some_args();
+                let argsid =
+                    unpack_ident_from_element(self.args.as_ref().unwrap());
+                (
+                    quote!(let input_struct =
+                        serde_json::from_value::<
+                            zcashrpc::client::rpc_types::#rpc_name::#argsid
+                        >(serde_json::json!(inputs));
+                        assert!(
+                            input_struct.is_ok(),
+                            "Input cannot be serialzed as a {}",
+                            stringify!(#argsid),
+                        );
+                    ),
+                    Some(quote!(input_struct.unwrap())),
+                )
+            }
         };
         assert_eq!(
             args_from_input.is_some(),
@@ -136,15 +138,12 @@ impl TemplateElements {
         ]
     }
 
-    fn unpack_args(&self) -> Option<Vec<&syn::FieldsUnnamed>> {
-        if self.args.is_none() {
-            return None;
-        };
+    fn unpack_some_args(&self) -> Vec<&syn::FieldsUnnamed> {
         let mut return_vector = vec![];
         match &self.args {
             Some(syn::Item::Struct(args_struct)) => {
                 if let syn::Fields::Unnamed(fields) = &args_struct.fields {
-                    return Some(vec![fields]);
+                    return vec![fields];
                 } else {
                     panic!("A")
                 }
@@ -159,7 +158,7 @@ impl TemplateElements {
                         panic!("B")
                     }
                 }
-                return Some(return_vector);
+                return return_vector;
             }
             _ => panic!("C"),
         }
