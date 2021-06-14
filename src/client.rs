@@ -53,8 +53,8 @@ impl ProcedureCall for MockClient {
     }
 }
 
-#[cfg(test)]
-zcashrpc_macros::define_rpc_unittests!();
+//#[cfg(test)]
+//zcashrpc_macros::define_rpc_unittests!();
 
 pub trait ProcedureCall {
     fn make_request<R>(
