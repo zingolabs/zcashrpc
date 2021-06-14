@@ -32,13 +32,16 @@ impl MockClient {
     }
 }
 
+type MakeRequestResponse<R> =
+    std::pin::Pin<Box<dyn Future<Output = ResponseResult<R>>>>;
+
 #[cfg(test)]
 impl ProcedureCall for MockClient {
     fn make_request<R>(
         &mut self,
         method: &'static str,
         args: Vec<serde_json::Value>,
-    ) -> std::pin::Pin<Box<dyn Future<Output = ResponseResult<R>>>>
+    ) -> MakeRequestResponse<R>
     where
         R: DeserializeOwned,
     {
@@ -61,7 +64,7 @@ pub trait ProcedureCall {
         &mut self,
         method: &'static str,
         args: Vec<serde_json::Value>,
-    ) -> std::pin::Pin<Box<dyn Future<Output = ResponseResult<R>>>>
+    ) -> MakeRequestResponse<R>
     where
         R: DeserializeOwned;
     fn serialize_into_output_format<T: serde::Serialize>(
@@ -90,7 +93,7 @@ impl ProcedureCall for Client {
         &mut self,
         method: &'static str,
         args: Vec<serde_json::Value>,
-    ) -> std::pin::Pin<Box<dyn Future<Output = ResponseResult<R>>>>
+    ) -> MakeRequestResponse<R>
     where
         R: DeserializeOwned,
     {
