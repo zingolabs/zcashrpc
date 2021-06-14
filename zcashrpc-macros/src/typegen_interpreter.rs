@@ -248,11 +248,6 @@ fn get_arg_fields(
         },
         _ => panic!(),
     }
-
-    if let Some(confusion) = args_type {
-        dbg!(confusion);
-    }
-    None
 }
 
 fn unpack_ident_from_element(item: &syn::Item) -> &syn::Ident {
