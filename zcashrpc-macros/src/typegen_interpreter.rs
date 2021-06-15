@@ -90,9 +90,15 @@ impl TemplateElements {
             let stringed_argsid = argsid.to_string();
             (
                 quote!(let input_struct =
-                    serde_json::from_value::<
-                        crate::client::rpc_types::#rpc_name::#argsid
-                    >(serde_json::json!(args));
+                    if args.len() != 1 {
+                        serde_json::from_value::<
+                            crate::client::rpc_types::#rpc_name::#argsid
+                        >(serde_json::json!(args))
+                    } else {
+                        serde_json::from_value::<
+                            crate::client::rpc_types::#rpc_name::#argsid
+                        >(serde_json::json!(args[0]))
+                    };
                 ),
                 Some(quote!(input_struct.unwrap())),
             )
