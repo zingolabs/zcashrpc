@@ -4,6 +4,7 @@ pub mod utils;
 
 use crate::ResponseResult;
 use serde::de::DeserializeOwned;
+use serde_json::Value;
 use std::future::Future;
 
 /// A `Client` is used to make multiple requests to a specific zcashd RPC server. Requests are invoked by async methods that correspond to `zcashd` RPC API method names with request-specific parameters. Each such method has an associated response type.
@@ -20,8 +21,14 @@ impl Client {
             inner: utils::ReqwClientWrapper::new(hostport, authcookie),
         }
     }
+    pub async fn dispatch_named_command(
+        command: String,
+        args: Vec<Value>,
+    ) -> ResponseResult<Value> {
+        zcashrpc_macros::match_rpc!(command);
+        Ok(serde_json::json!(true))
+    }
 }
-
 #[cfg(test)]
 struct MockClient;
 

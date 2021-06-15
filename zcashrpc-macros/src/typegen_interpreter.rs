@@ -80,30 +80,19 @@ impl TemplateElements {
     fn generate_serial_and_asparams_args(
         &self,
     ) -> (TokenStream, Option<TokenStream>) {
+        let stringed_rpc_name = &self.rpc_name;
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         if self.args.is_none() {
-            (
-                quote!(assert_eq!(
-                    inputs.len(),
-                    0,
-                    "ERROR: {} doesn't take any input",
-                    stringify!(#rpc_name)
-                );),
-                None,
-            )
+            (quote!(), None)
         } else {
             let arg_fields = self.unpack_some_args();
             let argsid = unpack_ident_from_element(self.args.as_ref().unwrap());
+            let stringed_argsid = argsid.to_string();
             (
                 quote!(let input_struct =
                     serde_json::from_value::<
-                        zcashrpc::client::rpc_types::#rpc_name::#argsid
-                    >(serde_json::json!(inputs));
-                    assert!(
-                        input_struct.is_ok(),
-                        "Input cannot be serialzed as a {}",
-                        stringify!(#argsid),
-                    );
+                        crate::client::rpc_types::#rpc_name::#argsid
+                    >(serde_json::json!(args));
                 ),
                 Some(quote!(input_struct.unwrap())),
             )
@@ -146,8 +135,10 @@ impl TemplateElements {
         quote![
             #rpc_name_string => {
                 #serialize_args
-                dbg!(zcashrpc::client::utils::make_client(true)
-                    .#rpc_name(#invocation_arguments).await).unwrap();
+                crate::client::utils::make_client(true)
+                    .#rpc_name(
+                        #invocation_arguments
+                    ).await.map(|concrete_type| concrete_type.to_value())
             }
         ]
     }
@@ -561,7 +552,7 @@ mod test {
                 "z_getnewaddress" => {
                     let input_struct =
                         serde_json::from_value::<
-                            zcashrpc::client::rpc_types::
+                            crate::client::rpc_types::
                             z_getnewaddress::ZGetnewaddressArguments
                          > (serde_json::json!(inputs)) ;
                     assert!(
@@ -570,7 +561,7 @@ mod test {
                         stringify!(ZGetnewaddressArguments),
                     );
                     dbg!(
-                        zcashrpc::client::utils::make_client(true)
+                        crate::client::utils::make_client(true)
                             .z_getnewaddress(input_struct.unwrap())
                             .await
                     )

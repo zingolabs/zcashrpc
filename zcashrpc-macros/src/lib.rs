@@ -33,7 +33,7 @@ pub fn match_rpc(input: TokenStream) -> TokenStream {
     let name: syn::Ident = syn::parse(input).unwrap();
     quote::quote!(
         {
-            use zcashrpc::client::ProcedureCall as _;
+            use crate::client::ProcedureCall as _;
             match #name.as_str() {
                 #match_arms
                 _ => panic!("invalid rpc!"),
