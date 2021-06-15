@@ -568,4 +568,36 @@ mod test {
             testutils::Comparator { expected, observed }.compare();
         }
     }
+    mod interpolate_command_matcharms {
+        use super::*;
+        #[test]
+        fn z_getnewaddress() {
+            //Create expected
+            #[rustfmt::skip]
+            let expected = quote!(
+                fn z_getnewaddress(
+                    &mut self,
+                    args: rpc_types::z_getnewaddress::ZGetnewaddressArguments
+                ) ->  std::pin::Pin<Box< dyn Future <
+                    Output = ResponseResult<
+                        rpc_types::z_getnewaddress::ZGetnewaddressResponse
+                    >>>>
+                {
+                    let args_for_make_request = Self::serialize_into_output_format([args]);
+                    self.make_request("z_getnewaddress", args_for_make_request)
+                }
+            )
+            .to_string();
+
+            //Make observation
+            let input_mod_contents = make_z_getnewaddress_mod_contents();
+            let observed = TemplateElements::new(
+                "z_getnewaddress".to_string(),
+                input_mod_contents.to_vec(),
+            )
+            .interpolate_command_matcharms()
+            .to_string();
+            testutils::Comparator { expected, observed }.compare();
+        }
+    }
 }
