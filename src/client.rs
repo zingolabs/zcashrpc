@@ -25,8 +25,7 @@ impl Client {
         command: String,
         args: Vec<Value>,
     ) -> ResponseResult<Value> {
-        zcashrpc_macros::match_rpc!(command);
-        Ok(serde_json::json!(true))
+        zcashrpc_macros::match_rpc!(command)
     }
 }
 #[cfg(test)]

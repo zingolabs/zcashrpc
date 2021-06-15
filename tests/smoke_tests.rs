@@ -18,12 +18,14 @@ run_smoketest!(noarg_zgna, z_getnewaddress(json!(None::<String>)));
 run_smoketest!(onearg_zgna, z_getnewaddress(json!("sapling")));
 //run_smoketest!(onearg_zmergetoaddress, z_mergetoaddress(json!("sapling")));
 
+//Add std::process::Command zcashd -rpcport -regtest spin up and down test
+//utils.
 #[tokio::test]
 async fn dispatch_named_command_z_getnewaddress() {
-    let _response = zcashrpc::client::Client::dispatch_named_command(
+    let response = zcashrpc::client::Client::dispatch_named_command(
         "z_getnewaddress".to_string(),
         vec![serde_json::json!("sapling")],
     )
-    .await
-    .unwrap();
+    .await;
+    dbg!(response);
 }

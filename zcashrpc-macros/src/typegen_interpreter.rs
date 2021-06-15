@@ -144,7 +144,11 @@ impl TemplateElements {
                 crate::client::utils::make_client(true)
                     .#rpc_name(
                         #invocation_arguments
-                    ).await.map(|concrete| serde_json::to_value(concrete))
+                    )
+                    .await
+                    .map(|concrete|
+                        serde_json::to_value(concrete).unwrap()
+                    )
             }
         ]
     }
