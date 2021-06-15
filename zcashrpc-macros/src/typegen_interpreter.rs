@@ -138,7 +138,7 @@ impl TemplateElements {
                 crate::client::utils::make_client(true)
                     .#rpc_name(
                         #invocation_arguments
-                    ).await.map(|concrete_type| concrete_type.to_value())
+                    ).await.map(|concrete| serde_json::to_value(concrete))
             }
         ]
     }
@@ -554,18 +554,11 @@ mod test {
                         serde_json::from_value::<
                             crate::client::rpc_types::
                             z_getnewaddress::ZGetnewaddressArguments
-                         > (serde_json::json!(inputs)) ;
-                    assert!(
-                        input_struct.is_ok(),
-                        "Input cannot be serialzed as a {}",
-                        stringify!(ZGetnewaddressArguments),
-                    );
-                    dbg!(
-                        crate::client::utils::make_client(true)
-                            .z_getnewaddress(input_struct.unwrap())
-                            .await
-                    )
-                    .unwrap();
+                        >(serde_json::json!(args));
+                    crate::client::utils::make_client(true)
+                        .z_getnewaddress(input_struct.unwrap())
+                        .await
+                        .map(|concrete| serde_json::to_value(concrete))
                 }
             )
             .to_string();
