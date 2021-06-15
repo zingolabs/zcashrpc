@@ -28,7 +28,7 @@ pub fn define_rpc_unittests(_: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn match_rpc(input: TokenStream) -> TokenStream {
     let match_arms = typegen_interpreter::generate_rpc_interface(
-        TemplateElements::interpolate_zcashrcli_matcharms,
+        TemplateElements::interpolate_command_matcharms,
     );
     let name: syn::Ident = syn::parse(input).unwrap();
     quote::quote!(

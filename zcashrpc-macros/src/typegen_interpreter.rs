@@ -77,65 +77,37 @@ impl TemplateElements {
         ]
     }
 
-    pub(crate) fn interpolate_zcashrcli_matcharms(&self) -> TokenStream {
-        let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
-        let responseid = unpack_ident_from_element(&self.responses);
-        let args_from_input = if let Some(actual_args) = &self.args {
-            let argsid = unpack_ident_from_element(&actual_args);
-            Some(quote!(
-            serde_json::from_value::<
-                zcashrpc::client::rpc_types::#rpc_name::#argsid
-            >(serde_json::json!(inputs));
-            ))
-        } else {
-            None
-        };
-        let (serialize_args, put_args_in_call) = {
-            if self.args.is_none() {
-                (
-                    quote!(assert_eq!(
+    fn generate_serial_and_asparams_args(
+        &self,
+    ) -> (TokenStream, Option<TokenStream>) {
+        let rpc_name = &self.rpc_name;
+        if self.args.is_none() {
+            (
+                quote!(assert_eq!(
                     inputs.len(),
                     0,
                     "ERROR: {} doesn't take any input",
                     stringify!(#rpc_name)
                 );),
-                    None,
-                )
-            } else {
-                let arg_fields = self.unpack_some_args();
-                let argsid =
-                    unpack_ident_from_element(self.args.as_ref().unwrap());
-                (
-                    quote!(let input_struct =
-                        serde_json::from_value::<
-                            zcashrpc::client::rpc_types::#rpc_name::#argsid
-                        >(serde_json::json!(inputs));
-                        assert!(
-                            input_struct.is_ok(),
-                            "Input cannot be serialzed as a {}",
-                            stringify!(#argsid),
-                        );
-                    ),
-                    Some(quote!(input_struct.unwrap())),
-                )
-            }
-        };
-        assert_eq!(
-            args_from_input.is_some(),
-            put_args_in_call.is_some(),
-            "{}\n===\n{}",
-            args_from_input.unwrap_or(quote!(None)).to_string(),
-            put_args_in_call.unwrap_or(quote!(None)).to_string()
-        );
-
-        let rpc_name_string = rpc_name.to_string();
-        quote![
-            #rpc_name_string => {
-                #serialize_args
-                dbg!(zcashrpc::client::utils::make_client(true)
-                    .#rpc_name(#put_args_in_call).await).unwrap();
-            }
-        ]
+                None,
+            )
+        } else {
+            let arg_fields = self.unpack_some_args();
+            let argsid = unpack_ident_from_element(self.args.as_ref().unwrap());
+            (
+                quote!(let input_struct =
+                    serde_json::from_value::<
+                        zcashrpc::client::rpc_types::#rpc_name::#argsid
+                    >(serde_json::json!(inputs));
+                    assert!(
+                        input_struct.is_ok(),
+                        "Input cannot be serialzed as a {}",
+                        stringify!(#argsid),
+                    );
+                ),
+                Some(quote!(input_struct.unwrap())),
+            )
+        }
     }
 
     fn unpack_some_args(&self) -> Vec<&syn::FieldsUnnamed> {
@@ -162,6 +134,39 @@ impl TemplateElements {
             }
             _ => panic!("C"),
         }
+    }
+
+    pub(crate) fn interpolate_command_matcharms(&self) -> TokenStream {
+        let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
+        let responseid = unpack_ident_from_element(&self.responses);
+        let args_from_input = if let Some(actual_args) = &self.args {
+            let argsid = unpack_ident_from_element(&actual_args);
+            Some(quote!(
+            serde_json::from_value::<
+                zcashrpc::client::rpc_types::#rpc_name::#argsid
+            >(serde_json::json!(inputs));
+            ))
+        } else {
+            None
+        };
+        let (serialize_args, invocation_arguments) =
+            self.generate_serial_and_asparams_args();
+        assert_eq!(
+            args_from_input.is_some(),
+            invocation_arguments.is_some(),
+            "{}\n===\n{}",
+            args_from_input.unwrap_or(quote!(None)).to_string(),
+            invocation_arguments.unwrap_or(quote!(None)).to_string()
+        );
+
+        let rpc_name_string = rpc_name.to_string();
+        quote![
+            #rpc_name_string => {
+                #serialize_args
+                dbg!(zcashrpc::client::utils::make_client(true)
+                    .#rpc_name(#invocation_arguments).await).unwrap();
+            }
+        ]
     }
 
     fn new(rpc_name: String, mod_contents: Vec<syn::Item>) -> Self {
