@@ -80,7 +80,7 @@ impl TemplateElements {
     fn generate_serial_and_asparams_args(
         &self,
     ) -> (TokenStream, Option<TokenStream>) {
-        let rpc_name = &self.rpc_name;
+        let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         if self.args.is_none() {
             (
                 quote!(assert_eq!(
@@ -139,7 +139,7 @@ impl TemplateElements {
     pub(crate) fn interpolate_command_matcharms(&self) -> TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let responseid = unpack_ident_from_element(&self.responses);
-        let args_from_input = if let Some(actual_args) = &self.args {
+        /*let args_from_input = if let Some(actual_args) = &self.args {
             let argsid = unpack_ident_from_element(&actual_args);
             Some(quote!(
             serde_json::from_value::<
@@ -148,16 +148,16 @@ impl TemplateElements {
             ))
         } else {
             None
-        };
+        };*/
         let (serialize_args, invocation_arguments) =
             self.generate_serial_and_asparams_args();
-        assert_eq!(
+        /*assert_eq!(
             args_from_input.is_some(),
             invocation_arguments.is_some(),
             "{}\n===\n{}",
             args_from_input.unwrap_or(quote!(None)).to_string(),
             invocation_arguments.unwrap_or(quote!(None)).to_string()
-        );
+        );*/
 
         let rpc_name_string = rpc_name.to_string();
         quote![
@@ -575,16 +575,23 @@ mod test {
             //Create expected
             #[rustfmt::skip]
             let expected = quote!(
-                fn z_getnewaddress(
-                    &mut self,
-                    args: rpc_types::z_getnewaddress::ZGetnewaddressArguments
-                ) ->  std::pin::Pin<Box< dyn Future <
-                    Output = ResponseResult<
-                        rpc_types::z_getnewaddress::ZGetnewaddressResponse
-                    >>>>
-                {
-                    let args_for_make_request = Self::serialize_into_output_format([args]);
-                    self.make_request("z_getnewaddress", args_for_make_request)
+                "z_getnewaddress" => {
+                    let input_struct =
+                        serde_json::from_value::<
+                            zcashrpc::client::rpc_types::
+                            z_getnewaddress::ZGetnewaddressArguments
+                         > (serde_json::json!(inputs)) ;
+                    assert!(
+                        input_struct.is_ok(),
+                        "Input cannot be serialzed as a {}",
+                        stringify!(ZGetnewaddressArguments),
+                    );
+                    dbg!(
+                        zcashrpc::client::utils::make_client(true)
+                            .z_getnewaddress(input_struct.unwrap())
+                            .await
+                    )
+                    .unwrap();
                 }
             )
             .to_string();
