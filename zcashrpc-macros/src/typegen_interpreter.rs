@@ -139,25 +139,8 @@ impl TemplateElements {
     pub(crate) fn interpolate_command_matcharms(&self) -> TokenStream {
         let rpc_name = Ident::new(&self.rpc_name, Span::call_site());
         let responseid = unpack_ident_from_element(&self.responses);
-        /*let args_from_input = if let Some(actual_args) = &self.args {
-            let argsid = unpack_ident_from_element(&actual_args);
-            Some(quote!(
-            serde_json::from_value::<
-                zcashrpc::client::rpc_types::#rpc_name::#argsid
-            >(serde_json::json!(inputs));
-            ))
-        } else {
-            None
-        };*/
         let (serialize_args, invocation_arguments) =
             self.generate_serial_and_asparams_args();
-        /*assert_eq!(
-            args_from_input.is_some(),
-            invocation_arguments.is_some(),
-            "{}\n===\n{}",
-            args_from_input.unwrap_or(quote!(None)).to_string(),
-            invocation_arguments.unwrap_or(quote!(None)).to_string()
-        );*/
 
         let rpc_name_string = rpc_name.to_string();
         quote![
