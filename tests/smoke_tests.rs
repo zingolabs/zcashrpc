@@ -24,7 +24,7 @@ run_smoketest!(onearg_zgna, z_getnewaddress(json!("sapling")));
 async fn dispatch_named_command_z_getnewaddress() {
     let response = zcashrpc::client::Client::dispatch_named_command(
         "z_getnewaddress".to_string(),
-        vec![serde_json::json!("sapling")],
+        vec!["sapling".to_string()],
     )
     .await;
     dbg!(response);

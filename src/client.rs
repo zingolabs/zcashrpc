@@ -23,7 +23,7 @@ impl Client {
     }
     pub async fn dispatch_named_command(
         command: String,
-        args: Vec<Value>,
+        args: Vec<String>,
     ) -> ResponseResult<Value> {
         zcashrpc_macros::match_rpc!(command)
     }
