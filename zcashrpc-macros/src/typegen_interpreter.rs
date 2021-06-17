@@ -100,7 +100,9 @@ impl TemplateElements {
                         >(serde_json::json!(args[0]))
                     };
                 ),
-                Some(quote!(input_struct.unwrap())),
+                Some(quote!(
+                    input_struct.map_err(crate::error::UserInputError::from)?
+                )),
             )
         }
     }
