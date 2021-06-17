@@ -17,7 +17,7 @@ serde_json = "*"
 derive_more = "*"
 base64 = "*"
 dirs = { version = "*", optional = true }
-rust_decimal = "*"
+rust_decimal = { version = "*", features = ["serde-float", "serde-arbitrary-precision"] }
 
 [dev-dependencies]
 tokio = { version = "0.2.23", features = ["macros"] }
