@@ -76,6 +76,7 @@ pub trait ProcedureCall {
     fn serialize_into_output_format<T: serde::Serialize>(
         args: T,
     ) -> Vec<serde_json::Value> {
+        //! For any input produce a vec, because of the procedure_call interface
         let x = serde_json::json!(args).as_array().unwrap().clone();
         if x[0].is_null() {
             if x.len() != 1 {
