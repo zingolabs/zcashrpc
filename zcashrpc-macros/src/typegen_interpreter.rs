@@ -88,22 +88,23 @@ impl TemplateElements {
             let arg_fields = self.unpack_some_args();
             let argsid = unpack_ident_from_element(self.args.as_ref().unwrap());
             let stringed_argsid = argsid.to_string();
-            (
-                quote!(let input_struct =
-                    if args.len() != 1 {
-                        serde_json::from_value::<
-                            crate::client::rpc_types::#rpc_name::#argsid
-                        >(serde_json::json!(args))
-                    } else {
-                        serde_json::from_value::<
-                            crate::client::rpc_types::#rpc_name::#argsid
-                        >(serde_json::json!(args[0]))
-                    };
-                ),
-                Some(quote!(
-                    input_struct.map_err(crate::error::UserInputError::from)?
-                )),
-            )
+            let serialize_args = quote!(let input_struct =
+                if args.len() != 1 {
+                    serde_json::from_value::<
+                        crate::client::rpc_types::#rpc_name::#argsid
+                    >(serde_json::json!(args))
+                } else {
+                    let avalue = serde_json::json!(args[0]);
+                    dbg!(&avalue);
+                    serde_json::from_value::<
+                        crate::client::rpc_types::#rpc_name::#argsid
+                    >(serde_json::json!(avalue))
+                };
+            );
+            let invocation_arguments = Some(quote!(
+                input_struct.map_err(crate::error::UserInputError::from)?
+            ));
+            (serialize_args, invocation_arguments)
         }
     }
 
