@@ -2,8 +2,16 @@
 
 use serde::{Deserialize, Serialize};
 
+pub type DispatchResult<R> = Result<R, DispatchError>;
+
 /// A `ResponseResult<R>` is a convenience type-alias for `Result<R, ServerError>`.
 pub type ResponseResult<R> = Result<R, ServerError>;
+
+#[derive(Debug, derive_more::From)]
+pub enum DispatchError {
+    Server(ServerError),
+    Input(UserInputError),
+}
 
 /// An `ServerError` represents errors encountered in making an RPC request, and encompasses application-level error responses, protocol errors, and transient failures.
 #[derive(Debug, derive_more::From)]
@@ -55,4 +63,8 @@ pub enum JsonRpcViolation {
 
 pub type UserInputResult<R> = Result<R, UserInputError>;
 #[derive(Debug, derive_more::From)]
-pub enum UserInputError {}
+pub enum UserInputError {
+    InvalidJson(serde_json::Error),
+    //Stub variant, this will hold more information in the future
+    InvalidArguments,
+}

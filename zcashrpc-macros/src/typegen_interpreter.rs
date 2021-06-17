@@ -148,7 +148,7 @@ impl TemplateElements {
                     .await
                     .map(|concrete|
                         serde_json::to_value(concrete).unwrap()
-                    )
+                    ).map_err(crate::error::DispatchError::from)
             }
         ]
     }

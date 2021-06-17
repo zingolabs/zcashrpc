@@ -2,7 +2,7 @@
 pub mod rpc_types;
 pub mod utils;
 
-use crate::ResponseResult;
+use crate::{DispatchResult, ResponseResult};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 use std::future::Future;
@@ -24,7 +24,7 @@ impl Client {
     pub async fn dispatch_named_command(
         command: String,
         args: Vec<String>,
-    ) -> ResponseResult<Value> {
+    ) -> DispatchResult<Value> {
         zcashrpc_macros::match_rpc!(command)
     }
 }
