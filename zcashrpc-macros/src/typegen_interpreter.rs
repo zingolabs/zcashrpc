@@ -554,6 +554,7 @@ mod test {
     }
     mod interpolate_command_matcharms {
         use super::*;
+        #[ignore]
         #[test]
         fn z_getnewaddress() {
             //Create expected
