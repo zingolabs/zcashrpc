@@ -3,7 +3,7 @@
 pub mod addmultisigaddress {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct AddmultisigaddressArguments(
-        rust_decimal::Decimal,
+        crate::client::utils::ZDecimal,
         String,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
     );
@@ -24,7 +24,7 @@ pub mod clearbanned {
 }
 pub mod createmultisig {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct CreatemultisigArguments(rust_decimal::Decimal, String);
+    pub struct CreatemultisigArguments(crate::client::utils::ZDecimal, String);
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct CreatemultisigResponse {
         pub address: String,
@@ -37,9 +37,9 @@ pub mod createrawtransaction {
         String,
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     pub type CreaterawtransactionResponse = String;
 }
@@ -48,13 +48,13 @@ pub mod decoderawtransaction {
     pub struct DecoderawtransactionArguments(String);
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct DecoderawtransactionResponse {
-        pub expiryheight: Option<rust_decimal::Decimal>,
+        pub expiryheight: Option<crate::client::utils::ZDecimal>,
         pub versiongroupid: Option<String>,
-        pub locktime: rust_decimal::Decimal,
+        pub locktime: crate::client::utils::ZDecimal,
         pub overwintered: bool,
-        pub size: rust_decimal::Decimal,
+        pub size: crate::client::utils::ZDecimal,
         pub txid: String,
-        pub version: rust_decimal::Decimal,
+        pub version: crate::client::utils::ZDecimal,
         pub vin: Vec<Vin>,
         pub vjoinsplit: Vec<Vjoinsplit>,
         pub vout: Vec<Vout>,
@@ -64,7 +64,7 @@ pub mod decoderawtransaction {
         pub addresses: Vec<String>,
         pub asm: String,
         pub hex: String,
-        pub req_sigs: rust_decimal::Decimal,
+        pub req_sigs: crate::client::utils::ZDecimal,
         #[serde(rename = "type")]
         pub type_field: String,
     }
@@ -76,9 +76,9 @@ pub mod decoderawtransaction {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Vin {
         pub script_sig: ScriptSig,
-        pub sequence: rust_decimal::Decimal,
+        pub sequence: crate::client::utils::ZDecimal,
         pub txid: String,
-        pub vout: rust_decimal::Decimal,
+        pub vout: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Vjoinsplit {
@@ -90,14 +90,14 @@ pub mod decoderawtransaction {
         pub onetime_pub_key: String,
         pub proof: String,
         pub random_seed: String,
-        pub vpub_new: rust_decimal::Decimal,
-        pub vpub_old: rust_decimal::Decimal,
+        pub vpub_new: crate::client::utils::ZDecimal,
+        pub vpub_old: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Vout {
-        pub n: rust_decimal::Decimal,
+        pub n: crate::client::utils::ZDecimal,
         pub script_pub_key: ScriptPubKey,
-        pub value: rust_decimal::Decimal,
+        pub value: crate::client::utils::ZDecimal,
     }
 }
 pub mod decodescript {
@@ -109,7 +109,7 @@ pub mod decodescript {
         pub asm: String,
         pub hex: String,
         pub p2sh: String,
-        pub req_sigs: rust_decimal::Decimal,
+        pub req_sigs: crate::client::utils::ZDecimal,
         #[serde(rename = "type")]
         pub type_field: String,
     }
@@ -136,13 +136,13 @@ pub mod encryptwallet {
 }
 pub mod estimatefee {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct EstimatefeeArguments(rust_decimal::Decimal);
-    pub type EstimatefeeResponse = rust_decimal::Decimal;
+    pub struct EstimatefeeArguments(crate::client::utils::ZDecimal);
+    pub type EstimatefeeResponse = crate::client::utils::ZDecimal;
 }
 pub mod estimatepriority {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct EstimatepriorityArguments(rust_decimal::Decimal);
-    pub type EstimatepriorityResponse = rust_decimal::Decimal;
+    pub struct EstimatepriorityArguments(crate::client::utils::ZDecimal);
+    pub type EstimatepriorityResponse = crate::client::utils::ZDecimal;
 }
 pub mod fundrawtransaction {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -152,14 +152,14 @@ pub mod fundrawtransaction {
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct FundrawtransactionResponse {
-        pub changepos: rust_decimal::Decimal,
-        pub fee: rust_decimal::Decimal,
+        pub changepos: crate::client::utils::ZDecimal,
+        pub fee: crate::client::utils::ZDecimal,
         pub hex: String,
     }
 }
 pub mod generate {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GenerateArguments(rust_decimal::Decimal);
+    pub struct GenerateArguments(crate::client::utils::ZDecimal);
     pub type GenerateResponse = Vec<String>;
 }
 pub mod getaccount {
@@ -204,8 +204,8 @@ pub mod getaddressbalance {
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetaddressbalanceResponse {
-        pub balance: rust_decimal::Decimal,
-        pub received: rust_decimal::Decimal,
+        pub balance: crate::client::utils::ZDecimal,
+        pub received: crate::client::utils::ZDecimal,
     }
 }
 pub mod getaddressdeltas {
@@ -218,8 +218,8 @@ pub mod getaddressdeltas {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Arg1 {
         pub chain_info: Option<bool>,
-        pub end: Option<rust_decimal::Decimal>,
-        pub start: Option<rust_decimal::Decimal>,
+        pub end: Option<crate::client::utils::ZDecimal>,
+        pub start: Option<crate::client::utils::ZDecimal>,
         pub addresses: Vec<String>,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -235,28 +235,28 @@ pub mod getaddressdeltas {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Deltas {
         pub address: String,
-        pub height: rust_decimal::Decimal,
-        pub index: rust_decimal::Decimal,
-        pub satoshis: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
+        pub index: crate::client::utils::ZDecimal,
+        pub satoshis: crate::client::utils::ZDecimal,
         pub txid: String,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct End {
         pub hash: String,
-        pub height: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Regular {
         pub address: String,
-        pub height: rust_decimal::Decimal,
-        pub index: rust_decimal::Decimal,
-        pub satoshis: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
+        pub index: crate::client::utils::ZDecimal,
+        pub satoshis: crate::client::utils::ZDecimal,
         pub txid: String,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Start {
         pub hash: String,
-        pub height: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
     }
 }
 pub mod getaddressesbyaccount {
@@ -278,11 +278,11 @@ pub mod getaddressmempool {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetaddressmempoolElement {
         pub address: String,
-        pub index: rust_decimal::Decimal,
+        pub index: crate::client::utils::ZDecimal,
         pub prevout: String,
         pub prevtxid: String,
-        pub satoshis: rust_decimal::Decimal,
-        pub timestamp: rust_decimal::Decimal,
+        pub satoshis: crate::client::utils::ZDecimal,
+        pub timestamp: crate::client::utils::ZDecimal,
         pub txid: String,
     }
     pub type GetaddressmempoolResponse = Vec<GetaddressmempoolElement>;
@@ -296,8 +296,8 @@ pub mod getaddresstxids {
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Arg1 {
-        pub end: Option<rust_decimal::Decimal>,
-        pub start: Option<rust_decimal::Decimal>,
+        pub end: Option<crate::client::utils::ZDecimal>,
+        pub start: Option<crate::client::utils::ZDecimal>,
         pub addresses: Vec<String>,
     }
     pub type GetaddresstxidsResponse = Vec<String>;
@@ -320,25 +320,25 @@ pub mod getaddressutxos {
         Regular(Vec<Regular>),
         Verbose {
             hash: String,
-            height: rust_decimal::Decimal,
+            height: crate::client::utils::ZDecimal,
             utxos: Vec<Utxos>,
         },
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Regular {
         pub address: String,
-        pub height: rust_decimal::Decimal,
-        pub output_index: rust_decimal::Decimal,
-        pub satoshis: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
+        pub output_index: crate::client::utils::ZDecimal,
+        pub satoshis: crate::client::utils::ZDecimal,
         pub script: String,
         pub txid: String,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Utxos {
         pub address: String,
-        pub height: rust_decimal::Decimal,
-        pub output_index: rust_decimal::Decimal,
-        pub satoshis: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
+        pub output_index: crate::client::utils::ZDecimal,
+        pub satoshis: crate::client::utils::ZDecimal,
         pub script: String,
         pub txid: String,
     }
@@ -348,11 +348,11 @@ pub mod getbalance {
     pub struct GetbalanceArguments(
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
-    pub type GetbalanceResponse = rust_decimal::Decimal;
+    pub type GetbalanceResponse = crate::client::utils::ZDecimal;
 }
 pub mod getbestblockhash {
     pub type GetbestblockhashResponse = String;
@@ -362,7 +362,7 @@ pub mod getblock {
     pub struct GetblockArguments(
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     #[serde(untagged)]
@@ -370,35 +370,35 @@ pub mod getblock {
         Regular(String),
         Verbose {
             bits: String,
-            confirmations: rust_decimal::Decimal,
-            difficulty: rust_decimal::Decimal,
+            confirmations: crate::client::utils::ZDecimal,
+            difficulty: crate::client::utils::ZDecimal,
             finalsaplingroot: String,
             hash: String,
-            height: rust_decimal::Decimal,
+            height: crate::client::utils::ZDecimal,
             merkleroot: String,
             nextblockhash: String,
-            nonce: rust_decimal::Decimal,
+            nonce: crate::client::utils::ZDecimal,
             previousblockhash: String,
-            size: rust_decimal::Decimal,
-            time: rust_decimal::Decimal,
+            size: crate::client::utils::ZDecimal,
+            time: crate::client::utils::ZDecimal,
             tx: Vec<String>,
-            version: rust_decimal::Decimal,
+            version: crate::client::utils::ZDecimal,
         },
         VeryVerbose {
             bits: String,
-            confirmations: rust_decimal::Decimal,
-            difficulty: rust_decimal::Decimal,
+            confirmations: crate::client::utils::ZDecimal,
+            difficulty: crate::client::utils::ZDecimal,
             finalsaplingroot: String,
             hash: String,
-            height: rust_decimal::Decimal,
+            height: crate::client::utils::ZDecimal,
             merkleroot: String,
             nextblockhash: String,
-            nonce: rust_decimal::Decimal,
+            nonce: crate::client::utils::ZDecimal,
             previousblockhash: String,
-            size: rust_decimal::Decimal,
-            time: rust_decimal::Decimal,
+            size: crate::client::utils::ZDecimal,
+            time: crate::client::utils::ZDecimal,
             tx: Vec<Tx>,
-            version: rust_decimal::Decimal,
+            version: crate::client::utils::ZDecimal,
         },
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -406,7 +406,7 @@ pub mod getblock {
         pub addresses: Vec<String>,
         pub asm: String,
         pub hex: String,
-        pub req_sigs: rust_decimal::Decimal,
+        pub req_sigs: crate::client::utils::ZDecimal,
         #[serde(rename = "type")]
         pub type_field: String,
     }
@@ -417,17 +417,17 @@ pub mod getblock {
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Tx {
-        pub expiryheight: Option<rust_decimal::Decimal>,
+        pub expiryheight: Option<crate::client::utils::ZDecimal>,
         pub blockhash: String,
-        pub blocktime: rust_decimal::Decimal,
-        pub confirmations: rust_decimal::Decimal,
+        pub blocktime: crate::client::utils::ZDecimal,
+        pub confirmations: crate::client::utils::ZDecimal,
         pub hex: String,
         pub in_active_chain: bool,
-        pub locktime: rust_decimal::Decimal,
-        pub size: rust_decimal::Decimal,
-        pub time: rust_decimal::Decimal,
+        pub locktime: crate::client::utils::ZDecimal,
+        pub size: crate::client::utils::ZDecimal,
+        pub time: crate::client::utils::ZDecimal,
         pub txid: String,
-        pub version: rust_decimal::Decimal,
+        pub version: crate::client::utils::ZDecimal,
         pub vin: Vec<Vin>,
         pub vjoinsplit: Vec<Vjoinsplit>,
         pub vout: Vec<Vout>,
@@ -435,9 +435,9 @@ pub mod getblock {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Vin {
         pub script_sig: ScriptSig,
-        pub sequence: rust_decimal::Decimal,
+        pub sequence: crate::client::utils::ZDecimal,
         pub txid: String,
-        pub vout: rust_decimal::Decimal,
+        pub vout: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Vjoinsplit {
@@ -449,14 +449,14 @@ pub mod getblock {
         pub onetime_pub_key: String,
         pub proof: String,
         pub random_seed: String,
-        pub vpub_new: rust_decimal::Decimal,
-        pub vpub_old: rust_decimal::Decimal,
+        pub vpub_new: crate::client::utils::ZDecimal,
+        pub vpub_old: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Vout {
-        pub n: rust_decimal::Decimal,
+        pub n: crate::client::utils::ZDecimal,
         pub script_pub_key: ScriptPubKey,
-        pub value: rust_decimal::Decimal,
+        pub value: crate::client::utils::ZDecimal,
     }
 }
 pub mod getblockchaininfo {
@@ -467,59 +467,59 @@ pub mod getblockchaininfo {
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Enforce {
-        pub found: rust_decimal::Decimal,
-        pub required: rust_decimal::Decimal,
+        pub found: crate::client::utils::ZDecimal,
+        pub required: crate::client::utils::ZDecimal,
         pub status: bool,
-        pub window: rust_decimal::Decimal,
+        pub window: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetblockchaininfoResponse {
         pub bestblockhash: String,
-        pub blocks: rust_decimal::Decimal,
+        pub blocks: crate::client::utils::ZDecimal,
         pub chain: String,
         pub chainwork: String,
-        pub commitments: rust_decimal::Decimal,
+        pub commitments: crate::client::utils::ZDecimal,
         pub consensus: Consensus,
-        pub difficulty: rust_decimal::Decimal,
-        pub estimatedheight: rust_decimal::Decimal,
-        pub headers: rust_decimal::Decimal,
+        pub difficulty: crate::client::utils::ZDecimal,
+        pub estimatedheight: crate::client::utils::ZDecimal,
+        pub headers: crate::client::utils::ZDecimal,
         pub initial_block_download_complete: bool,
-        pub size_on_disk: rust_decimal::Decimal,
+        pub size_on_disk: crate::client::utils::ZDecimal,
         pub softforks: Vec<Softforks>,
         pub upgrades: std::collections::HashMap<String, Upgrades>,
-        pub verificationprogress: rust_decimal::Decimal,
+        pub verificationprogress: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Reject {
-        pub found: rust_decimal::Decimal,
-        pub required: rust_decimal::Decimal,
+        pub found: crate::client::utils::ZDecimal,
+        pub required: crate::client::utils::ZDecimal,
         pub status: bool,
-        pub window: rust_decimal::Decimal,
+        pub window: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Softforks {
         pub enforce: Enforce,
         pub id: String,
         pub reject: Reject,
-        pub version: rust_decimal::Decimal,
+        pub version: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Upgrades {
-        pub activationheight: rust_decimal::Decimal,
+        pub activationheight: crate::client::utils::ZDecimal,
         pub info: String,
         pub name: String,
         pub status: String,
     }
 }
 pub mod getblockcount {
-    pub type GetblockcountResponse = rust_decimal::Decimal;
+    pub type GetblockcountResponse = crate::client::utils::ZDecimal;
 }
 pub mod getblockdeltas {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetblockdeltasArguments(String);
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Deltas {
-        pub index: rust_decimal::Decimal,
+        pub index: crate::client::utils::ZDecimal,
         pub inputs: Vec<Inputs>,
         pub outputs: Vec<Outputs>,
         pub txid: String,
@@ -528,45 +528,45 @@ pub mod getblockdeltas {
     pub struct GetblockdeltasResponse {
         pub bits: String,
         pub chainwork: String,
-        pub confirmations: rust_decimal::Decimal,
+        pub confirmations: crate::client::utils::ZDecimal,
         pub deltas: Vec<Deltas>,
-        pub difficulty: rust_decimal::Decimal,
+        pub difficulty: crate::client::utils::ZDecimal,
         pub hash: String,
-        pub height: rust_decimal::Decimal,
-        pub mediantime: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
+        pub mediantime: crate::client::utils::ZDecimal,
         pub merkleroot: String,
         pub nextblockhash: String,
         pub nonce: String,
         pub previousblockhash: String,
-        pub size: rust_decimal::Decimal,
-        pub time: rust_decimal::Decimal,
-        pub version: rust_decimal::Decimal,
+        pub size: crate::client::utils::ZDecimal,
+        pub time: crate::client::utils::ZDecimal,
+        pub version: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Inputs {
         pub address: String,
-        pub index: rust_decimal::Decimal,
-        pub prevout: rust_decimal::Decimal,
+        pub index: crate::client::utils::ZDecimal,
+        pub prevout: crate::client::utils::ZDecimal,
         pub prevtxid: String,
-        pub satoshis: rust_decimal::Decimal,
+        pub satoshis: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Outputs {
         pub address: String,
-        pub index: rust_decimal::Decimal,
-        pub satoshis: rust_decimal::Decimal,
+        pub index: crate::client::utils::ZDecimal,
+        pub satoshis: crate::client::utils::ZDecimal,
     }
 }
 pub mod getblockhash {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct GetblockhashArguments(rust_decimal::Decimal);
+    pub struct GetblockhashArguments(crate::client::utils::ZDecimal);
     pub type GetblockhashResponse = String;
 }
 pub mod getblockhashes {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetblockhashesArguments(
-        rust_decimal::Decimal,
-        rust_decimal::Decimal,
+        crate::client::utils::ZDecimal,
+        crate::client::utils::ZDecimal,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
     );
     pub type GetblockhashesResponse = Vec<String>;
@@ -583,17 +583,17 @@ pub mod getblockheader {
         Regular(String),
         Verbose {
             bits: String,
-            confirmations: rust_decimal::Decimal,
-            difficulty: rust_decimal::Decimal,
+            confirmations: crate::client::utils::ZDecimal,
+            difficulty: crate::client::utils::ZDecimal,
             finalsaplingroot: String,
             hash: String,
-            height: rust_decimal::Decimal,
+            height: crate::client::utils::ZDecimal,
             merkleroot: String,
             nextblockhash: String,
-            nonce: rust_decimal::Decimal,
+            nonce: crate::client::utils::ZDecimal,
             previousblockhash: String,
-            time: rust_decimal::Decimal,
-            version: rust_decimal::Decimal,
+            time: crate::client::utils::ZDecimal,
+            version: crate::client::utils::ZDecimal,
         },
     }
 }
@@ -601,21 +601,21 @@ pub mod getblocksubsidy {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetblocksubsidyArguments(
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Fundingstreams {
         pub address: String,
         pub recipient: String,
         pub specification: String,
-        pub value: rust_decimal::Decimal,
-        pub value_zat: rust_decimal::Decimal,
+        pub value: crate::client::utils::ZDecimal,
+        pub value_zat: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetblocksubsidyResponse {
-        pub founders: rust_decimal::Decimal,
+        pub founders: crate::client::utils::ZDecimal,
         pub fundingstreams: Vec<Fundingstreams>,
-        pub miner: rust_decimal::Decimal,
+        pub miner: crate::client::utils::ZDecimal,
     }
 }
 pub mod getblocktemplate {
@@ -626,65 +626,65 @@ pub mod getblocktemplate {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Coinbasetxn {
         pub data: String,
-        pub depends: Vec<rust_decimal::Decimal>,
-        pub fee: rust_decimal::Decimal,
-        pub foundersreward: rust_decimal::Decimal,
+        pub depends: Vec<crate::client::utils::ZDecimal>,
+        pub fee: crate::client::utils::ZDecimal,
+        pub foundersreward: crate::client::utils::ZDecimal,
         pub hash: String,
         pub required: bool,
-        pub sigops: rust_decimal::Decimal,
+        pub sigops: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetblocktemplateResponse {
         pub bits: String,
         pub coinbasetxn: Coinbasetxn,
-        pub curtime: rust_decimal::Decimal,
+        pub curtime: crate::client::utils::ZDecimal,
         pub finalsaplingroothash: String,
-        pub height: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
         pub lightclientroothash: String,
         pub longpollid: String,
-        pub mintime: rust_decimal::Decimal,
+        pub mintime: crate::client::utils::ZDecimal,
         pub mutable: Vec<String>,
         pub noncerange: String,
         pub previousblockhash: String,
-        pub sigoplimit: rust_decimal::Decimal,
-        pub sizelimit: rust_decimal::Decimal,
+        pub sigoplimit: crate::client::utils::ZDecimal,
+        pub sizelimit: crate::client::utils::ZDecimal,
         pub target: String,
         pub transactions: Vec<Transactions>,
-        pub version: rust_decimal::Decimal,
+        pub version: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Transactions {
         pub data: String,
-        pub depends: Vec<rust_decimal::Decimal>,
-        pub fee: rust_decimal::Decimal,
+        pub depends: Vec<crate::client::utils::ZDecimal>,
+        pub fee: crate::client::utils::ZDecimal,
         pub hash: String,
         pub required: bool,
-        pub sigops: rust_decimal::Decimal,
+        pub sigops: crate::client::utils::ZDecimal,
     }
 }
 pub mod getchaintips {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetchaintipsElement {
-        pub branchlen: rust_decimal::Decimal,
+        pub branchlen: crate::client::utils::ZDecimal,
         pub hash: String,
-        pub height: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
         pub status: String,
     }
     pub type GetchaintipsResponse = Vec<GetchaintipsElement>;
 }
 pub mod getconnectioncount {
-    pub type GetconnectioncountResponse = rust_decimal::Decimal;
+    pub type GetconnectioncountResponse = crate::client::utils::ZDecimal;
 }
 pub mod getdeprecationinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetdeprecationinfoResponse {
-        pub deprecationheight: rust_decimal::Decimal,
+        pub deprecationheight: crate::client::utils::ZDecimal,
         pub subversion: String,
-        pub version: rust_decimal::Decimal,
+        pub version: crate::client::utils::ZDecimal,
     }
 }
 pub mod getdifficulty {
-    pub type GetdifficultyResponse = rust_decimal::Decimal;
+    pub type GetdifficultyResponse = crate::client::utils::ZDecimal;
 }
 pub mod getexperimentalfeatures {
     pub type GetexperimentalfeaturesResponse = Vec<String>;
@@ -696,25 +696,25 @@ pub mod getinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetinfoResponse {
         pub proxy: Option<String>,
-        pub balance: rust_decimal::Decimal,
-        pub blocks: rust_decimal::Decimal,
-        pub connections: rust_decimal::Decimal,
-        pub difficulty: rust_decimal::Decimal,
+        pub balance: crate::client::utils::ZDecimal,
+        pub blocks: crate::client::utils::ZDecimal,
+        pub connections: crate::client::utils::ZDecimal,
+        pub difficulty: crate::client::utils::ZDecimal,
         pub errors: String,
-        pub keypoololdest: rust_decimal::Decimal,
-        pub keypoolsize: rust_decimal::Decimal,
-        pub paytxfee: rust_decimal::Decimal,
-        pub protocolversion: rust_decimal::Decimal,
-        pub relayfee: rust_decimal::Decimal,
+        pub keypoololdest: crate::client::utils::ZDecimal,
+        pub keypoolsize: crate::client::utils::ZDecimal,
+        pub paytxfee: crate::client::utils::ZDecimal,
+        pub protocolversion: crate::client::utils::ZDecimal,
+        pub relayfee: crate::client::utils::ZDecimal,
         pub testnet: bool,
-        pub timeoffset: rust_decimal::Decimal,
-        pub unlocked_until: rust_decimal::Decimal,
-        pub version: rust_decimal::Decimal,
-        pub walletversion: rust_decimal::Decimal,
+        pub timeoffset: crate::client::utils::ZDecimal,
+        pub unlocked_until: crate::client::utils::ZDecimal,
+        pub version: crate::client::utils::ZDecimal,
+        pub walletversion: crate::client::utils::ZDecimal,
     }
 }
 pub mod getlocalsolps {
-    pub type GetlocalsolpsResponse = rust_decimal::Decimal;
+    pub type GetlocalsolpsResponse = crate::client::utils::ZDecimal;
 }
 pub mod getmemoryinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -723,86 +723,86 @@ pub mod getmemoryinfo {
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Locked {
-        pub chunks_free: rust_decimal::Decimal,
-        pub chunks_used: rust_decimal::Decimal,
-        pub free: rust_decimal::Decimal,
-        pub locked: rust_decimal::Decimal,
-        pub total: rust_decimal::Decimal,
-        pub used: rust_decimal::Decimal,
+        pub chunks_free: crate::client::utils::ZDecimal,
+        pub chunks_used: crate::client::utils::ZDecimal,
+        pub free: crate::client::utils::ZDecimal,
+        pub locked: crate::client::utils::ZDecimal,
+        pub total: crate::client::utils::ZDecimal,
+        pub used: crate::client::utils::ZDecimal,
     }
 }
 pub mod getmempoolinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetmempoolinfoResponse {
-        pub bytes: rust_decimal::Decimal,
-        pub size: rust_decimal::Decimal,
-        pub usage: rust_decimal::Decimal,
+        pub bytes: crate::client::utils::ZDecimal,
+        pub size: crate::client::utils::ZDecimal,
+        pub usage: crate::client::utils::ZDecimal,
     }
 }
 pub mod getmininginfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetmininginfoResponse {
-        pub blocks: rust_decimal::Decimal,
+        pub blocks: crate::client::utils::ZDecimal,
         pub chain: String,
-        pub currentblocksize: rust_decimal::Decimal,
-        pub currentblocktx: rust_decimal::Decimal,
-        pub difficulty: rust_decimal::Decimal,
+        pub currentblocksize: crate::client::utils::ZDecimal,
+        pub currentblocktx: crate::client::utils::ZDecimal,
+        pub difficulty: crate::client::utils::ZDecimal,
         pub errors: String,
         pub generate: bool,
-        pub genproclimit: rust_decimal::Decimal,
-        pub localsolps: rust_decimal::Decimal,
-        pub networksolps: rust_decimal::Decimal,
-        pub pooledtx: rust_decimal::Decimal,
+        pub genproclimit: crate::client::utils::ZDecimal,
+        pub localsolps: crate::client::utils::ZDecimal,
+        pub networksolps: crate::client::utils::ZDecimal,
+        pub pooledtx: crate::client::utils::ZDecimal,
         pub testnet: bool,
     }
 }
 pub mod getnettotals {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetnettotalsResponse {
-        pub timemillis: rust_decimal::Decimal,
-        pub totalbytesrecv: rust_decimal::Decimal,
-        pub totalbytessent: rust_decimal::Decimal,
+        pub timemillis: crate::client::utils::ZDecimal,
+        pub totalbytesrecv: crate::client::utils::ZDecimal,
+        pub totalbytessent: crate::client::utils::ZDecimal,
         pub uploadtarget: Uploadtarget,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Uploadtarget {
-        pub bytes_left_in_cycle: rust_decimal::Decimal,
+        pub bytes_left_in_cycle: crate::client::utils::ZDecimal,
         pub serve_historical_blocks: bool,
-        pub target: rust_decimal::Decimal,
+        pub target: crate::client::utils::ZDecimal,
         pub target_reached: bool,
-        pub time_left_in_cycle: rust_decimal::Decimal,
-        pub timeframe: rust_decimal::Decimal,
+        pub time_left_in_cycle: crate::client::utils::ZDecimal,
+        pub timeframe: crate::client::utils::ZDecimal,
     }
 }
 pub mod getnetworkhashps {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetnetworkhashpsArguments(
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
-    pub type GetnetworkhashpsResponse = rust_decimal::Decimal;
+    pub type GetnetworkhashpsResponse = crate::client::utils::ZDecimal;
 }
 pub mod getnetworkinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetnetworkinfoResponse {
-        pub connections: rust_decimal::Decimal,
+        pub connections: crate::client::utils::ZDecimal,
         pub localaddresses: Vec<Localaddresses>,
         pub localservices: String,
         pub networks: Vec<Networks>,
-        pub protocolversion: rust_decimal::Decimal,
-        pub relayfee: rust_decimal::Decimal,
+        pub protocolversion: crate::client::utils::ZDecimal,
+        pub relayfee: crate::client::utils::ZDecimal,
         pub subversion: String,
-        pub timeoffset: rust_decimal::Decimal,
-        pub version: rust_decimal::Decimal,
+        pub timeoffset: crate::client::utils::ZDecimal,
+        pub version: crate::client::utils::ZDecimal,
         pub warnings: String,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Localaddresses {
         pub address: String,
-        pub port: rust_decimal::Decimal,
-        pub score: rust_decimal::Decimal,
+        pub port: crate::client::utils::ZDecimal,
+        pub score: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Networks {
@@ -816,11 +816,11 @@ pub mod getnetworksolps {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetnetworksolpsArguments(
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
-    pub type GetnetworksolpsResponse = rust_decimal::Decimal;
+    pub type GetnetworksolpsResponse = crate::client::utils::ZDecimal;
 }
 pub mod getnewaddress {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -834,25 +834,25 @@ pub mod getpeerinfo {
     pub struct GetpeerinfoElement {
         pub addr: String,
         pub addrlocal: String,
-        pub banscore: rust_decimal::Decimal,
-        pub bytesrecv: rust_decimal::Decimal,
-        pub bytessent: rust_decimal::Decimal,
-        pub conntime: rust_decimal::Decimal,
-        pub id: rust_decimal::Decimal,
+        pub banscore: crate::client::utils::ZDecimal,
+        pub bytesrecv: crate::client::utils::ZDecimal,
+        pub bytessent: crate::client::utils::ZDecimal,
+        pub conntime: crate::client::utils::ZDecimal,
+        pub id: crate::client::utils::ZDecimal,
         pub inbound: bool,
-        pub inflight: Vec<rust_decimal::Decimal>,
-        pub lastrecv: rust_decimal::Decimal,
-        pub lastsend: rust_decimal::Decimal,
-        pub pingtime: rust_decimal::Decimal,
-        pub pingwait: rust_decimal::Decimal,
+        pub inflight: Vec<crate::client::utils::ZDecimal>,
+        pub lastrecv: crate::client::utils::ZDecimal,
+        pub lastsend: crate::client::utils::ZDecimal,
+        pub pingtime: crate::client::utils::ZDecimal,
+        pub pingwait: crate::client::utils::ZDecimal,
         pub relaytxes: bool,
         pub services: String,
-        pub startingheight: rust_decimal::Decimal,
+        pub startingheight: crate::client::utils::ZDecimal,
         pub subver: String,
-        pub synced_blocks: rust_decimal::Decimal,
-        pub synced_headers: rust_decimal::Decimal,
-        pub timeoffset: rust_decimal::Decimal,
-        pub version: rust_decimal::Decimal,
+        pub synced_blocks: crate::client::utils::ZDecimal,
+        pub synced_headers: crate::client::utils::ZDecimal,
+        pub timeoffset: crate::client::utils::ZDecimal,
+        pub version: crate::client::utils::ZDecimal,
     }
     pub type GetpeerinfoResponse = Vec<GetpeerinfoElement>;
 }
@@ -872,13 +872,13 @@ pub mod getrawmempool {
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Transactionid {
-        pub currentpriority: rust_decimal::Decimal,
+        pub currentpriority: crate::client::utils::ZDecimal,
         pub depends: Vec<String>,
-        pub fee: rust_decimal::Decimal,
-        pub height: rust_decimal::Decimal,
-        pub size: rust_decimal::Decimal,
-        pub startingpriority: rust_decimal::Decimal,
-        pub time: rust_decimal::Decimal,
+        pub fee: crate::client::utils::ZDecimal,
+        pub height: crate::client::utils::ZDecimal,
+        pub size: crate::client::utils::ZDecimal,
+        pub startingpriority: crate::client::utils::ZDecimal,
+        pub time: crate::client::utils::ZDecimal,
     }
 }
 pub mod getrawtransaction {
@@ -886,7 +886,7 @@ pub mod getrawtransaction {
     pub struct GetrawtransactionArguments(
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -894,17 +894,17 @@ pub mod getrawtransaction {
     pub enum GetrawtransactionResponse {
         Regular(String),
         Verbose {
-            expiryheight: Option<rust_decimal::Decimal>,
+            expiryheight: Option<crate::client::utils::ZDecimal>,
             blockhash: String,
-            blocktime: rust_decimal::Decimal,
-            confirmations: rust_decimal::Decimal,
+            blocktime: crate::client::utils::ZDecimal,
+            confirmations: crate::client::utils::ZDecimal,
             hex: String,
             in_active_chain: bool,
-            locktime: rust_decimal::Decimal,
-            size: rust_decimal::Decimal,
-            time: rust_decimal::Decimal,
+            locktime: crate::client::utils::ZDecimal,
+            size: crate::client::utils::ZDecimal,
+            time: crate::client::utils::ZDecimal,
             txid: String,
-            version: rust_decimal::Decimal,
+            version: crate::client::utils::ZDecimal,
             vin: Vec<Vin>,
             vjoinsplit: Vec<Vjoinsplit>,
             vout: Vec<Vout>,
@@ -915,7 +915,7 @@ pub mod getrawtransaction {
         pub addresses: Vec<String>,
         pub asm: String,
         pub hex: String,
-        pub req_sigs: rust_decimal::Decimal,
+        pub req_sigs: crate::client::utils::ZDecimal,
         #[serde(rename = "type")]
         pub type_field: String,
     }
@@ -927,9 +927,9 @@ pub mod getrawtransaction {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Vin {
         pub script_sig: ScriptSig,
-        pub sequence: rust_decimal::Decimal,
+        pub sequence: crate::client::utils::ZDecimal,
         pub txid: String,
-        pub vout: rust_decimal::Decimal,
+        pub vout: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Vjoinsplit {
@@ -941,14 +941,14 @@ pub mod getrawtransaction {
         pub onetime_pub_key: String,
         pub proof: String,
         pub random_seed: String,
-        pub vpub_new: rust_decimal::Decimal,
-        pub vpub_old: rust_decimal::Decimal,
+        pub vpub_new: crate::client::utils::ZDecimal,
+        pub vpub_old: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Vout {
-        pub n: rust_decimal::Decimal,
+        pub n: crate::client::utils::ZDecimal,
         pub script_pub_key: ScriptPubKey,
-        pub value: rust_decimal::Decimal,
+        pub value: crate::client::utils::ZDecimal,
     }
 }
 pub mod getreceivedbyaccount {
@@ -956,27 +956,27 @@ pub mod getreceivedbyaccount {
     pub struct GetreceivedbyaccountArguments(
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
-    pub type GetreceivedbyaccountResponse = rust_decimal::Decimal;
+    pub type GetreceivedbyaccountResponse = crate::client::utils::ZDecimal;
 }
 pub mod getreceivedbyaddress {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetreceivedbyaddressArguments(
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
-    pub type GetreceivedbyaddressResponse = rust_decimal::Decimal;
+    pub type GetreceivedbyaddressResponse = crate::client::utils::ZDecimal;
 }
 pub mod getspentinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetspentinfoArguments(String);
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetspentinfoResponse {
-        pub index: rust_decimal::Decimal,
+        pub index: crate::client::utils::ZDecimal,
         pub txid: String,
     }
 }
@@ -990,24 +990,24 @@ pub mod gettransaction {
     pub struct Details {
         pub account: String,
         pub address: String,
-        pub amount: rust_decimal::Decimal,
-        pub amount_zat: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
+        pub amount_zat: crate::client::utils::ZDecimal,
         pub category: String,
-        pub vout: rust_decimal::Decimal,
+        pub vout: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GettransactionResponse {
-        pub amount: rust_decimal::Decimal,
-        pub amount_zat: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
+        pub amount_zat: crate::client::utils::ZDecimal,
         pub blockhash: String,
-        pub blockindex: rust_decimal::Decimal,
-        pub blocktime: rust_decimal::Decimal,
-        pub confirmations: rust_decimal::Decimal,
+        pub blockindex: crate::client::utils::ZDecimal,
+        pub blocktime: crate::client::utils::ZDecimal,
+        pub confirmations: crate::client::utils::ZDecimal,
         pub details: Vec<Details>,
         pub hex: String,
         pub status: String,
-        pub time: rust_decimal::Decimal,
-        pub timereceived: rust_decimal::Decimal,
+        pub time: crate::client::utils::ZDecimal,
+        pub timereceived: crate::client::utils::ZDecimal,
         pub txid: String,
         pub vjoinsplit: Vec<Vjoinsplit>,
     }
@@ -1017,32 +1017,32 @@ pub mod gettransaction {
         pub commitments: Vec<String>,
         pub macs: Vec<String>,
         pub nullifiers: Vec<String>,
-        pub vpub_new: rust_decimal::Decimal,
-        pub vpub_old: rust_decimal::Decimal,
+        pub vpub_new: crate::client::utils::ZDecimal,
+        pub vpub_old: crate::client::utils::ZDecimal,
     }
 }
 pub mod gettxout {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GettxoutArguments(
         String,
-        rust_decimal::Decimal,
+        crate::client::utils::ZDecimal,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GettxoutResponse {
         pub bestblock: String,
         pub coinbase: bool,
-        pub confirmations: rust_decimal::Decimal,
+        pub confirmations: crate::client::utils::ZDecimal,
         pub script_pub_key: ScriptPubKey,
-        pub value: rust_decimal::Decimal,
-        pub version: rust_decimal::Decimal,
+        pub value: crate::client::utils::ZDecimal,
+        pub version: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ScriptPubKey {
         pub addresses: Vec<String>,
         pub asm: String,
         pub hex: String,
-        pub req_sigs: rust_decimal::Decimal,
+        pub req_sigs: crate::client::utils::ZDecimal,
         #[serde(rename = "type")]
         pub type_field: String,
     }
@@ -1059,32 +1059,32 @@ pub mod gettxoutsetinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GettxoutsetinfoResponse {
         pub bestblock: String,
-        pub bytes_serialized: rust_decimal::Decimal,
+        pub bytes_serialized: crate::client::utils::ZDecimal,
         pub hash_serialized: String,
-        pub height: rust_decimal::Decimal,
-        pub total_amount: rust_decimal::Decimal,
-        pub transactions: rust_decimal::Decimal,
-        pub txouts: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
+        pub total_amount: crate::client::utils::ZDecimal,
+        pub transactions: crate::client::utils::ZDecimal,
+        pub txouts: crate::client::utils::ZDecimal,
     }
 }
 pub mod getunconfirmedbalance {
-    pub type GetunconfirmedbalanceResponse = rust_decimal::Decimal;
+    pub type GetunconfirmedbalanceResponse = crate::client::utils::ZDecimal;
 }
 pub mod getwalletinfo {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct GetwalletinfoResponse {
-        pub balance: rust_decimal::Decimal,
-        pub immature_balance: rust_decimal::Decimal,
-        pub keypoololdest: rust_decimal::Decimal,
-        pub keypoolsize: rust_decimal::Decimal,
-        pub paytxfee: rust_decimal::Decimal,
+        pub balance: crate::client::utils::ZDecimal,
+        pub immature_balance: crate::client::utils::ZDecimal,
+        pub keypoololdest: crate::client::utils::ZDecimal,
+        pub keypoolsize: crate::client::utils::ZDecimal,
+        pub paytxfee: crate::client::utils::ZDecimal,
         pub seedfp: String,
-        pub shielded_balance: rust_decimal::Decimal,
-        pub shielded_unconfirmed_balance: rust_decimal::Decimal,
-        pub txcount: rust_decimal::Decimal,
-        pub unconfirmed_balance: rust_decimal::Decimal,
-        pub unlocked_until: rust_decimal::Decimal,
-        pub walletversion: rust_decimal::Decimal,
+        pub shielded_balance: crate::client::utils::ZDecimal,
+        pub shielded_unconfirmed_balance: crate::client::utils::ZDecimal,
+        pub txcount: crate::client::utils::ZDecimal,
+        pub unconfirmed_balance: crate::client::utils::ZDecimal,
+        pub unlocked_until: crate::client::utils::ZDecimal,
+        pub walletversion: crate::client::utils::ZDecimal,
     }
 }
 pub mod help {
@@ -1131,7 +1131,7 @@ pub mod keypoolrefill {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct KeypoolrefillArguments(
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     pub type KeypoolrefillResponse = ();
 }
@@ -1139,12 +1139,12 @@ pub mod listaccounts {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ListaccountsArguments(
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ListaccountsResponse {
-        pub account: rust_decimal::Decimal,
+        pub account: crate::client::utils::ZDecimal,
     }
 }
 pub mod listaddressgroupings {
@@ -1157,7 +1157,7 @@ pub mod listlockunspent {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ListlockunspentElement {
         pub txid: String,
-        pub vout: rust_decimal::Decimal,
+        pub vout: crate::client::utils::ZDecimal,
     }
     pub type ListlockunspentResponse = Vec<ListlockunspentElement>;
 }
@@ -1165,16 +1165,16 @@ pub mod listreceivedbyaccount {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ListreceivedbyaccountArguments(
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ListreceivedbyaccountElement {
         pub account: String,
-        pub amount: rust_decimal::Decimal,
-        pub amount_zat: rust_decimal::Decimal,
-        pub confirmations: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
+        pub amount_zat: crate::client::utils::ZDecimal,
+        pub confirmations: crate::client::utils::ZDecimal,
         pub involves_watchonly: bool,
     }
     pub type ListreceivedbyaccountResponse = Vec<ListreceivedbyaccountElement>;
@@ -1183,18 +1183,18 @@ pub mod listreceivedbyaddress {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ListreceivedbyaddressArguments(
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ListreceivedbyaddressElement {
         pub account: String,
         pub address: String,
-        pub amount: rust_decimal::Decimal,
-        pub amount_zat: rust_decimal::Decimal,
-        pub confirmations: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
+        pub amount_zat: crate::client::utils::ZDecimal,
+        pub confirmations: crate::client::utils::ZDecimal,
         pub involves_watchonly: bool,
     }
     pub type ListreceivedbyaddressResponse = Vec<ListreceivedbyaddressElement>;
@@ -1204,7 +1204,7 @@ pub mod listsinceblock {
     pub struct ListsinceblockArguments(
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
@@ -1218,30 +1218,30 @@ pub mod listtransactions {
     pub struct ListtransactionsArguments(
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ListtransactionsElement {
         pub account: String,
         pub address: String,
-        pub amount: rust_decimal::Decimal,
-        pub amount_zat: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
+        pub amount_zat: crate::client::utils::ZDecimal,
         pub blockhash: String,
-        pub blockindex: rust_decimal::Decimal,
+        pub blockindex: crate::client::utils::ZDecimal,
         pub category: String,
         pub comment: String,
-        pub confirmations: rust_decimal::Decimal,
-        pub fee: rust_decimal::Decimal,
+        pub confirmations: crate::client::utils::ZDecimal,
+        pub fee: crate::client::utils::ZDecimal,
         pub otheraccount: String,
-        pub size: rust_decimal::Decimal,
+        pub size: crate::client::utils::ZDecimal,
         pub status: String,
-        pub time: rust_decimal::Decimal,
-        pub timereceived: rust_decimal::Decimal,
+        pub time: crate::client::utils::ZDecimal,
+        pub timereceived: crate::client::utils::ZDecimal,
         pub txid: String,
-        pub vout: rust_decimal::Decimal,
+        pub vout: crate::client::utils::ZDecimal,
     }
     pub type ListtransactionsResponse = Vec<ListtransactionsElement>;
 }
@@ -1250,23 +1250,23 @@ pub mod listunspent {
     pub struct ListunspentArguments(
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ListunspentElement {
         pub account: String,
         pub address: String,
-        pub amount: rust_decimal::Decimal,
-        pub amount_zat: rust_decimal::Decimal,
-        pub confirmations: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
+        pub amount_zat: crate::client::utils::ZDecimal,
+        pub confirmations: crate::client::utils::ZDecimal,
         pub generated: bool,
         pub redeem_script: String,
         pub script_pub_key: String,
         pub spendable: bool,
         pub txid: String,
-        pub vout: rust_decimal::Decimal,
+        pub vout: crate::client::utils::ZDecimal,
     }
     pub type ListunspentResponse = Vec<ListunspentElement>;
 }
@@ -1280,9 +1280,9 @@ pub mod move_mod {
     pub struct MoveArguments(
         String,
         String,
-        rust_decimal::Decimal,
+        crate::client::utils::ZDecimal,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
     );
     pub type MoveResponse = bool;
@@ -1294,8 +1294,8 @@ pub mod prioritisetransaction {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct PrioritisetransactionArguments(
         String,
-        rust_decimal::Decimal,
-        rust_decimal::Decimal,
+        crate::client::utils::ZDecimal,
+        crate::client::utils::ZDecimal,
     );
     pub type PrioritisetransactionResponse = bool;
 }
@@ -1304,9 +1304,9 @@ pub mod sendfrom {
     pub struct SendfromArguments(
         String,
         String,
-        rust_decimal::Decimal,
+        crate::client::utils::ZDecimal,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
     );
@@ -1318,7 +1318,7 @@ pub mod sendmany {
         String,
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
     );
@@ -1336,7 +1336,7 @@ pub mod sendtoaddress {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct SendtoaddressArguments(
         String,
-        rust_decimal::Decimal,
+        crate::client::utils::ZDecimal,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
@@ -1354,7 +1354,7 @@ pub mod setban {
         String,
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
     pub type SetbanResponse = ();
@@ -1364,7 +1364,7 @@ pub mod setgenerate {
     pub struct SetgenerateArguments(
         bool,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     pub type SetgenerateResponse = ();
 }
@@ -1375,7 +1375,7 @@ pub mod setlogfilter {
 }
 pub mod settxfee {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
-    pub struct SettxfeeArguments(rust_decimal::Decimal);
+    pub struct SettxfeeArguments(crate::client::utils::ZDecimal);
     pub type SettxfeeResponse = bool;
 }
 pub mod signmessage {
@@ -1396,9 +1396,9 @@ pub mod signrawtransaction {
     pub struct Errors {
         pub error: String,
         pub script_sig: String,
-        pub sequence: rust_decimal::Decimal,
+        pub sequence: crate::client::utils::ZDecimal,
         pub txid: String,
-        pub vout: rust_decimal::Decimal,
+        pub vout: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct SignrawtransactionResponse {
@@ -1449,9 +1449,9 @@ pub mod verifychain {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct VerifychainArguments(
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     pub type VerifychainResponse = bool;
 }
@@ -1485,22 +1485,22 @@ pub mod z_getbalance {
     pub struct ZGetbalanceArguments(
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
-    pub type ZGetbalanceResponse = rust_decimal::Decimal;
+    pub type ZGetbalanceResponse = crate::client::utils::ZDecimal;
 }
 pub mod z_getmigrationstatus {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZGetmigrationstatusResponse {
-        pub time_started: Option<rust_decimal::Decimal>,
+        pub time_started: Option<crate::client::utils::ZDecimal>,
         pub destination_address: String,
         pub enabled: bool,
-        pub finalized_migrated_amount: rust_decimal::Decimal,
-        pub finalized_migration_transactions: rust_decimal::Decimal,
+        pub finalized_migrated_amount: crate::client::utils::ZDecimal,
+        pub finalized_migration_transactions: crate::client::utils::ZDecimal,
         pub migration_txids: Vec<String>,
-        pub unfinalized_migrated_amount: rust_decimal::Decimal,
-        pub unmigrated_amount: rust_decimal::Decimal,
+        pub unfinalized_migrated_amount: crate::client::utils::ZDecimal,
+        pub unmigrated_amount: crate::client::utils::ZDecimal,
     }
 }
 pub mod z_getnewaddress {
@@ -1514,12 +1514,12 @@ pub mod z_getnotescount {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZGetnotescountArguments(
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZGetnotescountResponse {
-        pub sapling: rust_decimal::Decimal,
-        pub sprout: rust_decimal::Decimal,
+        pub sapling: crate::client::utils::ZDecimal,
+        pub sprout: crate::client::utils::ZDecimal,
     }
 }
 pub mod z_getoperationresult {
@@ -1531,15 +1531,15 @@ pub mod z_getoperationresult {
     #[serde(untagged)]
     pub enum ZGetoperationresultElement {
         Executing {
-            creation_time: rust_decimal::Decimal,
+            creation_time: crate::client::utils::ZDecimal,
             id: String,
             method: String,
             params: Params,
             status: String,
         },
         Success {
-            creation_time: rust_decimal::Decimal,
-            execution_secs: rust_decimal::Decimal,
+            creation_time: crate::client::utils::ZDecimal,
+            execution_secs: crate::client::utils::ZDecimal,
             id: String,
             method: String,
             params: Params,
@@ -1547,7 +1547,7 @@ pub mod z_getoperationresult {
             status: String,
         },
         Failed {
-            creation_time: rust_decimal::Decimal,
+            creation_time: crate::client::utils::ZDecimal,
             error: Error,
             id: String,
             method: String,
@@ -1558,19 +1558,19 @@ pub mod z_getoperationresult {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Amounts {
         pub address: String,
-        pub amount: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Error {
-        pub code: rust_decimal::Decimal,
+        pub code: crate::client::utils::ZDecimal,
         pub message: String,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Params {
         pub amounts: Vec<Amounts>,
-        pub fee: rust_decimal::Decimal,
+        pub fee: crate::client::utils::ZDecimal,
         pub fromaddress: String,
-        pub minconf: rust_decimal::Decimal,
+        pub minconf: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Result {
@@ -1587,15 +1587,15 @@ pub mod z_getoperationstatus {
     #[serde(untagged)]
     pub enum ZGetoperationstatusElement {
         Executing {
-            creation_time: rust_decimal::Decimal,
+            creation_time: crate::client::utils::ZDecimal,
             id: String,
             method: String,
             params: Params,
             status: String,
         },
         Success {
-            creation_time: rust_decimal::Decimal,
-            execution_secs: rust_decimal::Decimal,
+            creation_time: crate::client::utils::ZDecimal,
+            execution_secs: crate::client::utils::ZDecimal,
             id: String,
             method: String,
             params: Params,
@@ -1603,7 +1603,7 @@ pub mod z_getoperationstatus {
             status: String,
         },
         Failed {
-            creation_time: rust_decimal::Decimal,
+            creation_time: crate::client::utils::ZDecimal,
             error: Error,
             id: String,
             method: String,
@@ -1614,19 +1614,19 @@ pub mod z_getoperationstatus {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Amounts {
         pub address: String,
-        pub amount: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Error {
-        pub code: rust_decimal::Decimal,
+        pub code: crate::client::utils::ZDecimal,
         pub message: String,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Params {
         pub amounts: Vec<Amounts>,
-        pub fee: rust_decimal::Decimal,
+        pub fee: crate::client::utils::ZDecimal,
         pub fromaddress: String,
-        pub minconf: rust_decimal::Decimal,
+        pub minconf: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Result {
@@ -1648,14 +1648,14 @@ pub mod z_gettotalbalance {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZGettotalbalanceArguments(
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZGettotalbalanceResponse {
-        pub private: rust_decimal::Decimal,
-        pub total: rust_decimal::Decimal,
-        pub transparent: rust_decimal::Decimal,
+        pub private: crate::client::utils::ZDecimal,
+        pub total: crate::client::utils::ZDecimal,
+        pub transparent: crate::client::utils::ZDecimal,
     }
 }
 pub mod z_gettreestate {
@@ -1679,7 +1679,7 @@ pub mod z_gettreestate {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZGettreestateResponse {
         pub hash: String,
-        pub height: rust_decimal::Decimal,
+        pub height: crate::client::utils::ZDecimal,
         pub sapling: Sapling,
         pub sprout: Sprout,
     }
@@ -1690,7 +1690,7 @@ pub mod z_importkey {
         String,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZImportkeyResponse {
@@ -1705,7 +1705,7 @@ pub mod z_importviewingkey {
         String,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZImportviewingkeyResponse {
@@ -1738,21 +1738,21 @@ pub mod z_listreceivedbyaddress {
     pub struct ZListreceivedbyaddressArguments(
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZListreceivedbyaddressResponse {
-        pub amount: rust_decimal::Decimal,
-        pub amount_zat: rust_decimal::Decimal,
-        pub blockheight: rust_decimal::Decimal,
-        pub blockindex: rust_decimal::Decimal,
-        pub blocktime: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
+        pub amount_zat: crate::client::utils::ZDecimal,
+        pub blockheight: crate::client::utils::ZDecimal,
+        pub blockindex: crate::client::utils::ZDecimal,
+        pub blocktime: crate::client::utils::ZDecimal,
         pub change: bool,
-        pub confirmations: rust_decimal::Decimal,
-        pub jsindex: rust_decimal::Decimal,
-        pub jsoutindex: rust_decimal::Decimal,
+        pub confirmations: crate::client::utils::ZDecimal,
+        pub jsindex: crate::client::utils::ZDecimal,
+        pub jsoutindex: crate::client::utils::ZDecimal,
         pub memo: String,
-        pub outindex: rust_decimal::Decimal,
+        pub outindex: crate::client::utils::ZDecimal,
         pub txid: String,
     }
 }
@@ -1761,21 +1761,21 @@ pub mod z_listunspent {
     pub struct ZListunspentArguments(
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<bool>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZListunspentElement {
         pub address: String,
-        pub amount: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
         pub change: bool,
-        pub confirmations: rust_decimal::Decimal,
-        pub jsindex: rust_decimal::Decimal,
-        pub jsoutindex: rust_decimal::Decimal,
+        pub confirmations: crate::client::utils::ZDecimal,
+        pub jsindex: crate::client::utils::ZDecimal,
+        pub jsoutindex: crate::client::utils::ZDecimal,
         pub memo: String,
-        pub outindex: rust_decimal::Decimal,
+        pub outindex: crate::client::utils::ZDecimal,
         pub spendable: bool,
         pub txid: String,
     }
@@ -1787,24 +1787,24 @@ pub mod z_mergetoaddress {
         Vec<String>,
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")] Option<String>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZMergetoaddressResponse {
-        pub merging_notes: rust_decimal::Decimal,
-        pub merging_shielded_value: rust_decimal::Decimal,
-        pub merging_transparent_value: rust_decimal::Decimal,
-        pub merging_u_t_x_os: rust_decimal::Decimal,
+        pub merging_notes: crate::client::utils::ZDecimal,
+        pub merging_shielded_value: crate::client::utils::ZDecimal,
+        pub merging_transparent_value: crate::client::utils::ZDecimal,
+        pub merging_u_t_x_os: crate::client::utils::ZDecimal,
         pub opid: String,
-        pub remaining_notes: rust_decimal::Decimal,
-        pub remaining_shielded_value: rust_decimal::Decimal,
-        pub remaining_transparent_value: rust_decimal::Decimal,
-        pub remaining_u_t_x_os: rust_decimal::Decimal,
+        pub remaining_notes: crate::client::utils::ZDecimal,
+        pub remaining_shielded_value: crate::client::utils::ZDecimal,
+        pub remaining_transparent_value: crate::client::utils::ZDecimal,
+        pub remaining_u_t_x_os: crate::client::utils::ZDecimal,
     }
 }
 pub mod z_sendmany {
@@ -1812,16 +1812,16 @@ pub mod z_sendmany {
     pub struct Amounts {
         pub memo: Option<String>,
         pub address: String,
-        pub amount: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZSendmanyArguments(
         String,
         Vec<Amounts>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     pub type ZSendmanyResponse = String;
 }
@@ -1836,17 +1836,17 @@ pub mod z_shieldcoinbase {
         String,
         String,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        Option<rust_decimal::Decimal>,
+        Option<crate::client::utils::ZDecimal>,
     );
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZShieldcoinbaseResponse {
         pub opid: String,
-        pub remaining_u_t_x_os: rust_decimal::Decimal,
-        pub remaining_value: rust_decimal::Decimal,
-        pub shielding_u_t_x_os: rust_decimal::Decimal,
-        pub shielding_value: rust_decimal::Decimal,
+        pub remaining_u_t_x_os: crate::client::utils::ZDecimal,
+        pub remaining_value: crate::client::utils::ZDecimal,
+        pub shielding_u_t_x_os: crate::client::utils::ZDecimal,
+        pub shielding_value: crate::client::utils::ZDecimal,
     }
 }
 pub mod z_validateaddress {
@@ -1876,31 +1876,31 @@ pub mod z_viewtransaction {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Outputs {
         pub address: String,
-        pub js: rust_decimal::Decimal,
-        pub js_output: rust_decimal::Decimal,
+        pub js: crate::client::utils::ZDecimal,
+        pub js_output: crate::client::utils::ZDecimal,
         pub memo: String,
         pub memo_str: String,
         pub outgoing: bool,
-        pub output: rust_decimal::Decimal,
+        pub output: crate::client::utils::ZDecimal,
         #[serde(rename = "type")]
         pub type_field: String,
-        pub value: rust_decimal::Decimal,
-        pub value_zat: rust_decimal::Decimal,
+        pub value: crate::client::utils::ZDecimal,
+        pub value_zat: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct Spends {
         pub address: String,
-        pub js: rust_decimal::Decimal,
-        pub js_output_prev: rust_decimal::Decimal,
-        pub js_prev: rust_decimal::Decimal,
-        pub js_spend: rust_decimal::Decimal,
-        pub output_prev: rust_decimal::Decimal,
-        pub spend: rust_decimal::Decimal,
+        pub js: crate::client::utils::ZDecimal,
+        pub js_output_prev: crate::client::utils::ZDecimal,
+        pub js_prev: crate::client::utils::ZDecimal,
+        pub js_spend: crate::client::utils::ZDecimal,
+        pub output_prev: crate::client::utils::ZDecimal,
+        pub spend: crate::client::utils::ZDecimal,
         pub txid_prev: String,
         #[serde(rename = "type")]
         pub type_field: String,
-        pub value: rust_decimal::Decimal,
-        pub value_zat: rust_decimal::Decimal,
+        pub value: crate::client::utils::ZDecimal,
+        pub value_zat: crate::client::utils::ZDecimal,
     }
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZViewtransactionResponse {
@@ -1912,7 +1912,7 @@ pub mod z_viewtransaction {
 pub mod zcbenchmark {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZcbenchmarkElement {
-        pub runningtime: rust_decimal::Decimal,
+        pub runningtime: crate::client::utils::ZDecimal,
     }
     pub type ZcbenchmarkResponse = Vec<ZcbenchmarkElement>;
 }
@@ -1935,7 +1935,7 @@ pub mod zcrawkeygen {
 pub mod zcrawreceive {
     #[derive(Debug, serde :: Deserialize, serde :: Serialize)]
     pub struct ZcrawreceiveResponse {
-        pub amount: rust_decimal::Decimal,
+        pub amount: crate::client::utils::ZDecimal,
         pub exists: bool,
         pub note: String,
     }
