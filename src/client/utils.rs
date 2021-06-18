@@ -75,3 +75,35 @@ impl ReqwClientWrapper {
         )
     }
 }
+
+///Newtype wrapper around rust_decimal::Decimal to allow for custom
+///Serialize impl
+#[derive(Debug)]
+pub struct ZDecimal(rust_decimal::Decimal);
+
+//Non-standard for new-type wrappers, but it seems prudent in this case
+impl core::ops::Deref for ZDecimal {
+    type Target = rust_decimal::Decimal;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl serde::Serialize for ZDecimal {
+    fn serialize<S: serde::Serializer>(
+        &self,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error> {
+        let decimal = self.0.to_string();
+        match decimal.parse::<i128>() {
+            Ok(int) => serializer.serialize_i128(int),
+            Err(i_err) => match decimal.parse::<f64>() {
+                Ok(float) => serializer.serialize_f64(float),
+                Err(f_err) => {
+                    eprintln!("Not int or float, errors: {} {}", i_err, f_err);
+                    serializer.serialize_none()
+                }
+            },
+        }
+    }
+}
